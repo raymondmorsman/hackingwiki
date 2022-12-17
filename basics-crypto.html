@@ -1,0 +1,510 @@
+<!--
+title: Crypto skills
+description: 
+published: true
+date: 2022-10-25T09:50:00.942Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-25T09:49:57.835Z
+-->
+
+<h1>Introduction</h1>
+<p>Before we start, we need to get some jargon out of the way.<br>Read these, and take in as much as you can. We'll expand on some of them later in the room.</p>
+<p>&nbsp;</p>
+<p><strong>Ciphertext</strong>&nbsp;- The result of encrypting a plaintext, encrypted data</p>
+<p><strong>Cipher</strong>&nbsp;- A method of encrypting or decrypting data. Modern ciphers are cryptographic, but there are many non cryptographic ciphers like Caesar.</p>
+<ul>
+  <li><strong>Plaintext</strong>&nbsp;- Data before encryption, often text but not always. Could be a photograph or other file</li>
+  <li><strong>Encryption</strong>&nbsp;- Transforming data into ciphertext, using a cipher.</li>
+  <li><strong>Encoding</strong>&nbsp;- NOT a form of encryption, just a form of data representation like base64.&nbsp;Immediately reversible.</li>
+  <li><strong>Key</strong>&nbsp;- Some information that is needed to correctly decrypt the ciphertext and obtain the plaintext.</li>
+  <li><strong>Passphrase&nbsp;</strong>- Separate to the key, a passphrase is similar to a password and used to protect a key.</li>
+  <li><strong>Asymmetric encryption</strong>&nbsp;- Uses different keys to encrypt and decrypt.</li>
+  <li><strong>Symmetric encryption</strong>&nbsp;- Uses the same key to encrypt and decrypt</li>
+  <li><strong>Brute force</strong>&nbsp;- Attacking cryptography by trying every different password or every different key</li>
+  <li><strong>Cryptanalysis</strong>&nbsp;- Attacking cryptography by finding a weakness in the underlying maths</li>
+  <li><strong>Alice and Bob</strong>&nbsp;- Used to represent 2 people who generally want to communicate. They’re named Alice and Bob because this gives them the initials A and B.&nbsp;<a href="https://en.wikipedia.org/wiki/Alice_and_Bob">https://en.wikipedia.org/wiki/Alice_and_Bob</a>&nbsp;for more information, as these extend through the alphabet to represent many different people involved in communication.</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>What's a hash function?</strong></p>
+<p>Hash functions are quite different from encryption. There is no key, and it’s meant to be impossible (or very very difficult) to go from the output back to the input.</p>
+<p>A hash function takes some input data of any size, and creates a summary or "digest" of that data. The output is a fixed size. It’s hard to predict what the output will be for any input and vice versa. Good hashing algorithms will be (relatively) fast to compute, and slow to reverse (Go from output and determine input). Any small change in the input data (even a single bit) should cause a large change in the output.</p>
+<p>The output of a hash function is normally raw bytes, which are then encoded. Common encodings for this are base 64 or hexadecimal. Decoding these won’t give you anything useful.</p>
+<p><strong>Why should I care?</strong></p>
+<p>Hashing is used very often in cyber security. When you logged into TryHackMe, that used hashing to verify your password. When you logged into your computer, that also used hashing to verify your password. You interact indirectly with hashing more than you would think, mostly in the context of passwords.</p>
+<p><strong>What's a hash collision?</strong></p>
+<p>A hash collision is when 2 different inputs give the same output. Hash functions are designed to avoid this as best as they can, especially being able to engineer (create intentionally) a collision. Due to the pigeonhole effect, collisions are not avoidable. The pigeonhole effect is basically, there are a set number of different output values for the hash function, but you can give it any size input. As there are more inputs than outputs, some of the inputs must give the same output. If you have 128 pigeons and 96 pigeonholes, some of the pigeons are going to have to share.</p>
+<p>MD5 and SHA1 have been attacked, and made technically insecure due to engineering hash collisions. However, no attack has yet given a collision in both algorithms at the same time so if you use the MD5 hash AND the SHA1 hash to compare, you will see they’re different. The MD5 collision example is available from&nbsp;<a href="https://www.mscs.dal.ca/~selinger/md5collision/">https://www.mscs.dal.ca/~selinger/md5collision/</a>&nbsp;and details of the SHA1 Collision are available from&nbsp;<a href="https://shattered.io/">https://shattered.io/</a>. Due to these, you shouldn't trust either algorithm for hashing passwords or data.</p>
+<p>&nbsp;</p>
+<p><strong>What can we do with hashing?</strong></p>
+<p>Hashing is used for 2 main purposes in Cyber Security. To verify integrity of data (More on that later), or for verifying passwords.</p>
+<p><strong>Hashing for password verification</strong></p>
+<p>Most webapps need to verify a user's password at some point. Storing these passwords in plain text would be bad. You've probably seen news stories about companies that have had their database leaked.&nbsp;Knowing some people, they use the same password for everything including their banking, so leaking these would be really really bad.</p>
+<p>Quite a few data breaches have leaked plaintext passwords. You’re probably familiar with “rockyou.txt” on Kali as a password wordlist. This came from a company that made widgets for MySpace. They stored their passwords in plaintext and the company had a data breach. The txt file contains over 14 million passwords (although some are *unlikely* to have been user passwords. Sort by length if you want to see what I mean).</p>
+<p>&nbsp;</p>
+<p>Adobe had a notable data breach that was slightly different. The passwords were encrypted, rather than hashed and the encryption that was used was not secure. This meant that the plaintext could be relatively quickly retrieved. If you want to read more about this breach, this post from Sophos is excellent:&nbsp;<a href="https://nakedsecurity.sophos.com/2013/11/04/anatomy-of-a-password-disaster-adobes-giant-sized-cryptographic-blunder/">https://nakedsecurity.sophos.com/2013/11/04/anatomy-of-a-password-disaster-adobes-giant-sized-cryptographic-blunder/</a></p>
+<p>Linkedin also had a data breach. Linkedin used SHA1 for password verification, which is quite quick to compute using GPUs.&nbsp;</p>
+<p>You can't encrypt the passwords, as the key has to be stored somewhere. If someone gets the key, they can just decrypt the passwords.</p>
+<p>This is where hashing comes in. What if, instead of storing the password, you just stored the hash of the password? This means you never have to store the user's password, and if your database was leaked then an attacker would have to crack each password to find out what the password was. That sounds fairly useful.</p>
+<p>There's just one problem with this. What if two users have the same password? As a hash function will always turn the same input into the same output, you will store the same password hash for each user. That means if someone cracks that hash, they get into more than one account. It also means that someone can create a "Rainbow table" to break the hashes.</p>
+<p>A rainbow table is a lookup table of hashes to plaintexts, so you can quickly find out what password a user had just from the hash. A rainbow table trades time taken to crack a hash for hard disk space, but they do take time to create.<br>Here's a quick example so you can try and understand what they're like.</p>
+<p>&nbsp;</p>
+<figure class="table" style="width:80.0%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1.5pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;"><strong>Hash</strong></th>
+        <th style="border-bottom:1.5pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;"><strong>Password</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">02c75fb22c75b23dc963c7eb91a062cc</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">zxcvbnm</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">b0baee9d279d34fa1dfd71aadb908c3f</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">11111</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">c44a471bd78cc6c2fea32b9fe028d30a</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">asdfghjkl</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">d0199f51d2728db6011945145a1b607a</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">basketball</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">dcddb75469b4b4875094e14561e573d8</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">000000</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">e10adc3949ba59abbe56e057f20f883e</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">123456</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">e19d5cd5af0378da05f63f891c7467af</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">abcd1234</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">e99a18c428cb38d5f260853678922e03</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">abc123</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">fcea920f7412b5da7be0cf42b8c93759</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;">1234567</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>Websites like Crackstation internally use HUGE rainbow tables to provide fast password cracking for hashes without salts. Doing a lookup in a sorted list of hashes is really quite fast, much much faster than trying to crack the hash.</p>
+<p><strong>Protecting against rainbow tables</strong></p>
+<p>To protect against rainbow tables, we add a salt to the passwords. The salt is randomly generated and stored in the database, unique to each user. In theory, you could use the same salt for all users but that means that duplicate passwords would still have the same hash, and a rainbow table could still be created specific passwords with that salt.</p>
+<p>The salt is added to either the start or the end of the password before it’s hashed, and this means that every user will have a different password hash even if they have the same password. Hash functions like bcrypt and sha512crypt handle this automatically. Salts don’t need to be kept private.</p>
+<p>&nbsp;</p>
+<p>Automated hash recognition tools such as&nbsp;<a href="https://pypi.org/project/hashID/">https://pypi.org/project/hashID/</a>&nbsp;exist, but they are unreliable for many formats. For hashes that have a prefix, the tools are reliable. Use a healthy combination of context and tools.&nbsp;&nbsp;If you found the hash in a web application database, it's more likely to be md5 than NTLM. Automated hash recognition tools often get these hash types mixed up, which highlights the importance of learning yourself.</p>
+<p>Unix style password hashes are very easy to recognise, as they have a prefix. The prefix tells you the hashing algorithm used to generate the hash. The standard format is$format$rounds$salt$hash.</p>
+<p>Windows passwords are hashed using NTLM, which is a variant of md4. They're visually identical to md4 and md5 hashes, so it's very important to use context to work out the hash type.</p>
+<p>On&nbsp;Linux, password hashes are stored in /etc/shadow. This file is normally only readable by root. They used to be stored in /etc/passwd, and were readable by everyone.</p>
+<p>On Windows, password hashes are stored in the SAM. Windows tries to prevent normal users from dumping them, but tools like mimikatz exist for this. Importantly, the hashes found there are split into NT hashes and LM hashes.</p>
+<p>Here's a quick table of the most Unix style password prefixes that you'll see.</p>
+<p>&nbsp;</p>
+<figure class="table" style="width:98.54%;">
+  <table style="background-color:white;border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;"><strong>Prefix</strong></td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt none #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt solid #DEE2E6;padding:.75pt;width:73.72%;"><strong>Algorithm</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">$1$</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;width:73.72%;">md5crypt, used in Cisco stuff and older Linux/Unix systems</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">$2$, $2a$, $2b$, $2x$, $2y$</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;width:73.72%;">Bcrypt (Popular for web applications)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:1.0pt solid #DEE2E6;border-right:1.0pt solid #DEE2E6;border-top:1.0pt none #DEE2E6;padding:.75pt;">$6$</td>
+        <td style="border-bottom:1.0pt solid #DEE2E6;border-left:none;border-right:1.0pt solid #DEE2E6;border-top:none;padding:.75pt;width:73.72%;">sha512crypt (Default for most Linux/Unix systems)</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>A great place to find more hash formats and password prefixes is the hashcat example page, available here:&nbsp;<a href="https://hashcat.net/wiki/doku.php?id=example_hashes">https://hashcat.net/wiki/doku.php?id=example_hashes</a>.<br>For other hash types, you'll normally need to go by length, encoding or some research into the application that generated them. Never underestimate the power of research.</p>
+<p>We've already mentioned rainbow tables as a method to crack hashes that don't have a salt, but what if there's a salt involved?</p>
+<p>You can't "decrypt" password hashes. They're not encrypted. You have to crack the hashes by hashing a large number of different inputs (often rockyou, these are the possible passwords), potentially adding the salt if there is one and comparing it to the target hash. Once it matches, you know what the password was. Tools like Hashcat and John the Ripper are normally used for this.</p>
+<p><strong>Why crack on GPUs?</strong></p>
+<p>Graphics cards have thousands of cores. Although they can’t do the same sort of work that a CPU can, they are very good at some of the maths involved in hash functions. This means you can use a graphics card to crack most hash types much more quickly. Some hashing algorithms, notably bcrypt, are designed so that hashing on a GPU is about the same speed as hashing on a CPU which helps them resist cracking.</p>
+<p><strong>Cracking on VMs?</strong></p>
+<p>It’s worth mentioning that virtual machines normally don’t have access to the host's graphics card(s) (You can set this up, but it’s a lot of work). If you want to run hashcat, it’s best to run it on your host (Windows builds are available on the website, run it from powershell). You can get Hashcat working with OpenCL in a&nbsp;VM, but the speeds will likely be much worse than cracking on your host. John the ripper uses CPU by default and as such, works in a VM out of the box although you may get better speeds running it on the host OS as it will have more threads and no overhead from running in a VM.</p>
+<p>&nbsp;</p>
+<p><strong><u>NEVER (I repeat, NEVER!) use --force for hashcat</u></strong>.&nbsp;</p>
+<p>&nbsp;</p>
+<p>It can lead to false positives (wrong passwords being given to you) and false negatives (skips over the correct hash).</p>
+<p>UPDATE: As of Kali 2020.2, hashcat 6.0 will run on the CPU without --force. I still recommend cracking on your host&nbsp;OS&nbsp;if you have a GPU, as it will be much much faster.</p>
+<p><strong>Time to get cracking!</strong></p>
+<p>I'll provide the hashes. Crack them. You can choose how. You'll need to use online tools, Hashcat, and/or John the Ripper. Remember the restrictions on online rainbow tables. Don't be afraid to use the hints. Rockyou or online tools should be enough to find all of these.</p>
+<p>&nbsp;</p>
+<p><strong>Integrity Checking</strong></p>
+<p>Hashing can be used to check that files haven't been changed. If you put the same data in, you always get the same data out. If even a single bit changes, the hash will change a lot. This means you can use it to check that files haven't been modified or to make sure that they have downloaded correctly. You can also use hashing to find duplicate files, if two pictures have the same hash then they are the same picture.</p>
+<p><strong>HMACs</strong></p>
+<p>HMAC is a method of using a cryptographic hashing function to verify the authenticity and integrity of data. The TryHackMe VPN uses HMAC-SHA512 for message authentication, which you can see in the terminal output. A HMAC can be used to ensure that the person who created the HMAC is who they say they are (authenticity), and that the message hasn’t been modified or corrupted (integrity). They use a secret key, and a hashing algorithm in order to produce a hash.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>John the Ripper</h1>
+<p>John the Ripper is one of the most well known, well-loved and versatile hash cracking tools out there. It combines a fast cracking speed, with an extraordinary range of compatible hash types. This room will assume no previous knowledge, so we must first cover some basic terms and concepts before we move into practical hash cracking.</p>
+<p>&nbsp;</p>
+<p><strong>What are Hashes?</strong></p>
+<p>A hash is a way of taking a piece of data of any length and&nbsp; representing it in another form that is a fixed length. This masks the original value of the data. This is done by running the original data through a hashing algorithm. There are many popular hashing algorithms, such as MD4,MD5, SHA1 and NTLM. Lets try and show this with an example:</p>
+<p>If we take "polo", a string of 4 characters- and run it through an MD5 hashing algorithm, we end up with an output of: b53759f3ce692de7aff1b5779d3964da a standard 32 character MD5 hash.</p>
+<p>Likewise, if we take "polomints", a string of 9 characters- and run it through the same MD5 hashing algorithm, we end up with an output of: 584b6e4f4586e136bc280f27f9c64f3b another standard 32 character MD5 hash.</p>
+<p>&nbsp;</p>
+<p><strong>What makes Hashes secure?</strong></p>
+<p>Hashing algorithms are designed so that they only operate one way. This means that a calculated hash cannot be reversed using just the output given. This ties back to a fundamental mathematical problem known as the&nbsp;<a href="https://en.wikipedia.org/wiki/P_versus_NP_problem">P vs NP relationship</a>&nbsp;.</p>
+<p>While this is an extremely interesting mathematical concept that proves fundamental to computing and cryptography I am in no way qualified to try and explain it in detail here; but abstractly it means that the algorithm to hash the value will be "NP" and can therefore be calculated reasonably. However an un-hashing algorithm would be "P" and intractable to solve- meaning that it cannot be computed in a reasonable time using standard computers.</p>
+<p>&nbsp;</p>
+<p><strong>Where John Comes in...</strong></p>
+<p>Even though the algorithm itself is not feasibly reversible. That doesn't mean that cracking the hashes is impossible. If you have the hashed version of a password, for example- and you know the hashing algorithm- you can use that hashing algorithm to hash a large number of words, called a dictionary. You can then compare these hashes to the one you're trying to crack, to see if any of them match. If they do, you now know what word corresponds to that hash- you've cracked it!</p>
+<p>This process is called a&nbsp;<strong>dictionary attack&nbsp;</strong>and John the Ripper, or John as it's commonly shortened to, is a tool to allow you to conduct fast brute force attacks on a large array of different hash types.</p>
+<p>&nbsp;</p>
+<p><strong>Learning More</strong></p>
+<p>For some more in-depth material on specific hashing and Encryption methods I'd recommend checking out&nbsp;<a href="https://tryhackme.com/p/NinjaJc01">NinjaJc01</a>'s amazing room covering these topics:&nbsp;<a href="https://tryhackme.com/room/encryptioncrypto101">encryptioncrypto101</a></p>
+<p>&nbsp;</p>
+<h2>Setting Up John The Ripper</h2>
+<p>John the Ripper is supported on many different Operating Systems, not just&nbsp;Linux&nbsp;Distributions. As a note before we go through this, there are multiple versions of John, the standard "core" distribution, as well as multiple community editions- which extend the feature set of the original John distribution. The most popular of these distributions is the <strong>"Jumbo John"</strong>- which we will be using specific features of later.</p>
+<p>&nbsp;</p>
+<h2>Wordlists</h2>
+<p><strong>Wordlists</strong></p>
+<p>As we explained in the first task, in order to dictionary attack hashes, you need a list of words that you can hash and compare, unsurprisingly this is called a wordlist. There are many different wordlists out there, a good collection to use can be found in the&nbsp;<a href="https://github.com/danielmiessler/SecLists">SecLists</a>&nbsp;repository. There are a few places you can look for wordlists on your attacking system of choice, we will quickly run through where you can find them.</p>
+<p>&nbsp;</p>
+<p><strong>Parrot, Kali and AttackBox</strong></p>
+<p>On Parrot, Kali and TryHackMe's AttackBox- you can find a series of amazing wordlists in the&nbsp;<code>/usr/share/wordlists</code>&nbsp;directory.</p>
+<p>&nbsp;</p>
+<p><strong>RockYou</strong></p>
+<p>For all of the tasks in this room, we will be using the infamous rockyou.txt wordlist- which is a very large common password wordlist, obtained from a data breach on a website called rockyou.com in 2009. If you are not using any of the above distributions, you can get the rockyou.txt wordlist from the&nbsp;<a href="https://github.com/danielmiessler/SecLists">SecLists</a>&nbsp;repository under the&nbsp;<code>/Passwords/Leaked-Databases</code>&nbsp;subsection. You may need to extract it from .tar.gz format, using&nbsp;</p>
+<p>&nbsp;</p>
+<h2>Basic password cracking</h2>
+<p><strong>Cracking Basic Hashes</strong></p>
+<p>There are multiple ways to use John the Ripper to crack simple hashes, we're going to walk through a few, before moving on to cracking some ourselves.</p>
+<p>&nbsp;</p>
+<p><strong>John Basic Syntax</strong></p>
+<p>The basic syntax of John the Ripper commands is as follows. We will cover the specific options and modifiers used as we use them.</p>
+<p><code>john [options] [path to file]</code></p>
+<p><code>john</code>&nbsp;- Invokes the John the Ripper program</p>
+<p><code>[path to file]</code>&nbsp;- The file containing the hash you're trying to crack, if it's in the same directory you won't need to name a path, just the file.</p>
+<p>&nbsp;</p>
+<p><strong>Automatic Cracking</strong></p>
+<p>John has built-in features to detect what type of hash it's being given, and to select appropriate rules and formats to crack it for you, this isn't always the best idea as it can be unreliable- but if you can't identify what hash type you're working with and just want to try cracking it, it can be a good option! To do this we use the following syntax:</p>
+<p><code>john --wordlist=[path to wordlist] [path to file]</code></p>
+<p><code>--wordlist=</code>&nbsp;- Specifies using wordlist mode, reading from the file that you supply in the following path...</p>
+<p><code>[path to wordlist]</code>&nbsp;- The path to the wordlist you're using, as described in the previous task.</p>
+<p>Example Usage:</p>
+<p>john --wordlist=/usr/share/wordlists/rockyou.txt hash_to_crack.txt<br><br>&nbsp;</p>
+<p><strong>Identifying Hashes</strong></p>
+<p>Sometimes John won't play nicely with automatically recognising and loading hashes, that's okay! We're able to use other tools to identify the hash, and then set john to use a specific format. There are multiple ways to do this, such as using an online hash identifier like&nbsp;<a href="https://hashes.com/en/tools/hash_identifier">this</a>&nbsp;one. I like to use a tool called&nbsp;<a href="https://gitlab.com/kalilinux/packages/hash-identifier/-/tree/kali/master">hash-identifier</a>, a Python tool that is super easy to use and will tell you what different types of hashes the one you enter is likely to be, giving you more options if the first one fails.</p>
+<p>To use hash-identifier, you can just pull the python file from gitlab using:<code>wget https://gitlab.com/kalilinux/packages/hash-identifier/-/raw/kali/master/hash-id.py</code>.</p>
+<p>Then simply launch it with&nbsp;<code>python3 hash-id.py</code>&nbsp;and then enter the hash you're trying to identify- and it will give you possible formats!</p>
+<p>&nbsp;</p>
+<p><strong>Format-Specific Cracking</strong></p>
+<p>Once you have identified the hash that you're dealing with, you can tell john to use it while cracking the provided hash using the following syntax:</p>
+<p><code>john --format=[format] --wordlist=[path to wordlist] [path to file]</code></p>
+<p><code>--format=</code>&nbsp;- This is the flag to tell John that you're giving it a hash of a specific format, and to use the following format to crack it</p>
+<p><code>[format]</code>&nbsp;- The format that the hash is in</p>
+<p>Example Usage:</p>
+<p>john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt&nbsp;hash_to_crack.txt</p>
+<p>A Note on Formats:</p>
+<p>When you are telling john to use formats, if you're dealing with a standard hash type, e.g. md5 as in the example above, you have to prefix it with<code>raw-</code>&nbsp;to tell john you're just dealing with a standard hash type, though this doesn't always apply. To check if you need to add the prefix or not, you can list all of John's formats using&nbsp;<code>john --list=formats</code>&nbsp;and either check manually, or grep for your hash type using something like&nbsp;john --list=formats | grep -iF "md5"</p>
+<p>&nbsp;</p>
+<h2>Cracking Windows hashes</h2>
+<p>Now that we understand the basic syntax and usage of John the Ripper- lets move on to cracking something a little bit more difficult, something that you may even want to attempt if you're on a real Penetration Test or Red Team engagement. Authentication hashes are the hashed versions of passwords that are stored by operating systems, it is sometimes possible to crack them using the brute-force methods that we're using. To get your hands on these hashes, you must often already be a privileged user- so we will explain some of the hashes that we plan on cracking as we attempt them.</p>
+<p>&nbsp;</p>
+<p><strong>NTHash / NTLM</strong></p>
+<p>NThash is the hash format that modern Windows Operating System machines will store user and service passwords in. It's also commonly referred to as "NTLM" which references the previous version of Windows format for hashing passwords known as "LM", thus "NT/LM".</p>
+<p>A little bit of history, the NT designation for Windows products originally meant "New Technology", and was used- starting with&nbsp;<a href="https://en.wikipedia.org/wiki/Windows_NT">Windows NT</a>, to denote products that were not built up from the MS-DOS Operating System. Eventually, the "NT" line became the standard Operating System type to be released by Microsoft and the name was dropped, but it still lives on in the names of some Microsoft technologies.&nbsp;</p>
+<p>You can acquire NTHash/NTLM hashes by dumping the SAM database on a Windows machine, by using a tool like Mimikatz or from the Active Directory database: NTDS.dit. You may not have to crack the hash to continue privilege escalation- as you can often conduct a "pass the hash" attack instead, but sometimes hash cracking is a viable option if there is a weak password policy.</p>
+<p>&nbsp;</p>
+<h2>Cracking /etc/shadow</h2>
+<p>The /etc/shadow file is the file on&nbsp;Linux&nbsp;machines where password hashes are stored.&nbsp;It also stores other information, such as the date of last password change and password expiration information.&nbsp;It contains one entry per line for each user or user account of the system. This file is usually only accessible by the root user- so in order to get your hands on the hashes you must have sufficient privileges, but if you do- there is a chance that you will be able to crack some of the hashes.</p>
+<p>&nbsp;</p>
+<p><strong>Unshadowing</strong></p>
+<p>John can be very particular about the formats it needs data in to be able to work with it, for this reason- in order to crack /etc/shadow passwords, you must combine it with the /etc/passwd file in order for John to understand the data it's being given. To do this, we use a tool built into the John suite of tools called unshadow. The basic syntax of unshadow is as follows:</p>
+<p><code>unshadow [path to passwd] [path to shadow]</code></p>
+<p><code>unshadow</code>&nbsp;- Invokes the unshadow tool</p>
+<p><code>[path to passwd]</code>&nbsp;- The file that contains the copy of the /etc/passwd file you've taken from the target machine</p>
+<p><code>[path to shadow]</code>&nbsp;- The file that contains the copy of the /etc/shadow file you've taken from the target machine</p>
+<p><strong>Example Usage:</strong></p>
+<p>unshadow local_passwd local_shadow &gt; unshadowed.txt</p>
+<p><strong>Note on the files</strong></p>
+<p>When using unshadow, you can either use the entire /etc/passwd and /etc/shadow file- if you have them available, or you can use the relevant line from each, for example:</p>
+<p><strong>FILE 1 - local_passwd</strong></p>
+<p>Contains the /etc/passwd line for the root user:</p>
+<p>root:x:0:0::/root:/bin/bash</p>
+<p><strong>FILE 2 - local_shadow</strong></p>
+<p>Contains the /etc/shadow line for the root user:</p>
+<p>root:$6$2nwjN454g.dv4HN/$m9Z/r2xVfweYVkrr.v5Ft8Ws3/YYksfNwq96UL1FX0OJjY1L6l.DS3KEVsZ9rOVLB/ldTeEL/OIhJZ4GMFMGA0:18576::::::</p>
+<p>&nbsp;</p>
+<p><strong>Cracking</strong></p>
+<p>We're then able to feed the output from unshadow, in our example use case called "unshadowed.txt" directly into John. We should not need to specify a mode here as we have made the input specifically for John, however in some cases you will need to specify the format as we have done previously using:&nbsp;<code>--format=sha512crypt</code></p>
+<p><code>john --wordlist=/usr/share/wordlists/rockyou.txt --format=sha512crypt unshadowed.txt</code> &nbsp;</p>
+<h2>&nbsp;</h2>
+<h2>Single crack mode</h2>
+<p>&nbsp;</p>
+<p>So far we've been using John's wordlist mode to deal with brute forcing simple., and not so simple hashes. But John also has another mode, called Single Crack mode. In this mode, John uses only the information provided in the username, to try and work out possible passwords heuristically, by slightly changing the letters and numbers contained within the username.</p>
+<p>&nbsp;</p>
+<p><strong>Word Mangling</strong></p>
+<p>The best way to show what Single Crack mode is,&nbsp; and what word mangling is, is to actually go through an example:</p>
+<p>If we take the username: Markus</p>
+<p>Some possible passwords could be:</p>
+<p>Markus1, Markus2, Markus3 (etc.)</p>
+<p>MArkus, MARkus, MARKus (etc.)</p>
+<p>Markus!, Markus$, Markus* (etc.)</p>
+<p>This technique is called word mangling. John is building it's own dictionary based on the information that it has been fed and uses a set of rules called "mangling rules" which define how it can mutate the word it started with to generate a wordlist based off of relevant factors for the target you're trying to crack. This is exploiting how poor passwords can be based off of information about the username, or the service they're logging into.</p>
+<p>&nbsp;</p>
+<p><strong>GECOS</strong></p>
+<p>John's implementation of word mangling also features compatibility with the Gecos fields of the UNIX operating system, and other UNIX-like operating systems such as&nbsp;Linux. So what are Gecos? Remember in the last task where we were looking at the entries of both /etc/shadow and /etc/passwd? Well if you look closely You can see that each field is seperated by a colon ":". Each one of the fields that these records are split into are called Gecos fields. John can take information stored in those records, such as full name and home directory name to add in to the wordlist it generates when cracking /etc/shadow hashes with single crack mode.</p>
+<p>&nbsp;</p>
+<p><strong>Using Single Crack Mode</strong></p>
+<p>To use single crack mode, we use roughly the same syntax that we've used to so far, for example if we wanted to crack the password of the user named "Mike", using single mode, we'd use:</p>
+<p>john --single --format=[format] [path to file]</p>
+<p>--single&nbsp;- This flag lets john know you want to use the single hash cracking mode.</p>
+<p><strong>Example Usage:</strong></p>
+<p>john --single --format=raw-sha256 hashes.txt</p>
+<p><strong>A Note on File Formats in Single Crack Mode:</strong></p>
+<p>If you're cracking hashes in single crack mode, you need to change the file format that you're feeding john for it to understand what data to create a wordlist from. You do this by prepending the hash with the username that the hash belongs to, so according to the above example- we would change the file hashes.txt</p>
+<p><strong>From:</strong><br><br>&nbsp;</p>
+<p>1efee03cdcb96d90ad48ccc7b8666033</p>
+<p><strong>To</strong></p>
+<p>mike:1efee03cdcb96d90ad48ccc7b8666033</p>
+<p>&nbsp;</p>
+<h2>Custom Rules</h2>
+<p>As we journeyed through our exploration of what John can do in Single Crack Mode- you may have some ideas about what some good mangling patterns would be, or what patterns your passwords often use- that could be replicated with a certain mangling pattern. The good news is you can define your own sets of rules, which John will use to dynamically create passwords. This is especially useful when you know more information about the password structure of whatever your target is.</p>
+<p>&nbsp;</p>
+<p><strong>Common Custom Rules</strong></p>
+<p>Many organisations will require a certain level of password complexity to try and combat dictionary attacks, meaning that if you create an account somewhere, go to create a password and enter:</p>
+<p>polopassword</p>
+<p>You may receive a prompt telling you that passwords have to contain at least one of the following:</p>
+<p>Capital letter</p>
+<p>Number</p>
+<p>Symbol</p>
+<p>This is good! However, we can exploit the fact that most users will be predictable in the location of these symbols. For the above criteria, many users will use something like the following:</p>
+<p>Polopassword1!</p>
+<p>A password with the capital letter first, and a number followed by a symbol at the end. This pattern of the familiar password, appended and prepended by modifiers (such as the capital letter or symbols) is a memorable pattern that people will use, and reuse when they create passwords. This pattern can let us exploit password complexity predictability.</p>
+<p>Now this does meet the password complexity requirements, however as an attacker we can exploit the fact we know the likely position of these added elements to create dynamic passwords from our wordlists.</p>
+<p>&nbsp;</p>
+<p><strong>How to create Custom Rules</strong></p>
+<p>Custom rules are defined in the&nbsp;<code>john.conf</code>&nbsp;file, usually located in&nbsp;<code>/etc/john/john.conf</code>&nbsp;if you have installed John using a package manager or built from source with&nbsp;<code>make</code>&nbsp;and in&nbsp;<code>/opt/john/john.conf</code>&nbsp;on the TryHackMe Attackbox.</p>
+<p>Let's go over the syntax of these custom rules, using the example above as our target pattern. Note that there is a massive level of granular control that you can define in these rules, I would suggest taking a look at the wiki&nbsp;<a href="https://www.openwall.com/john/doc/RULES.shtml">here</a>&nbsp;in order to get a full view of the types of modifier you can use, as well as more examples of rule implementation.</p>
+<p>&nbsp;</p>
+<p>The first line:</p>
+<p><code>[List.Rules:THMRules]</code>&nbsp;- Is used to define the name of your rule, this is what you will use to call your custom rule as a John argument.</p>
+<p>We then use a regex style pattern match to define where in the word will be modified, again- we will only cover the basic and most common modifiers here:</p>
+<p><code>Az</code>&nbsp;- Takes the word and appends it with the characters you define</p>
+<p><code>A0</code>&nbsp;- Takes the word and prepends it with the characters you define</p>
+<p><code>c</code>&nbsp;- Capitalises the character positionally</p>
+<p>&nbsp;</p>
+<p>These can be used in combination to define where and what in the word you want to modify.</p>
+<p>Lastly, we then need to define what characters should be appended, prepended or otherwise included, we do this by adding character sets in square brackets&nbsp;<code>[ ]</code>&nbsp;in the order they should be used. These directly follow the modifier patterns inside of double quotes&nbsp;<code>" "</code>. Here are some common examples:</p>
+<p>&nbsp;</p>
+<p><code>[0-9]</code>&nbsp;- Will include numbers 0-9</p>
+<p><code>[0]</code>&nbsp;- Will include only the number 0</p>
+<p><code>[A-z]</code>&nbsp;- Will include both upper and lowercase</p>
+<p><code>[A-Z]</code>&nbsp;- Will include only uppercase letters</p>
+<p><code>[a-z]</code>&nbsp;- Will include only lowercase letters</p>
+<p><code>[a]</code>&nbsp;- Will include only a</p>
+<p><code>[!£$%@]</code>&nbsp;- Will include the symbols !£$%@</p>
+<p>&nbsp;</p>
+<p>Putting this all together, in order to generate a wordlist from the rules that would match the example password "Polopassword1!" (assuming the word polopassword was in our wordlist) we would create a rule entry that looks like this:</p>
+<p><code>[List.Rules:PoloPassword]</code></p>
+<p><code>cAz"[0-9] [!£$%@]"</code></p>
+<p>&nbsp;</p>
+<p>In order to:</p>
+<p>Capitalise the first&nbsp; letter -&nbsp;<code>c</code></p>
+<p>Append to the end of the word -&nbsp;<code>Az</code></p>
+<p>A number in the range 0-9 -&nbsp;<code>[0-9]</code></p>
+<p>Followed by a symbol that is one of&nbsp;<code>[!£$%@]</code></p>
+<p>&nbsp;</p>
+<p><strong>Using Custom Rules</strong></p>
+<p>We could then call this custom rule as a John argument using the&nbsp; <code>--rule=PoloPassword</code>&nbsp;flag.</p>
+<p>As a full command:&nbsp;<code>john --wordlist=[path to wordlist] --rule=PoloPassword [path to file]</code></p>
+<p>&nbsp;</p>
+<p>As a note I find it helpful to talk out the patterns if you're writing a rule- as shown above, the same applies to writing RegEx patterns too.</p>
+<p>Jumbo John already comes with a large list of custom rules, which contain modifiers for use almost all cases. If you get stuck, try looking at those rules [around line 678] if your syntax isn't working properly.</p>
+<p>&nbsp;</p>
+<h2>Cracking zip files</h2>
+<p>We can use John to crack the password on password protected Zip files. Again, we're going to be using a separate part of the john suite of tools to convert the zip file into a format that John will understand, but for all intents and purposes, we're going to be using the syntax that you're already pretty familiar with by now.</p>
+<p>&nbsp;</p>
+<p><strong>Zip2John</strong></p>
+<p>Similarly to the unshadow tool that we used previously, we're going to be using the zip2john tool to convert the zip file into a hash format that John is able to understand, and hopefully crack. The basic usage is like this:</p>
+<p><code>zip2john [options] [zip file] &gt; [output file]</code></p>
+<p><code>[options]</code>&nbsp;- Allows you to pass specific checksum options to zip2john, this shouldn't often be necessary</p>
+<p><code>[zip file]</code>&nbsp;- The path to the zip file you wish to get the hash of</p>
+<p><code>&gt;</code>&nbsp;- This is the output director, we're using this to send the output from this file to the...</p>
+<p><code>[output file]</code>&nbsp;- This is the file that will store the output from</p>
+<p><strong>Example Usage</strong></p>
+<p>zip2john zipfile.zip &gt; zip_hash.txt</p>
+<p>&nbsp;</p>
+<p><strong>Cracking</strong></p>
+<p>We're then able to take the file we output from zip2john in our example use case called "zip_hash.txt" and, as we did with unshadow, feed it directly into John as we have made the input specifically for it.</p>
+<p><code>john --wordlist=/usr/share/wordlists/rockyou.txt zip_hash.txt</code></p>
+<p>&nbsp;</p>
+<h2>Cracking RAR files</h2>
+<p>We can use a similar process to the one we used in the last task to obtain the password for rar archives. If you aren't familiar, rar archives are compressed files created by the Winrar archive manager. Just like zip files they compress a wide variety of folders and files.</p>
+<p>&nbsp;</p>
+<p><strong>Rar2John</strong></p>
+<p>Almost identical to the zip2john tool that we just used, we're going to use the rar2john tool to convert the rar file into a hash format that John is able to understand. The basic syntax is as follows:</p>
+<p><code>rar2john [rar file] &gt; [output file]</code></p>
+<p><code>rar2john</code>&nbsp;- Invokes the rar2john tool</p>
+<p><code>[rar file]</code>&nbsp;- The path to the rar file you wish to get the hash of</p>
+<p><code>&gt;</code>&nbsp;- This is the output director, we're using this to send the output from this file to the...</p>
+<p><code>[output file]</code>&nbsp;- This is the file that will store the output from</p>
+<p><strong>Example Usage</strong></p>
+<p>rar2john rarfile.rar &gt; rar_hash.txt</p>
+<p>&nbsp;</p>
+<p><strong>Cracking</strong></p>
+<p>Once again, we're then able to take the file we output from rar2john in our example use case called "rar_hash.txt" and, as we did with zip2john we can feed it directly into John..</p>
+<p><code>john --wordlist=/usr/share/wordlists/rockyou.txt rar_hash.txt</code></p>
+<p>&nbsp;</p>
+<h2>Cracking SSH keys</h2>
+<p>Let's explore one more use of John that comes up semi-frequently in CTF challenges. Using John to crack the SSH private key password of id_rsa files. Unless configured otherwise, you authenticate your SSH login using a password. However, you can configure key-based authentication, which lets you use your private key, id_rsa, as an authentication key to login to a remote machine over SSH. However, doing so will often require a password- here we will be using John to crack this password to allow authentication over SSH using the key.<br><br>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>SSH2John</strong></p>
+<p>Who could have guessed it, another conversion tool? Well, that's what working with John is all about. As the name suggests ssh2john converts the id_rsa private key that you use to login to the SSH session into hash format that john can work with. Jokes aside, it's another beautiful example of John's versatility. The syntax is about what you'd expect. Note that if you don't have ssh2john installed, you can use ssh2john.py, which is located in the /opt/john/ssh2john.py. If you're doing this, replace the&nbsp;<code>ssh2john</code>&nbsp;command with&nbsp;<code>python3 /opt/ssh2john.py</code>&nbsp;or on Kali,&nbsp;<code>python /usr/share/john/ssh2john.py</code>.</p>
+<p><code>ssh2john [id_rsa private key file] &gt; [output file]</code></p>
+<p>ssh2john - Invokes the ssh2john tool</p>
+<p><code>[id_rsa private key file]</code>&nbsp;- The path to the id_rsa file you wish to get the hash of</p>
+<p><code>&gt;</code>&nbsp;- This is the output director, we're using this to send the output from this file to the...</p>
+<p><code>[output file]</code>&nbsp;- This is the file that will store the output from</p>
+<p>&nbsp;</p>
+<p><strong>Example Usage</strong></p>
+<p>ssh2john id_rsa &gt; id_rsa_hash.txt</p>
+<p>&nbsp;</p>
+<p><strong>Cracking</strong></p>
+<p>For the final time, we're feeding the file we output from ssh2john, which in our example use case is called "id_rsa_hash.txt" and, as we did with rar2john we can use this seamlessly with John:</p>
+<p><code>john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa_hash.txt</code></p>
+<p>&nbsp;</p>
+<h2>Wiki of John the Ripper</h2>
+<p><a href="https://www.openwall.com/john/">https://www.openwall.com/john/</a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>Crypto 101</h1>
+<p>&nbsp;</p>
+<p>This chapter will cover:</p>
+<ul>
+  <li>Why cryptography matters for security and CTFs</li>
+  <li>The two main classes of cryptography and their uses</li>
+  <li>RSA, and some of the uses of RSA</li>
+  <li>2 methods of Key Exchange</li>
+</ul>
+<p>Notes about the future of encryption with the rise of Quantum Computing</p>
+<p>&nbsp;</p>
+<h2>Why is crypto important?</h2>
+<p>&nbsp;</p>
+<p>Cryptography is used to protect confidentiality, ensure integrity, ensure authenticity. You use cryptography every day most likely, and you’re almost certainly reading this now over an encrypted connection.</p>
+<p>When logging into TryHackMe, your credentials were sent to the server. These were encrypted, otherwise someone would be able to capture them by snooping on your connection.</p>
+<p>When you connect to SSH, your client and the server establish an encrypted tunnel so that no one can snoop on your session.</p>
+<p>When you connect to your bank, there’s a certificate that uses cryptography to prove that it is actually your bank rather than a hacker.</p>
+<p>When you download a file, how do you check if it downloaded right? You can use cryptography here to verify a checksum of the data.</p>
+<p>You rarely have to interact directly with cryptography, but it silently protects almost everything you do digitally.</p>
+<p>Whenever sensitive user data needs to be stored, it should be encrypted. Standards like&nbsp;<a href="https://www.pcisecuritystandards.org/documents/PCI_DSS_for_Large_Organizations_v1.pdf">PCI-DSS</a>&nbsp;state that the data should be encrypted both at rest (in storage) AND while being transmitted. If you’re handling payment card details, you need to comply with these PCI regulations. Medical data has similar standards. With legislation like GDPR and California’s data protection, data breaches are extremely costly and dangerous to you as either a consumer or a business.</p>
+<p><strong>DO NOT</strong>&nbsp;encrypt passwords unless you’re doing something like a password manager. Passwords should not be stored in plaintext, and you should use hashing to manage them safely.</p>
+<p>&nbsp;</p>
+<h2>Types of encryption</h2>
+<p>The two main categories of Encryption are symmetric and asymmetric.</p>
+<p><strong>Symmetric encryption</strong>&nbsp;uses the same key to encrypt and decrypt the data. Examples of Symmetric encryption are DES (Broken) and AES. These algorithms tend to be faster than asymmetric cryptography, and use smaller keys (128 or 256 bit keys are common for AES, DES keys are 56 bits long).</p>
+<p><strong>Asymmetric encryption</strong>&nbsp;uses a pair of keys, one to encrypt and the other in the pair to decrypt. Examples are RSA and Elliptic Curve Cryptography. Normally these keys are referred to as a public key and a private key. Data encrypted with the private key can be decrypted with the public key, and vice versa. Your private key needs to be kept private, hence the name. Asymmetric encryption tends to be slower and uses larger keys, for example RSA typically uses 2048 to 4096 bit keys.</p>
+<p>RSA and Elliptic Curve cryptography are based around different mathematically difficult (intractable) problems, which give them their strength. More about RSA later.</p>
+<p>&nbsp;</p>
+<h2>RSA</h2>
+<p><strong>The maths side</strong></p>
+<p>RSA is based on the mathematically difficult problem of working out the factors of a large number. It’s very quick to multiply two prime numbers together, say 17*23 = 391, but it’s quite difficult to work out what two prime numbers multiply together to make 14351 (113x127 for reference).</p>
+<p><strong>The attacking side</strong></p>
+<p>The maths behind RSA seems to come up relatively often in CTFs, normally requiring you to calculate variables or break some encryption based on them. The wikipedia page for RSA seems complicated at first, but will give you almost all of the information you need in order to complete challenges.</p>
+<p>There are some excellent tools for defeating RSA challenges in CTFs, and my personal favorite is&nbsp;<a href="https://github.com/Ganapati/RsaCtfTool">https://github.com/Ganapati/RsaCtfTool</a>&nbsp;which has worked very well for me. I’ve also had some success with&nbsp;<a href="https://github.com/ius/rsatool">https://github.com/ius/rsatool</a>.</p>
+<p>The key variables that you need to know about for RSA in CTFs are p, q, m, n, e, d, and c.</p>
+<p>“p” and “q” are large prime numbers, “n” is the product of p and q.</p>
+<p>The public key is n and e, the private key is n and d.</p>
+<p>“m” is used to represent the message (in plaintext) and “c” represents the ciphertext (encrypted text).</p>
+<p><strong>CTFs involving RSA</strong></p>
+<p>Crypto CTF challenges often present you with a set of these values, and you need to break the encryption and decrypt a message to retrieve the flag.</p>
+<p>There’s a lot more maths to RSA, and it gets quite complicated fairly quickly. If you want to learn the maths behind it, I recommend reading MuirlandOracle’s blog post here:&nbsp;<a href="https://muirlandoracle.co.uk/2020/01/29/rsa-encryption/">https://muirlandoracle.co.uk/2020/01/29/rsa-encryption/</a>.</p>
+<h2>&nbsp;</h2>
+<h2>Establishing Keys Using Asymmetric Cryptography</h2>
+<p>A very common use of asymmetric cryptography is exchanging keys for symmetric encryption.</p>
+<p>Asymmetric encryption tends to be slower, so for things like HTTPS symmetric encryption is better.</p>
+<p>But the question is, how do you agree a key with the server without transmitting the key for people snooping to see?</p>
+<p><strong>Metaphor time</strong></p>
+<p>Imagine you have a secret code, and instructions for how to use the secret code. If you want to send your friend the instructions without anyone else being able to read it, what you could do is ask your friend for a lock.</p>
+<p>Only they have the key for this lock, and we’ll assume you have an indestructible box that you can lock with it.</p>
+<p>If you send the instructions in a locked box to your friend, they can unlock it once it reaches them and read the instructions.</p>
+<p>After that, you can communicate in the secret code without risk of people snooping.</p>
+<p>In this metaphor, the secret code represents a symmetric encryption key, the lock represents the server’s public key, and the key represents the server’s private key.</p>
+<p>You’ve only used asymmetric cryptography once, so it’s fast, and you can now communicate privately with symmetric encryption.</p>
+<p><strong>The Real World</strong></p>
+<p>In reality, you need a little more cryptography to verify the person you’re talking to is who they say they are, which is done using digital signatures and certificates. You can find a lot more detail on how HTTPS (one example where you need to exchange keys) really works from this excellent blog post.&nbsp;<a href="https://robertheaton.com/2014/03/27/how-does-https-actually-work/">https://robertheaton.com/2014/03/27/how-does-https-actually-work/</a></p>
+<p>&nbsp;</p>
+<h2>Digital signatures and Certificates</h2>
+<p><strong>What's a Digital Signature?</strong></p>
+<p>Digital signatures are a way to prove the authenticity of files, to prove who created or modified them. Using asymmetric cryptography, you produce a signature with your private key and it can be verified using your public key. As only you should have access to your private key, this proves you signed the file. Digital signatures and physical signatures have the same value in the UK, legally.</p>
+<p>The simplest form of digital signature would be encrypting the document with your private key, and then if someone wanted to verify this signature they would decrypt it with your public key and check if the files match.</p>
+<p><strong>Certificates - Prove who you are!</strong></p>
+<p>Certificates are also a key use of public key cryptography, linked to digital signatures. A common place where they’re used is for HTTPS. How does your web browser know that the server you’re talking to is the real tryhackme.com?</p>
+<p>The answer is certificates. The web server has a certificate that says it is the real tryhackme.com. The certificates have a chain of trust, starting with a root CA (certificate authority). Root CAs are automatically trusted by your device, OS, or browser from install. Certs below that are trusted because the Root CAs say they trust that organisation. Certificates below that are trusted because the organisation is trusted by the Root CA and so on. There are long chains of trust. Again, this blog post explains this much better than I can.&nbsp;<a href="https://robertheaton.com/2014/03/27/how-does-https-actually-work/">https://robertheaton.com/2014/03/27/how-does-https-actually-work/</a></p>
+<p>You can get your own HTTPS certificates for domains you own using Let’s Encrypt for free. If you run a website, it’s worth setting it up.</p>
+<p>&nbsp;</p>
+<h2>SSH Authentication</h2>
+<p><strong>Encryption and SSH authentication</strong></p>
+<p>By default, SSH is authenticated using usernames and passwords in the same way that you would log in to the physical machine.</p>
+<p>At some point, you’re almost certain to hit a machine that has SSH configured with key authentication instead. This uses public and private keys to prove that the client is a valid and authorised user on the server. By default, SSH keys are RSA keys. You can choose which algorithm to generate, and/or add a passphrase to encrypt the SSH key.&nbsp;<code>ssh-keygen</code>&nbsp;is the program used to generate pairs of keys most of the time.</p>
+<p><strong>SSH Private Keys</strong></p>
+<p>You should treat your private SSH keys like passwords. Don’t share them, they’re called private keys for a reason. If someone has your private key, they can use it to log in to servers that will accept it unless the key is encrypted.</p>
+<p>It’s very important to mention that the passphrase to decrypt the key isn’t used to identify you to the server at all, all it does is decrypt the SSH key. The passphrase is never transmitted, and never leaves your system.</p>
+<p>Using tools like John the Ripper, you can attack an encrypted SSH key to attempt to find the passphrase, which highlights the importance of using a secure passphrase and keeping your private key private.</p>
+<p>When generating an SSH key to log in to a remote machine, you should generate the keys on your machine and then copy the public key over as this means the private key never exists on the target machine. For temporary keys generated for access to CTF boxes, this doesn't matter as much.</p>
+<p><strong>How do I use these keys?</strong></p>
+<p>The ~/.ssh folder is the default place to store these keys for OpenSSH. The&nbsp;<code>authorized_keys</code>&nbsp;(note the US English spelling) file in this directory holds public keys that are allowed to access the server if key authentication is enabled. By default on many distros, key authentication is enabled as it is more secure than using a password to authenticate. Normally for the root user, only key authentication is enabled.</p>
+<p>In order to use a private SSH key, the permissions must be set up correctly otherwise your SSH client will ignore the file with a warning. Only the owner should be able to read or write to the private key (600 or stricter).&nbsp;<code>ssh -i keyNameGoesHere user@host</code>&nbsp;is how you specify a key for the standard&nbsp;Linux&nbsp;OpenSSH client.</p>
+<p><strong>Using SSH keys to get a better shell</strong></p>
+<p>SSH keys are an excellent way to “upgrade” a reverse shell, assuming the user has login enabled (www-data normally does not, but regular users and root will). Leaving an SSH key in authorized_keys on a box can be a useful backdoor, and you don't need to deal with any of the issues of unstabilised reverse shells like Control-C or lack of tab completion.</p>
+<p>&nbsp;</p>
+<h2>Diffie Hellman exchange</h2>
+<p><strong>What is Key Exchange?</strong></p>
+<p>Key exchange allows 2 people/parties to establish a set of common cryptographic keys without an observer being able to get these keys. Generally, to establish common symmetric keys.</p>
+<p><strong>How does Diffie Hellman Key Exchange work?</strong></p>
+<p>Alice and Bob want to talk securely. They want to establish a common key, so they can use symmetric cryptography, but they don’t want to use key exchange with asymmetric cryptography. This is where DH Key Exchange comes in.</p>
+<p>Alice and Bob both have secrets that they generate, let’s call these A and B. They also have some common material that’s public, let’s call this C.</p>
+<p>We need to make some assumptions. Firstly, whenever we combine secrets/material it’s impossible or very very difficult to separate. Secondly, the order that they're combined in doesn’t matter.</p>
+<p>Alice and Bob will combine their secrets with the common material, and form AC and BC. They will then send these to each other, and combine that with their secrets to form two identical keys, both ABC. Now they can use this key to communicate.</p>
+<p><strong>Extra Resources</strong></p>
+<p>An excellent video if you want a visual explanation is available here.&nbsp;<a href="https://www.youtube.com/watch?v=NmM9HA2MQGI">https://www.youtube.com/watch?v=NmM9HA2MQGI</a></p>
+<p>DH Key Exchange is often used alongside RSA public key cryptography, to prove the identity of the person you’re talking to with digital signing. This prevents someone from attacking the connection with a man-in-the-middle attack by pretending to be Bob.</p>
+<p>&nbsp;</p>
+<h2>PGP and AES</h2>
+<p><strong>What is PGP?</strong></p>
+<p>PGP stands for Pretty Good Privacy. It’s a software that implements encryption for encrypting files, performing digital signing and more.</p>
+<p><strong>What is GPG?</strong></p>
+<p><a href="https://gnupg.org/">GnuPG or GPG</a>&nbsp;is an Open Source implementation of PGP from the GNU project. You may need to use GPG to decrypt files in CTFs. With PGP/GPG, private keys can be protected with passphrases in a similar way to SSH private keys. If the key is passphrase protected, you can attempt to crack this passphrase using John The Ripper and gpg2john. The key provided in this task is&nbsp;<u>not</u>&nbsp;protected with a passphrase.</p>
+<p>The man page for GPG can be found online&nbsp;<a href="https://www.gnupg.org/gph/de/manual/r1023.html">here</a>.</p>
+<p><strong>What about AES?</strong></p>
+<p>AES, sometimes called Rijndael after its creators, stands for Advanced Encryption Standard. It was a replacement for DES which had short keys and other cryptographic flaws.</p>
+<p>AES and DES both operate on blocks of data (a block is a fixed size series of bits).</p>
+<p>AES is complicated to explain, and doesn’t seem to come up as often. If you’d like to learn how it works, here’s an excellent video from Computerphile&nbsp;<a href="https://www.youtube.com/watch?v=O4xNJsjtN6E">https://www.youtube.com/watch?v=O4xNJsjtN6E</a></p>
+<p>&nbsp;</p>
+<h2>The future of crypto</h2>
+<p>Quantum computers will soon be a problem for many types of encryption.</p>
+<p><strong>Asymmetric and Quantum</strong></p>
+<p>While it’s unlikely we’ll have sufficiently powerful quantum computers until around 2030, once these exist encryption that uses RSA or Elliptical Curve Cryptography will be very fast to break. This is because quantum computers can very efficiently solve the mathematical problems that these algorithms rely on for their strength.</p>
+<p><strong>AES/DES and Quantum</strong></p>
+<p>AES with 128 bit keys is also likely to be broken by quantum computers in the near future, but 256 bit AES can’t be broken as easily. Triple DES is also vulnerable to attacks from quantum computers.</p>
+<p><strong>Current Recommendations</strong></p>
+<p>The NSA recommends using RSA-3072 or better for asymmetric encryption and AES-256 or better for symmetric encryption. There are several competitions currently running for quantum safe cryptographic algorithms, and it’s likely that we will have a new encryption standard before quantum computers become a threat to RSA and AES.</p>
+<p><strong>Learn More about Quantum Computers and Cryptography</strong></p>
+<p>If you’d like to learn more about this,&nbsp;NIST&nbsp;has resources that detail what the issues with current encryption is and the currently proposed solutions for these.&nbsp;<a href="https://doi.org/10.6028/NIST.IR.8105">https://doi.org/10.6028/NIST.IR.8105</a></p>
+<p>I also recommend the book "Cryptography Apocalypse" By Roger A. Grimes, as this was my introduction to quantum computing and quantum safe cryptography.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

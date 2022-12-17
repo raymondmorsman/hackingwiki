@@ -1,0 +1,221 @@
+<!--
+title: Burpsuite
+description: 
+published: true
+date: 2022-10-25T17:30:50.277Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-25T17:30:47.347Z
+-->
+
+<h1><strong>Introduction</strong></h1>
+<p>This room will cover the foundations of using the Burp Suite web application framework.</p>
+<p>Specifically, we will be looking at:</p>
+<ul>
+  <li>What Burp Suite is</li>
+  <li>An overview of the available tools in the framework</li>
+  <li>Installing Burp Suite for yourself</li>
+  <li>Navigating and configuring Burp Suite.</li>
+</ul>
+<p>We will also be introducing the core of the Burp Suite framework: the Burp Proxy. This room is primarily designed to provide a foundational knowledge of Burp Suite which can then be built upon further in the other rooms of the Burp module; as such, it will be a lot heavier in theory than subsequent rooms, which take more of a practical approach. You are advised to read the information here and follow along yourself with a copy of the tool if you haven't used Burp Suite before. Experimentation is key: use this information in tandem with playing around with the app for yourself to build a foundation for using the framework, which can then be built upon in later rooms.</p>
+<h1>What is Burp Suite?</h1>
+<p>Burp Suite is a framework written in Java that aims to provide a one-stop-shop for web application penetration testing. In many ways, this goal is achieved as Burp is very much the industry standard tool for hands-on web app security assessments. Burp Suite is also very commonly used when assessing mobile applications, as the same features which make it so attractive for web app testing translate almost perfectly into testing the APIs (<strong>A</strong>pplication <strong>P</strong>rogramming<strong> I</strong>nterfaces) powering most mobile apps.<br>&nbsp;</p>
+<p>At the simplest level, Burp can capture and manipulate all of the traffic between an attacker and a webserver: this is the core of the framework. After capturing requests, we can choose to send them to various other parts of the Burp Suite framework -- we will be covering some of these tools in upcoming rooms. This ability to intercept, view, and modify web requests prior to them being sent to the target server (or, in some cases, the responses before they are received by our browser), makes Burp Suite perfect for any kind of manual web app testing.<br>&nbsp;</p>
+<p>There are various different editions of Burp Suite available. We will be working with the <strong>Burp Suite Community</strong> edition, as this is free to use for any (legal) non-commercial use. The Burp Suite <i>Professional</i> and <i>Enterprise</i> editions both require expensive licenses but come with powerful extra features:</p>
+<ul>
+  <li><strong>Burp Suite Professional</strong> is an unrestricted version of Burp Suite Community. It comes with features such as:<ul>
+      <li>An automated vulnerability scanner</li>
+      <li>A fuzzer/bruteforcer that isn't rate limited</li>
+      <li>Saving projects for future use; report generation</li>
+      <li>A built-in API to allow integration with other tools</li>
+      <li>Unrestricted access to add new extensions for greater functionality</li>
+      <li>Access to the Burp Suite Collaborator (effectively providing a unique request catcher self-hosted or running on a Portswigger owned server)</li>
+    </ul>
+  </li>
+  <li><strong>Burp Suite Enterprise </strong>is slightly different. Unlike the community and professional editions, Burp Enterprise is used for continuous scanning. It provides an automated scanner that can periodically scan webapps for vulnerabilities in much the same way as software like <a href="https://tryhackme.com/room/rpnessusredux">Nessus</a> performs&nbsp; automated infrastructure scanning. Unlike the other editions of Burp Suite which allow you to perform manual attacks from your own computer, Enterprise sits on a server and constantly scans target web apps for vulnerabilities.</li>
+</ul>
+<h1>Features of Burp Community</h1>
+<p>Whilst Burp Community has a relatively limited feature-set compared to the Professional edition, it still has many superb tools available. These include:</p>
+<ul>
+  <li><strong>Proxy:</strong> The most well-known aspect of Burp Suite, the Burp Proxy allows us to intercept and modify requests/responses when interacting with web applications.</li>
+  <li><strong>Repeater:</strong> The second most well-known Burp feature -- <a href="https://tryhackme.com/room/burpsuiterepeater">Repeater</a> -- allows us to capture, modify, then resend the same request numerous times. This feature can be absolutely invaluable, especially when we need to craft a payload through trial and error (e.g. in an SQLi -- <strong>S</strong>tructured <strong>Q</strong>uery <strong>L</strong>anguage<strong> I</strong>njection) or when testing the functionality of an endpoint for flaws.</li>
+  <li><strong>Intruder:</strong> Although harshly rate-limited in Burp Community, <a href="https://tryhackme.com/room/burpsuiteintruder">Intruder</a> allows us to spray an endpoint with requests. This is often used for bruteforce attacks or to fuzz endpoints.</li>
+  <li><strong>Decoder: </strong>Though less-used than the previously mentioned features, <a href="https://tryhackme.com/room/burpsuiteom">Decoder</a> still provides a valuable service when transforming data -- either in terms of decoding captured information, or encoding a payload prior to sending it to the target. Whilst there are other services available to do the same job, doing this directly within Burp Suite can be very efficient.</li>
+  <li><strong>Comparer:</strong> As the name suggests, <a href="https://tryhackme.com/room/burpsuiteom">Comparer</a> allows us to compare two pieces of data at either word or byte level. Again, this is not something that is unique to Burp Suite, but being able to send (potentially very large) pieces of data directly into a comparison tool with a single keyboard shortcut can speed things up considerably.</li>
+  <li><strong>Sequencer:</strong> We usually use <a href="https://tryhackme.com/room/burpsuiteom">Sequencer</a> when assessing the randomness of tokens such as session cookie values or other supposedly random generated data. If the algorithm is not generating secure random values, then this could open up some devastating avenues for attack.</li>
+</ul>
+<p>In addition to the myriad of in-built features, the Java codebase also makes it very easy to write extensions to add to the functionality of the Burp framework. These can be written in Java, Python (using the Java <a href="https://www.jython.org/">Jython</a> interpreter), or Ruby (using the Java <a href="https://www.jruby.org/">JRuby</a> interpreter). The Burp Suite <a href="https://tryhackme.com/room/burpsuiteextender">Extender</a> module can quickly and easily load extensions into the framework, as well as providing a marketplace to download third-party modules (referred to as the "BApp Store"). Whilst many of these extensions require a professional license to download and add in, there are still a fair number that can be integrated with Burp Community. For example, we may wish to extend the inbuilt logging functionality of Burp Suite with the <a href="https://github.com/portswigger/logger-plus-plus">Logger++</a> module.</p>
+<h1>The Dashboard</h1>
+<p>When we open Burp Suite and have accepted the terms and conditions, we are met with a window asking us to select the project type.</p>
+<p>This window doesn't give us many options in Burp Community. Burp Pro would allow us to save our work to the disk or load a previously saved project at this point. All we can do here is click "Next", however.</p>
+<p>The next window allows us to choose a configuration for Burp Suite. Leaving this at the default is perfect for most situations:</p>
+<p>Click "Start Burp", and the main Burp Suite interface will open!</p>
+<p>The first time you open Burp Suite, you may be presented with a screen of training options. These are well worth reading through if you get the time.</p>
+<p>If not (and in any subsequent sessions regardless), you will be presented with the slightly daunting Burp Dashboard:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/faa047e93b82af360a0cff161caa1295.png" alt="The Burp Suite Dashboard"></figure>
+<p>Don't be alarmed if this doesn't make too much sense just yet -- it soon will!</p>
+<p>In short, the Dashboard interface is split into four quadrants:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/11202e4c73faa30a757f1439b63b85c6.png" alt="The four quadrants of the burp dashboard labelled in anti-clockwise order, starting from the top left."></figure>
+<ol>
+  <li>The Tasks menu allows us to define background tasks that Burp Suite will run whilst we use the application. The Pro version would also allow us to create on-demand scans. The default "Live Passive Crawl" (which automatically logs the pages we visit) will be more than suitable for our uses in this module.</li>
+  <li>The Event log tells us what Burp Suite is doing (e.g. starting the Proxy), as well as information about any connections that we are making through Burp.</li>
+  <li>The Issue Activity section is exclusive to Burp Pro. It won't give us anything using Burp Community, but in Burp Professional it would list all of the vulnerabilities found by the automated scanner. These would be ranked by severity and filterable by how sure Burp is that the component is vulnerable.</li>
+  <li>The Advisory section gives more information about the vulnerabilities found, as well as references and suggested remediations. These could then be exported into a report.<br>Clicking on one of the example vulnerabilities in the Issue Activity section gives us an idea of what this looks like:<br>&nbsp;</li>
+</ol>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/a1e27d91bd58a0038fd0a5902a66f5b9.png" alt="The Advisory section showing the example OS Command Injection vulnerability advisories"></figure>
+<p>Throughout the various tabs and windows of Burp Suite, you will find little help icons: a question mark within a circle.<br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/93d5f88c31c7e99d65fda7425a572406.png"></figure>
+<p><br>&nbsp;</p>
+<p>Clicking on these will open a new window containing help for the section, for example:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/0266982309d2d272aa6495aedf81a584.png" alt="Screenshot showing the help text for the Dashboard"></figure>
+<p>These are extremely useful if you're ever stuck and don't know what a feature does, so make good use of them!</p>
+<h1>Navigation</h1>
+<p>Navigating around the Burp Suite GUI by default is done entirely using the top menu bars:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/85b53390eb4d38e3d40f7de1bdb862f8.png" alt="The Burp Suite navigation bar showing the sub-tabs available in Burp Proxy"></figure>
+<p><br>&nbsp;</p>
+<p>These allow you to switch between modules (along the top row of the attached image). If the selected module has more than one sub-tab, then these can be selected using a second menu bar which appears directly below the original bar (the bottom row of the image above). It is common for module-specific settings to be provided in these sub-tabs (as is the case with the Proxy Options above).<br>&nbsp;</p>
+<p>Tabs can also be popped out into separate windows should you prefer to view multiple tabs separately. This can be done by clicking "Window" in the application menu at the top of the screen, then choosing to "Detach" tabs:<br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/46310bb85e12e7b7ff2c242c168cd547.png" alt="Demonstration of the menu allowing you to detach windows"></figure>
+<p>These can be reattached in the same way.<br>&nbsp;</p>
+<p>In addition to the menu bar, Burp Suite also has keyboard shortcuts that allow quick navigation to key tabs. By default, these are:</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Shortcut</strong><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Does</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><code>Ctrl + Shift + D</code><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Switch to the Dashboard<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><code>Ctrl + Shift + T</code><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Switch to the Target tab<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><code>Ctrl + Shift + P</code><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Switch to the Proxy tab<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><code>Ctrl + Shift + I</code><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Switch to the Intruder tab<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><code>Ctrl + Shift + R</code><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Switch to the Repeater tab<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h1>Options</h1>
+<p>Before we start learning about the Burp Proxy, let's take a look at the options available for configuring Burp Suite.</p>
+<ul>
+  <li>Global settings can be found in the <i>User options</i> tab along the top menu bar.</li>
+  <li>Project-specific settings can be found in the <i>Project options</i> tab.</li>
+</ul>
+<p>The options provided in the User options tab will apply every time we open Burp Suite. In contrast, the Project options will only apply to the <i>current</i> project. Given that we can't save projects in Burp Community, this means that our project options will reset every time we close Burp.<br>&nbsp;</p>
+<hr>
+<p>There are far too many options to cover them all, so let's just look at the available categories and highlight a few of the more few important settings. We will start with the <i>User Options</i> tab.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/3bae017cf9d1271daa48fd10be117a56.png" alt="Default view in the User Options tab"></figure>
+<p><br>&nbsp;</p>
+<p>The settings here apply globally (i.e. they control the Burp Suite application -- not just the project). That said, many of them can be overwritten in the project settings.</p>
+<p>There are four main sub-sections of the User options tab:<br>&nbsp;</p>
+<ul>
+  <li>The options in the <strong>Connections</strong> sub-tab allow us to control how Burp makes connections to targets. For example, we can set a proxy for Burp Suite to connect through; this is very useful if we want to use Burp Suite through a network pivot.</li>
+  <li>The <strong>TLS</strong> sub-tab allows us to enable and disable various TLS (<strong>T</strong>ransport <strong>L</strong>ayer<strong> S</strong>ecurity) options, as well as giving us a place to upload client certificates should a web app require us to use one for connections.</li>
+  <li>An essential set of options: <strong>Display</strong> allows us to change how Burp Suite looks. The options here include things like changing the font and scale, as well as setting the theme for the framework (e.g. dark mode) and configuring various options to do with the rendering engine in Repeater (more on this later!).<br>&nbsp;</li>
+  <li>The <strong>Misc</strong> sub-tab contains a wide variety of settings, including the keybinding table (HotKeys), which allowing us to view and alter the keyboard shortcuts used by Burp Suite. Familiarising yourself with these settings would be advisable, as using the keybinds can speed up your workflow massively.<br>&nbsp;</li>
+</ul>
+<p>With these options, we can customise our Burp install to suit our individual preferences.<br>&nbsp;</p>
+<hr>
+<p>Let's move on to look at the project-specific configurations available in the <i>Project options</i> tab.</p>
+<p>There are five sub-tabs here:</p>
+<ul>
+  <li><strong>Connections</strong> holds many of the same options as the equivalent section of the User options tab: these can be used to override the application-wide settings. For example, it is possible to set a proxy for just the project, overriding any proxy settings that you set in the User options tab. There <i>are</i> a few differences between this sub-tab and that of the User options, however. For example, the "Hostname Resolution" option (allowing you to map domains to IPs directly within Burp Suite) can be very handy -- as can the "Out-of-Scope Requests" settings, which enable&nbsp; us to determine whether Burp will send requests to anything you aren't explicitly targeting (more on this later!).</li>
+  <li>The <strong>HTTP</strong> sub-tab defines how Burp handles various aspects of the HTTP protocol: for example, whether it follows redirects or how to handle unusual response codes.</li>
+  <li><strong>TLS</strong> allows us to override application-wide TLS options, as well as showing us a list of public server certificates for sites that we have visited.</li>
+  <li>The <strong>Sessions</strong><i><strong> </strong></i>tab provides us with options for handling sessions. It allows us to define how Burp obtains, saves, and uses session cookies that it receives from target sites. It also allows us to define macros which we can use to automate things such as logging into web applications (giving us an instant authenticated session, assuming we have valid credentials).</li>
+  <li>There are fewer options in the <strong>Misc</strong> sub-tab than in the equivalent tab for the "User options" section. Many of the options here are also only available if you have access to Burp Pro (such as those configuring Collaborator). That said, there are a couple of options related to logging and the embedded browser (which we will look at in a couple of tasks) that are well worth perusing.</li>
+</ul>
+<h1>Introduction to the Burp Proxy</h1>
+<p>The Burp Proxy is the most fundamental (and most important!) of the tools available in Burp Suite. It allows us to capture requests and responses between ourselves and our target. These can then be manipulated or sent to other tools for further processing before being allowed to continue to their destination.</p>
+<p>For example, if we make a request to <code>https://tryhackme.com</code> through the Burp Proxy, our request will be captured and won't be allowed to continue to the TryHackMe servers until we explicitly allow it through. We can choose to do the same with the response from the server, although this isn't active by default. This ability to intercept requests ultimately means that we can take complete control over our web traffic -- an invaluable ability when it comes to testing web applications.</p>
+<p>There are a few configurations we need to make before we can use the proxy, but let's start by looking at the interface.</p>
+<p><i><strong>Note: </strong>You do <u>not</u> need to follow along with this task -- just read the information and understand what the Proxy is used for.</i></p>
+<p>When we first open the Proxy tab, Burp gives us a bunch of useful information and background reading. This information is well worth reading through; however, the real magic happens after we capture a request:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/e9fb6a47c089b2a192f2da8e97d184a3.png" alt="Capturing a GET request to TryHackMe with the Burp Proxy"></figure>
+<p>With the proxy active, a request was made to the TryHackMe website. At this point, the browser making the request will hang, and the request will appear in the Proxy tab giving us the view shown in the screenshot above. We can then choose to forward or drop the request (potentially after editing it). We can also do various other things here, such as sending the request to one of the other Burp modules, copying it as a cURL command, saving it to a file, and many others.</p>
+<p>When we have finished working with the Proxy, we can click the "Intercept is on" button to disable the Intercept, which will allow requests to pass through the proxy without being stopped.</p>
+<p>Burp Suite will still (by default) be logging requests made through the proxy when the intercept is off. This can be very useful for going back and analysing prior requests, even if we didn't specifically capture them when they were made.</p>
+<p>Burp will also capture and log WebSocket communication, which, again, can be exceedingly helpful when analysing a web app.</p>
+<p>The logs can be viewed by going to the "HTTP history" and "WebSockets history" sub-tabs:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/5f99b40167398d067cd42786c1811fe8.png" alt="Viewing the logs in the HTTP history sub-tab"></figure>
+<p>It is worth noting that any requests captured here can be sent to other tools in the framework by right-clicking them and choosing "Send to...". For example, we could take a previous HTTP request that has already been proxied to the target and send it to <a href="https://tryhackme.com/room/burpsuiterepeater">Repeater</a>.</p>
+<p>Finally, there are also Proxy specific options, which we can view in the "Options" sub-tab.</p>
+<p>These options give us a <i>lot</i> of control over how the proxy operates, so it is an excellent idea to familiarise yourself with these.</p>
+<p>For example, the proxy will not intercept server responses by default unless we explicitly ask it to on a per-request basis. We can override the default setting by selecting the "Intercept responses based on the following rules" checkbox and picking one or more rules. The "<code>Or</code> <code>Request</code> <code>Was Intercepted</code>" rule is good for catching responses to all requests that were intercepted by the proxy:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/a265a9cf710aa8cd1706f9f60d0286d0.png" alt="Screenshot showing the "></figure>
+<p>The "<code>And</code> <code>URL</code> <code>Is in target scope</code>" is another very good default rule; we will look at scoping later in this room.</p>
+<p>You can make your own rules for most of the Proxy options, so this is one section where looking around and experimenting will serve you very well indeed!</p>
+<p>Another particularly useful section of this sub-tab is the "Match and Replace" section; this allows you to perform regexes on incoming and outgoing requests. For example, you can automatically change your user agent to emulate a different web browser in outgoing requests or remove all cookies being set in incoming requests. Again, you are free to make your own rules here.</p>
+<h1>Proxying HTTPS</h1>
+<p>Great, so we can intercept HTTP traffic -- what's next?</p>
+<p>Unfortunately, there's a problem. What happens if we navigate to a site with TLS enabled? For example, <code>https://google.com/</code>:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/8b4b43cac91cd9a80622b953598d05eb.png" alt="Screenshot showing the FireFox HSTS warning message about the Portswigger CA cert not being trusted"></figure>
+<p>We get an error.</p>
+<p>Specifically, Firefox is telling us that the Portswigger <strong>C</strong>ertificate <strong>A</strong>uthority (CA) isn't authorised to secure the connection.</p>
+<p>Fortunately, Burp offers us an easy way around this. We need to get Firefox to trust connections secured by Portswigger certs, so we will manually add the CA certificate to our list of trusted certificate authorities.</p>
+<p>First, with the proxy activated head to <a href="http://burp/cert">http://burp/cert</a>; this will download a file called <code>cacert.der</code> -- save it somewhere on your machine.</p>
+<p>Next, type <code>about:preferences</code> into your Firefox search bar and press enter; this takes us to the FireFox settings page. Search the page for "certificates" and we find the option to "View Certificates":</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/a9de0495b2ac6738520c8f9946afdecb.png" alt="FireFox certificate settings"></figure>
+<p>Clicking the "View Certificates" button allows us to see all of our trusted CA certificates. We can register a new certificate for Portswigger by pressing "Import" and selecting the file that we just downloaded.</p>
+<p>In the menu that pops up, select "Trust this CA to identify websites", then click Ok:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/23e5cb317d00c1a5e64def1d46fa9301.png"></figure>
+<p>We should now be free to visit any TLS enabled sites that we wish!</p>
+<p>The following video shows the full import process:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/fb2a8717ae887eda024a7791d83cefaf.gif" alt="GIF demonstrating the full cert import process"></figure>
+<h1>The Burp Suite Browser</h1>
+<p>If the last few tasks seemed overly complex, rest assured, this topic will be a lot simpler.</p>
+<p>In addition to giving us the option to modify our regular web browser to work with the proxy, Burp Suite also includes a built-in Chromium browser that is pre-configured to use the proxy without any of the modifications we just had to do.</p>
+<p>Whilst this may seem ideal, it is not as commonly used as the process detailed in the previous few tasks. People tend to stick with their own browser as it gives them a lot more customisability; however, both are perfectly valid choices.</p>
+<p>We can start the Burp Browser with the "Open Browser" button in the proxy tab:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/ce4e50cbf7e9f0c0e8802784eda1b8b0.png" alt="Open Browser button in the Proxy tab highlighted"></figure>
+<p>A Chromium window will now pop up. Any requests we make in this will go through the proxy.</p>
+<p><i><strong>Note: </strong>There are many settings to do with the Burp Browser in the Project options and User options tabs -- make sure to go look at them!</i></p>
+<hr>
+<p>If we are running on Linux as the root user (as we are with the AttackBox), Burp Suite is unable to create a sandbox environment to start the Burp Browser in, causing it to throw an error and die:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/4b2aa73df84e146040d49cca1ba5dbfe.png" alt="The Burp Browser Error indicating that our current configuration can't run without a sandbox"></figure>
+<p><br>&nbsp;</p>
+<p>There are two simple solutions to this:</p>
+<ul>
+  <li><strong>The smart option:</strong> We could create a new user and run Burp Suite under a low privilege account.</li>
+  <li><strong>The easy option:</strong> We could go to <code>Project options -&gt; Misc -&gt; Embedded Browser</code> and check the&nbsp;<code>Allow the embedded browser to run without a sandbox</code> option. Checking this option will allow the browser to start, but be aware that it is disabled by default for security reasons: if we get compromised using the browser, then an attacker will have access to our entire machine. On the training environment of the AttackBox this is unlikely (and isn't a huge issue even if it <i>does </i>happen), but keep it in mind if you try this on a local installation of Burp Suite.</li>
+</ul>
+<h1>Scoping and Targeting</h1>
+<p>Finally, we come to one of the most important parts of using the Burp Proxy: Scoping.</p>
+<p>It can get extremely tedious having Burp capturing all of our traffic. When it logs everything (including traffic to sites we aren't targeting), it muddies up logs we may later wish to send to clients. In short, allowing Burp to capture <i>everything</i> can quickly become a massive pain.</p>
+<p>What's the solution? Scoping.</p>
+<p>Setting a scope for the project allows us to define what gets proxied and logged. We can restrict Burp Suite to <i>only</i> target the web application(s) that we want to test. The easiest way to do this is by switching over to the "Target" tab, right-clicking our target from our list on the left, then choosing "Add To Scope". Burp will then ask us whether we want to stop logging anything which isn't in scope -- most of the time we want to choose "yes" here.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/7e11c5dec4dba4336927aa7561e5c793.gif" alt="GIF showing the process described above"></figure>
+<p>We can now check our scope by switching to the "Scope" sub-tab (as shown in the GIF above).</p>
+<p>The Scope sub-tab allows us to control what we are targeting by either <i>Including</i> or <i>Excluding</i> domains / IPs. This is a very powerful section, so it's well worth taking the time to get accustomed to using it.</p>
+<p>We just chose to disable&nbsp;</p>
+<p><i>logging</i></p>
+<p>&nbsp;for out of scope traffic, but the proxy will still be intercepting everything. To turn this off, we need to go into the Proxy Options sub-tab and select "</p>
+<p><code>And</code></p>
+<p><code>URL</code></p>
+<p><code>Is in target scope</code></p>
+<p>" from the Intercept Client Requests section:</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d9e176315f8850e719252ed/room-content/dec63f8822c1fe3393d779e17052577b.png" alt="Screenshot circling the Intercept in Scope requests only setting"></figure>
+<p>With this option selected, the proxy will completely ignore anything that isn't in the scope, vastly cleaning up the traffic coming through Burp.</p>
+<h1>Site Map and Issue Definitions</h1>
+<p>Control of the scope may be the most useful aspect of the Target tab, but it's by no means the <i>only</i> use for this section of Burp.</p>
+<p>There are three sub-tabs under <i>Target</i>:</p>
+<ul>
+  <li><strong>Site map</strong> allows us to map out the apps we are targeting in a tree structure. Every page that we visit will show up here, allowing us to automatically generate a site map for the target simply by browsing around the web app. Burp Pro would also allow us to spider the targets automatically (i.e. look through every page for links and use them to map out as much of the site as-is publicly accessible using the links between pages); however, with Burp Community, we can still use this to accumulate data whilst we perform our initial enumeration steps.<br>The Site map can be especially useful if we want to map out an API, as whenever we visit a page, any API endpoints that the page retrieves data from whilst loading will show up here.</li>
+  <li><strong>Scope:</strong> We have already seen the Scope sub-tab -- it allows us to control Burp's target scope for the project.</li>
+  <li><strong>Issue Definitions:</strong> Whilst we don't have access to the Burp Suite vulnerability scanner in Burp Community, we do still have access to a list of all the vulnerabilities it looks for. The Issue Definitions section gives us a huge list of web vulnerabilities (complete with descriptions and references) which we can draw from should we need citations for a report or help describing a vulnerability.</li>
+</ul>
+<p>&nbsp;</p>

