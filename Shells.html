@@ -2,14 +2,14 @@
 title: Shells
 description: 
 published: true
-date: 2022-10-25T11:20:56.574Z
+date: 2022-12-17T20:39:36.778Z
 tags: 
 editor: ckeditor
 dateCreated: 2022-10-25T11:19:27.884Z
 -->
 
 <h1>Introduction</h1>
-<p>Before we can get into the intricacies of sending and receiving shells, it's important to understand what a shell actually&nbsp;<i>is.&nbsp;</i>In the simplest possible terms, shells are what we use when interfacing with a Command Line environment (CLI). In other words, the common bash or sh programs in&nbsp;Linux&nbsp;are examples of shells, as are cmd.exe and Powershell on Windows. When targeting remote systems it is sometimes possible to force an application running on the server (such as a webserver, for example) to execute arbitrary code. When this happens, we want to use this initial access to obtain a shell running on the target.</p>
+<p>Before we can get into the intricacies of sending and receiving shells, it's important to understand what a shell actually&nbsp;<i>is.&nbsp;</i>In the simplest possible terms, shells are what we use when interfacing with a Command Line environment (CLI). In other words, the common bash or sh programs in&nbsp;Linux&nbsp;are examples of shells, as are cmd.exe and Powershell on Windows. When targeting remote systems it is sometimes possible to force an application running on the server (such as a webserver, for example) to execute arbitrary code. When this happens, we want to use this initial access to obtain a shell running on the target.&nbsp;</p>
 <p>In simple terms, we can force the remote server to either send us command line access to the server (a&nbsp;<strong>reverse&nbsp;</strong>shell), or to open up a port on the server which we can connect to in order to execute further commands (a&nbsp;<strong>bind</strong>&nbsp;shell).</p>
 <p>There are a variety of tools that we will be using to receive reverse shells and to send bind shells. In general terms, we need malicious shell code, as well as a way of interfacing with the resulting shell.&nbsp;We will discuss each of these briefly below:</p>
 <p><strong><u>Netcat:</u></strong></p>
