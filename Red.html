@@ -1,0 +1,165 @@
+<!--
+title: Red Team
+description: 
+published: true
+date: 2023-06-09T07:59:13.978Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-09T07:59:13.978Z
+-->
+
+<h1>Hacking skills</h1>
+<p><strong>What is it?</strong></p>
+<p>Skills that are handy to have when it comes to performing hacking activities that are not easily categorized as a part of the Kill chain.</p>
+<ul>
+  <li><a href="https://wiki.morsman.net/basics-crypto">Crypto</a></li>
+  <li><a href="https://wiki.morsman.net/IntroductionCryptography">Introduction in cryptography</a></li>
+  <li><a href="https://wiki.morsman.net/John">John the ripper</a></li>
+  <li><a href="https://wiki.morsman.net/passwords">Passwords</a></li>
+  <li><a href="https://wiki.morsman.net/Introduction-nmap">Introduction in nmap</a></li>
+  <li><a href="https://wiki.morsman.net/Shells">Shells</a></li>
+  <li><a href="https://wiki.morsman.net/pentesting">Pentesting principles</a></li>
+  <li>https://www.thehacker.recipes/</li>
+  <li>https://book.hacktricks.xyz/</li>
+  <li><a href="https://wiki.morsman.net/AD-Exploitation-Cheatsheet">Active Directory exploitation cheatsheet</a></li>
+  <li><a href="https://ppn.snovvcrash.rocks/">Pentester's Promiscuous Notebook (snovvcrash.rocks)</a></li>
+  <li><a href="https://www.ired.team/">Red Team Notes</a></li>
+</ul>
+<p><strong>Defensive controls</strong></p>
+<ul>
+  <li><a href="https://wiki.morsman.net/Antivirus">Antivirus introduction</a></li>
+  <li><a href="https://wiki.morsman.net/forensics-main">Forensics main page</a></li>
+</ul>
+<h1>Kill chain</h1>
+<figure class="image image_resized image-style-align-right" style="width:1208.8px;"><img src="https://www.lockheedmartin.com/content/dam/lockheed-martin/rms/photo/cyber/THE-CYBER-KILL-CHAIN-body.png.pc-adaptive.1280.medium.png" alt="the Cyber Kill Chain®"></figure>
+<h2>Reconnaissance</h2>
+<p><strong>What is it?</strong></p>
+<p>Reconnaissance is the first stage in the Cyber Kill Chain and involves researching potential targets before carrying out any penetration testing. The reconnaissance stage may include identifying potential targets, finding their vulnerabilities, discovering which third parties are connected to them (and what data they can access), and exploring existing entry points as well as finding new ones. Reconnaissance can take place both online and offline.</p>
+<p><strong>Further reading</strong></p>
+<ul>
+  <li><a href="https://wiki.morsman.net/subdomain-enumeration">Subdomain enumeration</a></li>
+  <li><a href="https://wiki.morsman.net/network-services">Network and services</a></li>
+  <li><a href="https://wiki.morsman.net/NFS-SMTP-MySQL">Network and services: NFS, SMTP and MySQL</a></li>
+</ul>
+<h2>Weaponisation</h2>
+<p><strong>What is it?</strong></p>
+<p>The weaponization stage of the Cyber Kill Chain occurs after reconnaissance has taken place and the attacker has discovered all necessary information about potential targets, such as vulnerabilities. In the weaponization stage, all of the attacker’s preparatory work culminates in the creation of malware to be used against an identified target. Weaponization can include creating new types of malware or modifying existing tools to use in a cyberattack. For example, cybercriminals may make minor modifications to an existing ransomware variant to create a new Cyber Kill Chain tool.</p>
+<p><strong>Further reading</strong></p>
+<p><a href="https://wiki.morsman.net/weaponisation">Weaponisation</a></p>
+<h2>Delivery</h2>
+<p><strong>What is it?</strong></p>
+<p>In the delivery stage, cyberweapons and other Cyber Kill Chain tools are used to infiltrate a target’s network and reach users. Delivery may involve sending <a href="https://codered.eccouncil.org/course/email-phishing?utm_source=ecc-website&amp;utm_medium=programs-category&amp;utm_campaign=email-phishing"><u>phishing emails</u></a> containing malware attachments with subject lines that prompt users to click through. Delivery can also take the form of hacking into an organization’s network and exploiting a hardware or software vulnerability to infiltrate it.</p>
+<p><strong>Further reading</strong></p>
+<ul>
+  <li><a href="https://wiki.morsman.net/Phishing">Phishing</a></li>
+  <li><a href="https://wiki.morsman.net/Intro-web">Introduction web hacking (this is not a nicely formatted page)</a>
+    <ul>
+      <li><a href="https://wiki.morsman.net/web-file-inclusions">File inclusion</a></li>
+      <li><a href="https://wiki.morsman.net/IDOR">IDOR</a></li>
+      <li><a href="https://wiki.morsman.net/SSRF">SSRF</a></li>
+      <li><a href="https://wiki.morsman.net/Authentication-bypass">Authentication bypass</a></li>
+      <li><a href="https://wiki.morsman.net/command-injection">Command injection</a></li>
+      <li><a href="https://wiki.morsman.net/XSS">XSS</a></li>
+      <li><a href="https://wiki.morsman.net/SQL-injection">SQL injection</a></li>
+      <li><a href="https://wiki.morsman.net/XXE">XXE</a></li>
+    </ul>
+  </li>
+  <li><a href="https://wiki.morsman.net/burpsuite">Burpsuite</a>
+    <ul>
+      <li><a href="https://wiki.morsman.net/burpsuite-repeater">Repeater</a></li>
+      <li><a href="https://wiki.morsman.net/burpsuite-extender">Extender</a></li>
+      <li><a href="https://wiki.morsman.net/burpsuite-modules">Other modules</a></li>
+    </ul>
+  </li>
+</ul>
+<h2>Exploitation</h2>
+<p><strong>What is it?</strong></p>
+<p>Exploitation is the stage that follows delivery and weaponization. In the exploitation step of the Cyber Kill Chain, attackers take advantage of the vulnerabilities they have discovered in previous stages to further infiltrate a target’s network and achieve their objectives. In this process, cybercriminals often move laterally across a network to reach their targets. Exploitation can sometimes lead attackers to their targets if those responsible for the network have not deployed deception measures.</p>
+<p><strong>Further reading</strong></p>
+<p>This section is broken up in three sections, Linux, Windows and Hot topics. The Hot topics is about notorious attacks.</p>
+<h3>Windows</h3>
+<p>Windows networking</p>
+<ul>
+  <li><a href="https://wiki.morsman.net/Windows-basics">Windows basics</a></li>
+  <li><a href="https://wiki.morsman.net/AD-basics">Active Directory basics</a></li>
+  <li><a href="https://wiki.morsman.net/Windows-Privilege-escalation">Windows privilege escalation</a></li>
+  <li><a href="https://wiki.morsman.net/Credential-harvesting">Credentials harvesting</a></li>
+  <li><a href="https://wiki.morsman.net/Windows-local-persistence">Windows local persistence</a></li>
+  <li><a href="https://wiki.morsman.net/BreachingAD">Breaching Active Directory</a></li>
+  <li><a href="https://wiki.morsman.net/EnumeratingAD">Enumerating Active Directory</a></li>
+  <li><a href="https://wiki.morsman.net/ExploitingAD">Exploiting Active Directory</a></li>
+  <li><a href="https://wiki.morsman.net/PersistingAD">Persisting Active Directory</a></li>
+  <li><a href="https://wiki.morsman.net/attacking-kerberos">Attacking Kerberos</a></li>
+  <li><a href="https://wiki.morsman.net/Lateralmovementandpivoting">Lateral movement in Active Directory</a></li>
+</ul>
+<p>Windows internals</p>
+<ul>
+  <li><a href="https://wiki.morsman.net/Windows-internals">Windows internals</a></li>
+  <li><a href="https://wiki.morsman.net/Windows-API">Windows API</a></li>
+  <li><a href="https://wiki.morsman.net/Abusing-Windows-internals">Abusing Windows internals</a></li>
+</ul>
+<p>Other resources:</p>
+<ul>
+  <li>https://medium.com/@dw3113r/active-directory-attack-cheat-sheet-ea9e9744028d</li>
+  <li>https://community.appway.com/screen/community/blog/tickets-tokens-and-authentication-an-introduction-to-kerberos-1489941767141</li>
+</ul>
+<h3>Linux</h3>
+<p><a href="https://wiki.morsman.net/Linux-Privilege-escalation">Linux privilege escalation</a></p>
+<h3>Hot topics</h3>
+<ul>
+  <li><a href="https://wiki.morsman.net/ADCS-templates">Active Directory Certificate Templates misconfiguration</a></li>
+  <li><a href="https://wiki.morsman.net/Printernightmare">Printernightmare</a></li>
+  <li><a href="https://wiki.morsman.net/Follina">Follina MSDT</a></li>
+  <li><a href="https://wiki.morsman.net/attacking-AD-ASREPRoasting">ASREPRoasting</a></li>
+  <li><a href="https://wiki.morsman.net/zero-logon">Zerologon</a></li>
+  <li><a href="https://wiki.morsman.net/Log4J">Log4j</a></li>
+  <li><a href="https://wiki.morsman.net/Atlassian">Atlassian</a></li>
+  <li><a href="https://wiki.morsman.net/ADCS-CVE-2022-26923">ADCS-CVE-2022-26923</a></li>
+  <li><a href="https://wiki.morsman.net/OutlookNTLMLeak">Outlook NTLM Leak</a></li>
+</ul>
+<h2>Installation</h2>
+<p><strong>What is it?</strong></p>
+<p>After cybercriminals have exploited their target’s vulnerabilities to gain access to a network, they begin the installation stage of the Cyber Kill Chain: attempting to install malware and other cyberweapons onto the target network to take control of its systems and exfiltrate valuable data. In this step, cybercriminals may install cyberweapons and malware using Trojan horses, backdoors, or command-line interfaces.</p>
+<p><strong>Further reading</strong></p>
+<ul>
+  <li><a href="https://wiki.morsman.net/post-exploitaition">Post exploitation</a></li>
+  <li><a href="https://wiki.morsman.net/Antivirus-evasion">Antivirus evasion</a></li>
+  <li><a href="https://wiki.morsman.net/Obfuscation-techniques">Obfuscation techniques</a></li>
+  <li><a href="https://wiki.morsman.net/signature-evasion">Signature evasion</a></li>
+  <li><a href="https://wiki.morsman.net/Runtime-evasion">Runtime evasion</a></li>
+  <li><a href="https://wiki.morsman.net/BypassingUAC">Bypassing UAC</a></li>
+</ul>
+<h2>Command and Control</h2>
+<p><strong>What is it?</strong></p>
+<p>In the C2 stage of the Cyber Kill Chain, cybercriminals communicate with the malware they’ve installed onto a target’s network to instruct cyberweapons or tools to carry out their objectives. For example, attackers may use communication channels to direct computers infected with the Mirai botnet malware to overload a website with traffic or C2 servers to instruct computers to carry out cybercrime objectives.</p>
+<p><strong>Further reading</strong></p>
+<ul>
+  <li><a href="https://wiki.morsman.net/Intro-to-C2">Intro to C2</a></li>
+  <li><a href="https://wiki.morsman.net/Metasploit">Metasploit</a>
+    <ul>
+      <li><a href="https://wiki.morsman.net/Metasploit-meterpreter">Meterpreter</a></li>
+      <li><a href="https://wiki.morsman.net/Metasploit-exploitation">Exploitation</a></li>
+    </ul>
+  </li>
+</ul>
+<p>Other resources:</p>
+<ul>
+  <li>https://github.com/mgeeky/ProtectMyTooling</li>
+  <li>https://github.com/georgesotiriadis/MalwareDev</li>
+  <li>https://github.com/capt-meelo/laZzzy</li>
+  <li>https://whiteknightlabs.com/2021/12/11/bypassing-etw-for-fun-and-profit/</li>
+  <li>https://github.com/chvancooten/maldev-for-dummies?s=09</li>
+  <li><a href="https://github.com/aahmad097/AlternativeShellcodeExec">GitHub - aahmad097/AlternativeShellcodeExec: Alternative Shellcode Execution Via Callbacks</a></li>
+</ul>
+<h2>Action on Objectives</h2>
+<p><strong>What is it?</strong></p>
+<p>After cybercriminals have developed cyberweapons, installed them onto a target’s network, and taken control of their target’s network, they begin the final stage of the Cyber Kill Chain: carrying out their cyberattack objectives. While cybercriminals’ objectives vary depending on the type of cyberattack, some examples include weaponizing a botnet to interrupt services with a Distributed Denial of Service (DDoS) attack, distributing malware to steal sensitive data from a target organization, and using ransomware as a cyber extortion tool.</p>
+<ul>
+  <li><a href="https://wiki.morsman.net/Data-exfiltration">Data exfiltration</a></li>
+  <li><a href="https://wiki.morsman.net/LivingOffTheLand">Living of the land</a></li>
+</ul>
+<p><strong>Further reading</strong></p>
+<p>The Metasploit page might be of help.</p>
+<h1>Incident Response and Forensics</h1>
+<p><a href="https://wiki.morsman.net/IntroMalwareAnalysis">Intro to Malware Analysis</a></p>
+<p>&nbsp;</p>
