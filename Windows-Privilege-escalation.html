@@ -2,10 +2,10 @@
 title: Windows Privilege escalation
 description: 
 published: true
-date: 2022-10-25T19:00:56.306Z
+date: 2023-06-21T11:43:43.684Z
 tags: 
 editor: ckeditor
-dateCreated: 2022-10-25T09:47:09.422Z
+dateCreated: 2023-05-01T11:50:38.913Z
 -->
 
 <h1>Introduction</h1>
@@ -441,7 +441,9 @@ NT AUTHORITY\SYSTEM</code></pre>
   <li>SeTakeOwnershipPrivilege</li>
   <li>SeDebugPrivilege</li>
 </ul>
-<p>There's more reading <a href="https://www.exploit-db.com/papers/42556">here</a>.</p>
+<p>There's more reading <a href="https://www.exploit-db.com/papers/42556">here</a> and <a href="https://jarnobaselier.nl/windows-manual-privilege-escalation/">here</a></p>
+<figure class="image"><img src="https://jarnobaselier.nl/wp-content/uploads/2021/08/Windows-Manual-Privilege-Escalation-1.jpg"></figure>
+<p>&nbsp;</p>
 <h2>SeBackup / SeRestore</h2>
 <p>The SeBackup and SeRestore privileges allow users to read and write to any file in the system, ignoring any&nbsp;DACL&nbsp;in place. The idea behind this privilege is to allow certain users to perform backups from a system without requiring full administrative privileges.</p>
 <p>Having this power, an attacker can trivially escalate privileges on the system by using many techniques. The one we will look at consists of copying the SAM and SYSTEM registry hives to extract the local Administrator's password hash.</p>
