@@ -1,0 +1,99 @@
+<!--
+title: Wordlist
+description: 
+published: true
+date: 2023-06-22T13:19:59.448Z
+tags: 
+editor: ckeditor
+dateCreated: 2023-06-22T13:19:59.448Z
+-->
+
+<h1><strong>Bug Bounty: Wordlists — Please do them properly.</strong></h1>
+<figure class="image image_resized" style="width:680px;"><img src="https://miro.medium.com/v2/resize:fill:55:55/1*PLgLl-qOCT9tQGvpwPyxTg.jpeg" alt="nynan"></figure>
+<p><a href="https://medium.com/@nynan?source=post_page-----2110babcf482--------------------------------">nynan</a></p>
+<p>·</p>
+<p><a href="https://medium.com/m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fsubscribe%2Fuser%2Fa54516181147&amp;operation=register&amp;redirect=https%3A%2F%2Fmedium.com%2F%40nynan%2Fbug-bounty-wordlists-please-do-them-properly-2110babcf482&amp;user=nynan&amp;userId=a54516181147&amp;source=post_page-a54516181147----2110babcf482---------------------post_header-----------">Follow</a></p>
+<p>7 min read</p>
+<p>·</p>
+<p>3 days ago</p>
+<p>&nbsp;</p>
+<p>34</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>You are only so good as your weakest link. And in bug bounty, most people’s weakest link, and most ignored is always their wordlists. Every stage of bug hunting is dependent in some way or another on wordlists, and I’m afraid Seclist’s <code><strong>raft-medium-words-lowercase.txt</strong></code> isn’t going to cut it.</p>
+<figure class="image image_resized" style="width:680px;"><img src="https://miro.medium.com/v2/resize:fit:875/1*1xXYFQAvfC7VC6kX3WvwaA.png" alt=""></figure>
+<p>&nbsp;</p>
+<p>Today, we’re going to cover 6 things:</p>
+<ul>
+  <li>You’re <i>probably</i> doing it <strong>wrong</strong>, and why you should care</li>
+  <li><strong>Exploit</strong> specific wordlists</li>
+  <li><strong>Context</strong>-<strong>aware</strong>/<i>target</i>-<i>specific</i> wordlists</li>
+  <li><strong>Parameter</strong> fuzz wordlists</li>
+  <li><strong>Directory</strong> brute force wordlists</li>
+  <li>using wordlists <strong>efficiently</strong> and <strong>strategies</strong></li>
+</ul>
+<p>&nbsp;</p>
+<h1><strong>You’re probably doing it wrong, and why you should care</strong></h1>
+<p>Firstly, I’m guilty of this too, and I’ve already had <strong>much</strong> better results when I stopped this. But lots of people will install a tool, be it Amass, Ferox/gobuster, Arjun or anything else under the sun and they come with a <i>prepackaged/default path wordlist</i>. This is great because you can point the tool at a target and it just works, but this also means</p>
+<p>a) you’re using the <strong>same wordlist</strong> as everyone else, and getting the <strong>same results</strong> as everyone else</p>
+<p>b) The amazing developers that make these tools are tool makers, not wordlist curators, they will outsource this or package a wordlist once, and not update it with the tool, meaning <i>you’re using outdated wordlists.</i></p>
+<p>Most people have heard of, and use, wordlists from <a href="https://github.com/danielmiessler/SecLists"><u>Seclists</u></a>, which is a great set of wordlists for everyday use, <strong>but</strong> when you’re trying to find results before thousands of other bug hunters, <i>you need wordlists which are better than average</i>.</p>
+<figure class="image image_resized" style="width:680px;"><img src="https://miro.medium.com/v2/resize:fit:875/1*kYLFAVxHxYX6GkAmPu38sQ.png" alt=""></figure>
+<p>Seclist’s first commits were in <strong>2012</strong> which makes some of those wordlists over a <strong>decade old</strong>!</p>
+<p>To get bugs before other people, and to find bugs you wouldn’t have beforehand, you need higher quality wordlists, and wordlists specific to the task you’re trying to complete.</p>
+<p>&nbsp;</p>
+<h1><strong>Exploit specific wordlists</strong></h1>
+<p><i>Sometimes</i> specific exploits, exposures or common areas of attack have known paths, for example, <code>wp-config.php</code> is a config file which exposes sensitive information and can be found at <code>/wp-config.php</code>, but the idea of an exploit-specific wordlist means instead of just fuzzing for <code>/wp-config.php</code> on every subdomain, we can curate a wordlist with paths where wp-config.php is not usually found. We can do this in <strong>two</strong> ways.</p>
+<p><strong>Firstly</strong>, we can do analysis on a massive dataset of GitHub using Google’s Big Query (More here <a href="https://cloud.google.com/blog/topics/public-datasets/github-on-bigquery-analyze-all-the-open-source-code"><u>https://cloud.google.com/blog/topics/public-datasets/github-on-bigquery-analyze-all-the-open-source-code</u></a>) to find paths. By using a query like the following we can get a massive wordlist of paths which includes the wp-config.php string in the pathname on github.</p>
+<figure class="image image_resized" style="width:680px;"><img src="https://miro.medium.com/v2/resize:fit:875/1*ha8mEv8abr7ZPQ6xS6aY8A.png" alt=""></figure>
+<p>It’s important to note, Google Big Query provides free credit for a few queries but is not free. It is also important to note that the given database you will get, will include lots of obviously impractical paths, such as ones that include highly specific IDs or usernames — which will need to be cleaned.</p>
+<p><strong>Secondly</strong>, we can google dork for specific paths. Going back to our wp-config.php example, we can google for <code>inurl:/wp-config.php</code> and find out-of-scope assets with that exposure. We <strong>cannot</strong> exploit these obviously, however, we can use the non-standard paths we find to curate a wordlist which can be used on in-scope assets.</p>
+<figure class="image image_resized" style="width:680px;"><img src="https://miro.medium.com/v2/resize:fit:875/1*GPtLZwUzm3PDZnPIBaItcA.png" alt=""></figure>
+<p><strong>Lastly</strong>, you can create exploit-specific wordlists in the sense that every single item is a potential vulnerability or exposure, meaning any successful hit might be worth investigating. A good example of this is GodfatherOrwa’s 1.txt (<a href="https://github.com/orwagodfather/My-WordLISTs/blob/main/1.txt"><u>https://github.com/orwagodfather/My-WordLISTs/blob/main/1.txt</u></a>) — GodfatherOrwa has <i>lots</i> of good wordlists on their github you may wish to explore.</p>
+<p>&nbsp;</p>
+<h1><strong>Context-aware/target-specific wordlists</strong></h1>
+<p>When hunting a specific target, you can make a wordlist <strong>bespoke to that client</strong> to increase your chances of finding interesting endpoints as developers often name things in relation to their <strong>company</strong>, <strong>environments</strong> and <strong>contexts</strong>.</p>
+<p>When adding custom words to your own wordlist, think about things like:</p>
+<ul>
+  <li>What <strong>tech stacks</strong> are they using? try adding techs to your wordlists</li>
+  <li>What <strong>industry</strong> are they a part of? if you’re hacking an aeroplane company, try adding words related to aviation!</li>
+  <li>What <strong>countries</strong> do they operate in or sell products in? Add things like country names or abbreviations.</li>
+  <li>Do they have specific <strong>unique patterns</strong> in the URLs you can see? If you see <code>/companyName_storage</code>, try adding words to your list that start with <code>/companyName_</code></li>
+  <li><i>Get creative with it</i>! I’ve listed some here, but if you can think of more that’ll give you an advantage.</li>
+</ul>
+<p>An easy way to get keywords related to your target is to go to their <strong>front page</strong> and pick out keywords, go to their “<strong>About Us</strong>” company page and do the same! Visit their <strong>Wikipedia</strong> page or anything else related to them.</p>
+<p>&nbsp;</p>
+<h1><strong>Parameter fuzz wordlists</strong></h1>
+<p><i>Even</i> a brand new wordlist is <strong>not good enough</strong> for a specific target! <i>Directories</i> and <i>parameters</i> are <strong>not</strong> the same and thus you’ll want to make one bespoke to your target for fuzzing parameters</p>
+<p>The best way to do this is to start enumerating history URLs, using archive sites like the waybackmachine and common crawl, and web crawlers like Project Discovery’s Katana (perhaps follow this medium account for an upcoming blog on this tool 👀). Once you’ve done this extract the parameters via whichever cleaning methods you like, and then you’ll have a wordlist for parameters which have been previously observed on the target.</p>
+<p><strong>Now</strong> you have this, apply this wordlist to other subdomains using a tool like Arjun to find new endpoints which could be vulnerable.</p>
+<p>&nbsp;</p>
+<h1><strong>Directory brute forcing wordlists</strong></h1>
+<p><strong>Lastly</strong>, you need wordlists for brute-forcing directories. I won’t go into too much detail here as the prior sections cover large amounts of this section.</p>
+<p>For a quick custom wordlist for directory brute forcing:</p>
+<ol>
+  <li>gather URLs of a target as described in the prior section, then clean the wordlists to collect paths using something like <code>cat urls.txt | cut -d"/" -f4- | sed "s,?.*,," | anew</code></li>
+  <li>apply context-aware words, and also use the context-aware words to permutate the paths you’ve already found. for example, if you find the path <code>/admin/login</code> try adding paths like <code>/admin-companyName/login</code></li>
+</ol>
+<p>&nbsp;</p>
+<h1><strong>Efficiency and strategy</strong></h1>
+<p>When your profit is <i>dependent on the bugs you find</i>, the <strong>biggest cost becomes your time</strong>. Even if you have the best wordlists for the job, there are still ways to reduce the time that it takes to find things.</p>
+<p>So, some <strong>miscellaneous tips</strong> to get the most from your wordlists and time:</p>
+<ul>
+  <li>Use <strong>multiple wordlists</strong> when manually hunting! I may be looking for interesting endpoints on a list of 1000+ subdomains, but running your biggest wordlist on each one is going to waste a lot of your time. Especially for seemingly inconspicuous subdomains, it seems that if you can find an endpoint on one subdomain, it’s likely to have multiple. So <strong>run a smaller wordlist</strong> with common paths on it first to <i>check if it’s worth your time</i> with a big one.</li>
+</ul>
+<p>Use <strong>really small wordlists with lots of extensions</strong> to test for techstacks or available extensions on the subdomain. <i>Especially</i> when you find a /cgi-bin/ which usually contains scripts that allow for interesting functionality. I use the following feroxbuster command which contains almost every somewhat common extension I could find, with a custom small wordlist.</p>
+<figure class="image image_resized" style="width:680px;"><img src="https://miro.medium.com/v2/resize:fit:875/1*SEriRfZoCHYYUarCBK6gTQ.png" alt=""></figure>
+<ul>
+  <li><strong>Don’t bloat your wordlists</strong>. raft-medium-words-lowercase.txt is probably the most commonly used wordlist and yet it has items which will <i>almost never be found</i> like <code>komplettno</code>, <code>tht8h767r89h6yr</code>, and <code>lepetlf607787825</code> . If you spend the time to trim the fat from your wordlist and only have relevant words, you will save significant time.</li>
+</ul>
+<p>&nbsp;</p>
+<h1><strong>Key takeaways</strong></h1>
+<ul>
+  <li>Custom wordlists are <strong>essential</strong> to setting yourself apart and finding more bugs.</li>
+  <li>You need <i>different wordlists for different tasks</i> or objectives</li>
+  <li>Time is the biggest cost in bug bounty, custom wordlists cut down on this cost.</li>
+</ul>
+<p><br>&nbsp;</p>
