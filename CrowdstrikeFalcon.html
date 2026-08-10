@@ -1,0 +1,30 @@
+<!--
+title: Crowdstrike Falcon 
+description: 
+published: true
+date: 2026-08-10T08:28:30.892Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-08-10T08:28:30.892Z
+-->
+
+<h1>Advanced event search queries</h1>
+<p>You can reach the search page through<br><a href="https://falcon.eu-1.crowdstrike.com/investigate/search">Advanced event search | Investigate | Falcon</a></p>
+<h2>Who used the computer recently?</h2>
+<p>Often you want to know who owns a computer, for context or contact.</p>
+<blockquote>
+  <p>#event_simpleName=/UserLogon.*/ ComputerName="<mark class="marker-yellow"><strong>COMPUTERNAME</strong></mark>"</p>
+  <p>| case {</p>
+  <p>&nbsp; &nbsp;#event_simpleName="UserLogon" | LogonOutcome:="Success";</p>
+  <p>&nbsp; &nbsp;#event_simpleName="UserLogonFailed2" | LogonOutcome:="Failed";</p>
+  <p>&nbsp; &nbsp;* | LogonOutcome:="Unknown";</p>
+  <p>&nbsp;}</p>
+  <p>| $falcon/helper:enrich(field=LogonType)</p>
+  <p>| LoginTime:=@timestamp</p>
+  <p>| formatTime(format="%Y-%m-%d %H:%M:%S", field=LoginTime, as=LoginTime)</p>
+  <p>| default(field=RemoteAddressIP4, value="N/A")</p>
+  <p>| table([LoginTime, UserName, LogonOutcome, LogonType, RemoteAddressIP4])</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
