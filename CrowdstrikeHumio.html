@@ -1,0 +1,54 @@
+<!--
+title: Crowdstrike Humio
+description: 
+published: true
+date: 2026-08-18T08:50:27.025Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-08-18T08:50:27.025Z
+-->
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Find URL's for certain users:</p>
+<blockquote>
+  <p>Destination.WebLocationURL = *</p>
+  <p>| File.FileTypeDescription = "Portable Document Format (PDF)"</p>
+  <p>| source.user = sanguano</p>
+</blockquote>
+<p>Email timelines:</p>
+<blockquote>
+  <p>#type match {</p>
+  <p>"o365-messagetrace" =&gt; email.from = ?User</p>
+  <p>| email.to != "*@corbion.com"</p>
+  <p>| email.subject != "Automatic reply:*"</p>
+  <p>| user := email.from | operation := event.application | event := email.subject | argument1 := email.to;</p>
+  <p>"o365-audit" =&gt; source.user = ?User</p>
+  <p>| operation := microsoft365.operation | user:= source.user | microsoft365.operation match {</p>
+  <p>"HardDelete" =&gt; event := email.subject;</p>
+  <p>"SoftDelete" =&gt; event := email.subject;</p>
+  <p>"Move" =&gt; event := email.subject | argument1 := microsoft365.destinationFolderPath;</p>
+  <p>"MoveToDeletedItems" =&gt; event := email.subject;</p>
+  <p>* =&gt; event := microsoft365.objectId;}</p>
+  <p>} | select([@timestamp, operation, event, argument1])</p>
+</blockquote>
+<p>Devices added:</p>
+<blockquote>
+  <p>StrongAuthenticationPhoneAppDetail</p>
+  <p>| product.signature = "Update user" |</p>
+  <p>newDevices := splitString(azure.newValueStrongAuthenticationPhoneAppDetail, by="\\},\\{") | array:length("newDevices[]", as="newDevicesCount") |</p>
+  <p>oldDevices := splitString(azure.oldValueStrongAuthenticationPhoneAppDetail, by="\\},\\{") | array:length("oldDevices[]", as="oldDevicesCount") |</p>
+  <p>test(oldDevicesCount &lt; newDevicesCount)</p>
+</blockquote>
+<p>Backups from OneDrive:</p>
+<p>&nbsp;</p>
+<blockquote>
+  <p>#type = "o365-audit"</p>
+  <p>| microsoft365.recordTypeName = SharePointFileOperation</p>
+  <p>| microsoft365.operation = FileDownloaded</p>
+  <p>| file.compressedName = "*"</p>
+  <p>| source.user != "*corbion*"</p>
+  <p>| groupBy([source.user, file.compressedName])</p>
+</blockquote>
+<p>&nbsp;</p>
