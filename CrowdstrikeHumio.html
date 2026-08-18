@@ -2,15 +2,47 @@
 title: Crowdstrike Humio
 description: 
 published: true
-date: 2026-08-18T09:07:35.983Z
+date: 2026-08-18T09:27:53.748Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-08-18T08:50:27.025Z
 -->
 
+<p>My mail activity search</p>
+<blockquote>
+  <p>#type match {</p>
+  <p>"o365-messagetrace" =&gt; email.from = "maurits.van.kolck@corbion.com"</p>
+  <p>| email.to != "*@corbion.com"</p>
+  <p>| email.subject != "Automatic reply:*"</p>
+  <p>| user := email.from | operation := event.application | event := email.subject | argument1 := email.to;</p>
+  <p>"o365-audit" =&gt; source.user = "maurits.van.kolck@corbion.com"</p>
+  <p>| operation := microsoft365.operation | user:= source.user | microsoft365.operation match {</p>
+  <p>"HardDelete" =&gt; event := email.subject;</p>
+  <p>"SoftDelete" =&gt; event := email.subject;</p>
+  <p>"Move" =&gt; event := email.subject | argument1 := microsoft365.destinationFolderPath;</p>
+  <p>"MoveToDeletedItems" =&gt; event := email.subject;</p>
+  <p>* =&gt; event := microsoft365.objectId;}</p>
+  <p>} | select([@timestamp, user, operation, event, argument1])</p>
+</blockquote>
 <p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+<p>Logins from users:</p>
+<blockquote>
+  <p>source.user="ad-krijgerm"|event.verdict=success|windows.taskCategory!=Logoff</p>
+</blockquote>
+<p>File uploads:</p>
+<blockquote>
+  <p>in(field="source.user", values=[davidsd,"dante.davids@corbion.com"])</p>
+  <p>| Destination.WebLocationName = *</p>
+  <p>| File.Name = *</p>
+  <p>| DataSize = *</p>
+  <p>| File.Extension = *</p>
+</blockquote>
+<p>RDP logins:</p>
+<blockquote>
+  <p>#type = "winevent-security"</p>
+  <p>| event.type = authentication</p>
+  <p>| windows.authCode = 10 | rename(field=windows.computerName, as="RDP_destination")</p>
+</blockquote>
 <p>Find URL's for certain users:</p>
 <blockquote>
   <p>Destination.WebLocationURL = *</p>
@@ -54,6 +86,7 @@ dateCreated: 2026-08-18T08:50:27.025Z
 <blockquote>
   <p>microsoft365.operation = AddedToSecureLink | destination.user != "*corbion*" | select([source.user, destination.user, file.path])</p>
 </blockquote>
+<p>Azure signin on CLI</p>
 <blockquote>
   <p>#type = "azure-signin"</p>
   <p>| azure.application ="Microsoft Azure CLI"</p>
@@ -62,4 +95,16 @@ dateCreated: 2026-08-18T08:50:27.025Z
   <p>// | azure.resultSignature = SUCCESS</p>
   <p>| groupBy([ @timestamp, source.geoCountryIso, azure.application, azure.resultSignature, source.ip, &nbsp;source.user])</p>
 </blockquote>
-<p>&nbsp;</p>
+<p>Non-Edge browsers</p>
+<blockquote>
+  <p>#event_simpleName=DnsRequest event_platform=Win</p>
+  <p>| match(file="browser-executables-huge.csv", field=[process.name],column=executable,ignoreCase=true,mode=glob)</p>
+  <p>| process.name != "msedge.exe"</p>
+  <p>| regex(field=source.host, "^(?&lt;Region&gt;..)")</p>
+  <p>| groupBy([domain, source.host, process.name, Region],function=count(as=Count))</p>
+  <p>| groupBy([process.name], function=sum(Count, as=Total))</p>
+</blockquote>
+<p>Statistics on AI</p>
+<blockquote>
+  <p>#event_simpleName=DnsRequest</p>
+  <p>| join(query={#event_simpleName=ProcessRollup2}, field=source.host, include=[source.user], mode=inner)</p><p><br>&nbsp;</p><p>| UserName := source.user</p><p>| ComputerName := source.host</p><p><br>&nbsp;</p><p>| !regex(field=UserName, "^(SYSTEM|LOCAL SERVICE|.*\\$)$")</p><p>| regex(field=ComputerName, "^(?&lt;Region&gt;..)")</p><p>// | !in(field=Region, values=["CE","OT","PT","DE","KI","PA"])</p><p><br>&nbsp;</p><p>| AI_Flag := if(match(file="generative-ai-domains.csv", field=[domain], column=domain, ignoreCase=true, mode=glob), then=1, else=0)</p><p>| AI_User := if(AI_Flag &gt; 0, then=UserName, else=null)</p><p><br>&nbsp;</p><p>| groupBy([Region], function=[count(UserName, distinct=true, as=ActiveUsers), sum(AI_Flag, as=AIRequests), count(AI_User, distinct=true, as=AIUser), count(as=TotalRequests)])</p><p>| AI_Req_Percentage := ((AIRequests / TotalRequests) * 100)</p><p>| AI_Req_Percentage := format("%.2f", field=[AI_Req_Percentage])</p><p><br>&nbsp;</p><p>| AI_User_Perc := ((AIUser / ActiveUsers) * 100)</p><p>| AI_User_Perc := format("%.2f", field=[AI_User_Perc])</p><p>| sort(AI_User_Perc, order=desc)</p></blockquote><p>Deleted users:</p><blockquote><p>windows.eventCode = 4726</p><p>|select([@timestamp, destination.user, source.user])</p></blockquote><p>&nbsp;</p><p>&nbsp;</p>
