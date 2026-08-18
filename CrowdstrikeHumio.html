@@ -2,7 +2,7 @@
 title: Crowdstrike Humio
 description: 
 published: true
-date: 2026-08-18T08:50:27.025Z
+date: 2026-08-18T09:07:35.983Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-08-18T08:50:27.025Z
@@ -41,8 +41,7 @@ dateCreated: 2026-08-18T08:50:27.025Z
   <p>oldDevices := splitString(azure.oldValueStrongAuthenticationPhoneAppDetail, by="\\},\\{") | array:length("oldDevices[]", as="oldDevicesCount") |</p>
   <p>test(oldDevicesCount &lt; newDevicesCount)</p>
 </blockquote>
-<p>Backups from OneDrive:</p>
-<p>&nbsp;</p>
+<p>Backups from OneDrive by externals:</p>
 <blockquote>
   <p>#type = "o365-audit"</p>
   <p>| microsoft365.recordTypeName = SharePointFileOperation</p>
@@ -50,5 +49,17 @@ dateCreated: 2026-08-18T08:50:27.025Z
   <p>| file.compressedName = "*"</p>
   <p>| source.user != "*corbion*"</p>
   <p>| groupBy([source.user, file.compressedName])</p>
+</blockquote>
+<p>Shared link with externals:</p>
+<blockquote>
+  <p>microsoft365.operation = AddedToSecureLink | destination.user != "*corbion*" | select([source.user, destination.user, file.path])</p>
+</blockquote>
+<blockquote>
+  <p>#type = "azure-signin"</p>
+  <p>| azure.application ="Microsoft Azure CLI"</p>
+  <p>| azure.resultSignature = *</p>
+  <p>//Comment out for all attempts</p>
+  <p>// | azure.resultSignature = SUCCESS</p>
+  <p>| groupBy([ @timestamp, source.geoCountryIso, azure.application, azure.resultSignature, source.ip, &nbsp;source.user])</p>
 </blockquote>
 <p>&nbsp;</p>
